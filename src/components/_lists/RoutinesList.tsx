@@ -1,11 +1,11 @@
 import { SectionHeading } from "@components/SectionHeading/SectionHeading"
 import { Table } from "@components/Table/Table"
 import { Routine } from "@root/types/data"
+import { FixMeLater } from "@root/types/FixMeLater"
 import { formatDate } from "@root/utils/date"
 import { useAppDispatch, useAppSelector } from "@store/hooks/store"
 import { setRightPanel } from "@store/slices/page/page.slice"
-import { selectRoutines, selectRoutinesLoading } from "@store/slices/routines/routines.selectors"
-import { setEdit } from "@store/slices/routines/routines.slice"
+import { selectRoutinesLoading } from "@store/slices/routines/routines.selectors"
 import { deleteRoutineAction, getAllRoutinesAction } from "@store/slices/routines/routines.thunks"
 import { selectUserId } from "@store/slices/users/users.selectors"
 import { FC, useEffect } from "react"
@@ -18,7 +18,7 @@ export const RoutinesList = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const userId = useAppSelector(selectUserId)
-  const routines = useAppSelector(selectRoutines)
+  const routines: FixMeLater[] = []
   const isLoading = useAppSelector(selectRoutinesLoading)
 
   useEffect(() => {
@@ -78,15 +78,14 @@ interface RoutinesActionsProps {
   routine: Routine
 }
 
-const RoutineActions: FC<RoutinesActionsProps> = ({ routine }) => {
+const RoutineActions: FC<RoutinesActionsProps> = () => {
   const dispatch = useAppDispatch()
 
   const handleDelete = () => {
-    dispatch(deleteRoutineAction(routine.id))
+    dispatch(deleteRoutineAction("routine.id"))
   }
 
   const handleEdit = () => {
-    dispatch(setEdit(routine))
     dispatch(setRightPanel({ view: "routineForm", title: "Edit Routines" }))
   }
 

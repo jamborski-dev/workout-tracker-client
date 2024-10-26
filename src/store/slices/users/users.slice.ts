@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getAllUsers } from "@root/services/users.service"
+import { IDType } from "@root/types/data"
 
 export interface User {
-  id: string
+  id: IDType
   email: string
   username: string
 }

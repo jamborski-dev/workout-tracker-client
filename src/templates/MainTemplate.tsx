@@ -69,7 +69,7 @@ const Main = styled.main`
   border-radius: 3rem;
   overflow: hidden;
 
-  background: white;
+  background-color: var(--app-bg);
 
   box-shadow: 0 0 10px rgb(0, 0, 0, 0.1);
 `

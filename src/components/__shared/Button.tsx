@@ -1,26 +1,41 @@
 import styled from "styled-components"
 
-export const IconButton = styled.button.attrs({ type: "button" })`
+const sizeMap = {
+  sm: 0.8,
+  md: 1,
+  lg: 1.3
+}
+
+export const IconButton = styled.button.attrs({ type: "button" })<{
+  $fontSize?: string
+  $size?: "sm" | "md" | "lg"
+}>`
+  --size-multiplier: ${({ $size }) => sizeMap[$size ?? "md"]};
+  --size: calc(2rem * var(--size-multiplier));
+  width: var(--size);
+  height: var(--size);
   background-color: transparent;
   border: none;
+  color: #aeaeae;
   cursor: pointer;
-  color: var(--color-primary);
-  transition: color 0.25s;
-
-  width: 16px;
-  height: 16px;
-  border-radius: 10rem;
+  border-radius: 1000px;
   position: relative;
 
-  & svg {
+  transition: background-color 0.1s;
+  transform-origin: center;
+  cursor: pointer;
+
+  & > svg {
+    font-size: ${({ $fontSize }) => $fontSize ?? `calc(1rem * var(--size-multiplier))`};
     position: absolute;
+
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
 
   &:hover {
-    color: #646cff;
+    background-color: #f1f1f1;
   }
 `
 
@@ -55,13 +70,11 @@ export const SecondaryButton = styled(Button)`
   background-color: #494949;
 `
 
-export const ButtonGroup = styled.div`
+export const ButtonGroup = styled.div<{ $gap?: number; $direction?: "row" | "column" }>`
   display: flex;
-  gap: 1rem;
-
-  & > * {
-    flex: 1;
-  }
+  gap: ${({ $gap }) => $gap ?? 1}rem;
+  align-items: center;
+  flex-direction: ${({ $direction }) => $direction ?? "row"};
 `
 
 /* 

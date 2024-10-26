@@ -1,11 +1,13 @@
-import { AxiosError, AxiosResponse } from "axios"
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 import { API } from "@root/services/axios"
+import { IDType } from "@root/types/data"
 // import { getUserIdFromStore } from "./store"
 
 type HTTPMethod = "get" | "post" | "put" | "delete" | "patch"
+type Params<T = Record<string, unknown>> = T & AxiosRequestConfig<T>
 
-export const serviceCall = async <Params extends Record<string, unknown> | undefined, Returned>(
-  params: Params,
+export const serviceCall = async <T = Record<string, unknown>, Returned = undefined>(
+  params: Params<T>,
   method: HTTPMethod,
   path: string,
   errorMessage: string,
@@ -16,7 +18,7 @@ export const serviceCall = async <Params extends Record<string, unknown> | undef
       console.log(`Debug log: ${method} | ${path}`)
     }
 
-    const response: AxiosResponse = await API[method](path, params)
+    const response: AxiosResponse<Returned> = await API[method](path, params)
 
     if (debug) {
       console.log(`Response: `, response)
@@ -60,12 +62,12 @@ export const serviceCall = async <Params extends Record<string, unknown> | undef
 }
 
 type Segments = {
-  routineId: string
-  movementId: string
-  setId: string
+  routineId: IDType
+  movementId: IDType
+  setId: IDType
 }
 
-type EndpointParams = { userId: string } & Partial<Segments>
+type EndpointParams = { userId: IDType } & Partial<Segments>
 
 // Utility to enforce required nesting
 export const buildUserEndpointPath = ({ userId, routineId, movementId, setId }: EndpointParams) => {

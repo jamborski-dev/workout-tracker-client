@@ -1,14 +1,12 @@
 import { useAppDispatch, useAppSelector } from "@store/hooks/store"
 import { selectRightPanel, setRightPanel } from "@store/slices/page/page.slice"
 import styled, { keyframes } from "styled-components"
-import { RoutineForm } from "@root/components/_forms/Routine.form"
 import { FC, useEffect, useState } from "react"
 
 const RightPanelError = () => <CenterDiv>Right panel not found</CenterDiv>
 
 // Mapping object
 const viewMap: { [key: string]: FC } = {
-  routineForm: RoutineForm,
   error: RightPanelError
 }
 

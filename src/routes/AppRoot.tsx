@@ -1,8 +1,8 @@
+// import { useEffect } from "react"
+// import { getUsersAction } from "@store/slices/users/users.slice"
 import { MainTemplate } from "@root/templates/MainTemplate"
 import { hideToast } from "@store/slices/toast/toast.slice"
-import { getUsersAction } from "@store/slices/users/users.slice"
 import { RootState } from "@store/store"
-import { useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
 import { Toast } from "@components/Toast/Toast"
 import { useAppDispatch, useAppSelector } from "../store/hooks/store"
@@ -15,9 +15,9 @@ function App() {
 
   const { message, type, show } = useAppSelector((state: RootState) => state.toast)
 
-  useEffect(() => {
-    dispatch(getUsersAction())
-  }, [dispatch])
+  // useEffect(() => {
+  //   // dispatch(getUsersAction())
+  // }, [dispatch])
 
   return (
     <>

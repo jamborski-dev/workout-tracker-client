@@ -1,12 +1,9 @@
 import { Routine } from "@root/types/data"
 
 export interface RoutinesState {
-  routines: Routine[]
-  currentRoutine?: Routine
-  form: {
-    updateValues?: Routine
-    mode: "add" | "edit"
-  }
+  list: Routine[]
+  selected?: Routine
+  showActualReps: boolean
   isLoading: boolean
   isUpdating: boolean
   error: string | null
