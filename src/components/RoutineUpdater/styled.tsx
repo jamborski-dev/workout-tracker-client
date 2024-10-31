@@ -69,14 +69,18 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
 
   h2 {
     // shared with select
-    font-size: 1.4rem;
     margin: 0;
     font-weight: 400;
     color: #616161;
 
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
+
+    span {
+      font-size: 1.4rem;
+    }
   }
 `
 

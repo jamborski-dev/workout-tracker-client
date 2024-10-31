@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { selectExerciseList } from "@root/store/slices/exercises/exercises.selectors"
 import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
-import { selectUserId } from "@root/store/slices/users/users.selectors"
+import { selectUserId } from "@root/store/slices/user/user.selectors"
 import { Exercise } from "@root/types/data"
 import { useEffect } from "react"
 

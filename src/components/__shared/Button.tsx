@@ -20,6 +20,7 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
   cursor: pointer;
   border-radius: 1000px;
   position: relative;
+  padding: 0;
 
   transition: background-color 0.1s;
   transform-origin: center;
@@ -34,8 +35,13 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
     transform: translate(-50%, -50%);
   }
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: #f1f1f1;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `
 
@@ -70,10 +76,14 @@ export const SecondaryButton = styled(Button)`
   background-color: #494949;
 `
 
-export const ButtonGroup = styled.div<{ $gap?: number; $direction?: "row" | "column" }>`
+export const ButtonGroup = styled.div<{
+  $gap?: number
+  $direction?: "row" | "column"
+  $alignItems?: "start" | "center" | "end"
+}>`
   display: flex;
   gap: ${({ $gap }) => $gap ?? 1}rem;
-  align-items: center;
+  align-items: ${({ $alignItems }) => $alignItems ?? "center"};
   flex-direction: ${({ $direction }) => $direction ?? "row"};
 `
 

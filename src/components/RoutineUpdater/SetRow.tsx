@@ -1,21 +1,25 @@
-import { useAppDispatch } from "@root/store/hooks/store"
+import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { removeSetAction } from "@root/store/slices/routines/routines.thunks"
 import { IDType, MovementSet } from "@root/types/data"
-import { FC, SyntheticEvent, KeyboardEvent, FocusEvent, useEffect } from "react"
+import { FC, SyntheticEvent, KeyboardEvent, FocusEvent, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { FaTrash } from "react-icons/fa6"
 import { NumberInput } from "./NumberInput"
 import { WeightInput } from "./WeightInput"
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
+import { RootState } from "@root/store/store"
+import { reorderSets } from "@root/store/slices/routines/routines.slice"
 
 const userId = 1
 const routineId = 1
 
+const allowReorder = false // FIXME there is an issue with re-rendering when this is true, state updates but UI not, need to investigate later
 interface SetRowProps {
   set: MovementSet
   movementId: IDType
   showActual: boolean
-  onFieldChange: (setId: IDType, field: string, value: number) => void
+  onFieldChange: (payload: { setId: IDType; field: string; value: number }) => void
   onDelete: () => void
 }
 
@@ -27,13 +31,24 @@ export const SetRow: FC<SetRowProps> = ({
   onDelete
 }) => {
   const dispatch = useAppDispatch()
+  const _set = useAppSelector((state: RootState) =>
+    state.routines.selected?.movements
+      .find(m => m.id === movementId)
+      ?.sets.find(s => s.id === set.id)
+  )!
 
-  const { id, actualWeight, plannedWeight, actualReps, plannedReps } = set
+  const { id, actualWeight, plannedWeight, actualReps, plannedReps, order } = _set
 
-  const actualRepsFieldId = `set.${set.id}.actualReps`
-  const actualWeightFieldId = `set.${set.id}.actualWeight`
-  const plannedRepsFieldId = `set.${set.id}.plannedReps`
-  const plannedWeightFieldId = `set.${set.id}.plannedWeight`
+  const canMoveUp = order > 0
+  const canMoveDown = useAppSelector((state: RootState) => {
+    const movement = state.routines.selected?.movements.find(m => m.id === movementId)
+    return movement ? order < movement.sets.length - 1 : false
+  })
+
+  const actualRepsFieldId = `set.${_set.id}.actualReps`
+  const actualWeightFieldId = `set.${_set.id}.actualWeight`
+  const plannedRepsFieldId = `set.${_set.id}.plannedReps`
+  const plannedWeightFieldId = `set.${_set.id}.plannedWeight`
 
   const { register, setValue } = useForm({
     defaultValues: {
@@ -49,13 +64,16 @@ export const SetRow: FC<SetRowProps> = ({
     onDelete()
   }
 
-  const handleSetOnChange = (event: SyntheticEvent) => {
-    const target = event.target as HTMLInputElement
-    const field = target.name
-    const value = parseFloat(target.value)
+  const handleSetOnChange = useCallback(
+    (event: SyntheticEvent) => {
+      const target = event.target as HTMLInputElement
+      const field = target.name.split(".")[2]
+      const value = parseFloat(target.value)
 
-    onFieldChange(id!, field, value)
-  }
+      onFieldChange({ setId: id!, field, value })
+    },
+    [id, onFieldChange]
+  )
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     const allowedKeys = [
@@ -79,6 +97,7 @@ export const SetRow: FC<SetRowProps> = ({
       if (event.key >= "0" && event.key <= "9" && event.currentTarget.value === "0") {
         event.preventDefault()
         event.currentTarget.value = event.key // Replace "0" with the new value typed
+        handleSetOnChange(event)
       }
 
       return
@@ -92,6 +111,14 @@ export const SetRow: FC<SetRowProps> = ({
     event.target.select() // Select the entire input value on focus
   }
 
+  const handleReorderUp = () => {
+    dispatch(reorderSets({ movementId, setId: id as number, direction: "up" }))
+  }
+
+  const handleReorderDown = () => {
+    dispatch(reorderSets({ movementId, setId: id as number, direction: "down" }))
+  }
+
   useEffect(() => {
     if (showActual) {
       setValue(actualRepsFieldId, actualReps || 0)
@@ -100,6 +127,7 @@ export const SetRow: FC<SetRowProps> = ({
       setValue(plannedRepsFieldId, plannedReps || 0)
       setValue(plannedWeightFieldId, plannedWeight || 0)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showActual])
 
   return (
@@ -143,6 +171,16 @@ export const SetRow: FC<SetRowProps> = ({
         <IconButton $size="sm" onClick={handleRemoveSet} $fontSize=".7rem">
           <FaTrash />
         </IconButton>
+        {allowReorder && (
+          <>
+            <IconButton $size="sm" onClick={handleReorderUp} disabled={!canMoveUp}>
+              <IoIosArrowUp />
+            </IconButton>
+            <IconButton $size="sm" onClick={handleReorderDown} disabled={!canMoveDown}>
+              <IoIosArrowDown />
+            </IconButton>
+          </>
+        )}
       </ButtonGroup>
     </li>
   )

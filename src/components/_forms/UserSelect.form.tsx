@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@store/hooks/store"
-import { User } from "@store/slices/users/users.slice"
-import { selectUsers, selectUsersLoading } from "@store/slices/users/users.selectors"
-import { setUser } from "@store/slices/users/users.slice"
+import { User } from "@root/store/slices/user/user.slice"
+import { selectUsers, selectUsersLoading } from "@root/store/slices/user/user.selectors"
+import { setUser } from "@root/store/slices/user/user.slice"
 import { useForm, SubmitHandler } from "react-hook-form"
 
 interface UserSelectValues {

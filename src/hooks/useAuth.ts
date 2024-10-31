@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
-import { selectUserId } from "@root/store/slices/users/users.selectors"
-import { getUsersAction } from "@root/store/slices/users/users.slice"
+import { selectUserId } from "@root/store/slices/user/user.selectors"
+import { getUsersAction } from "@root/store/slices/user/user.slice"
 import { useEffect } from "react"
 
 export const useAuth = () => {

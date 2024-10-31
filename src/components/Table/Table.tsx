@@ -109,6 +109,7 @@ export const TableRoot = styled.table`
 
   tr:not(thead tr):hover {
     background-color: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
   }
 
   .transaction-type--expense {

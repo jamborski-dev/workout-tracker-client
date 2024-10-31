@@ -1,6 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, isAnyOf } from "@reduxjs/toolkit"
 import {
-  createRoutineAction,
   deleteRoutineAction,
   updateRoutineAction,
   getAllRoutinesAction,
@@ -11,13 +10,16 @@ import {
   addSetAction,
   removeSetAction,
   updateSetAction,
-  updateManySetsAction
+  updateManySetsAction,
+  updateMovementOrderAction
 } from "./routines.thunks"
 import { RoutinesState } from "./routines.types"
 import { IDType, Movement, Routine } from "@root/types/data"
-
-// import { startAppListening } from "@store/middleware/listenerMiddleware"
-// import { setRightPanel } from "../page/page.slice"
+import { startAppListening } from "@root/store/middleware/listenerMiddleware"
+import { buildSummary } from "@root/components/RoutineUpdater/utils"
+import { startTimer } from "../app/app.slice"
+import { v4 as uuid } from "uuid"
+import { reorderItems, trimObjectsArray } from "@root/utils/array"
 
 const getEmptyMovement = ({
   id,
@@ -58,13 +60,55 @@ const routinesSlice = createSlice({
       state.list.push(newRoutine)
       state.selected = newRoutine
     },
+    editMovement: (state, action) => {
+      state.openMovementId = action.payload
+    },
+    closeMovement: state => {
+      state.openMovementId = undefined
+    },
     togglePlannedActual: state => {
       state.showActualReps = !state.showActualReps
     },
     updateMovementSummary: (state, action) => {
-      const movement = state.selected?.movements.find(m => m.id === action.payload.movementId)
+      const movement = state.selected?.movements.find(m => m.id === action.payload)
       if (movement) {
-        movement.summary = action.payload.summary
+        movement.summary = buildSummary(movement.sets)
+      }
+    },
+    reorderMovements: (state, action) => {
+      const { movementId, direction } = action.payload
+      state.selected!.movements = reorderItems(state.selected!.movements, movementId, direction)
+    },
+    updateSet: (state, action) => {
+      const { movementId, setId, field, value } = action.payload
+      const movement = state.selected?.movements.find(m => m.id === movementId)
+      if (movement) {
+        const set = movement.sets.find(s => s.id === setId)
+        if (set) {
+          // @ts-expect-error - this is a dynamic field
+          set[field] = value
+        }
+      }
+    },
+    reorderSets: (state, action) => {
+      const { movementId, setId, direction } = action.payload
+      const selected = state.selected
+      if (selected) {
+        const movements = selected.movements.map(movement => {
+          if (movement.id === movementId) {
+            return {
+              ...movement,
+              sets: reorderItems(movement.sets, setId, direction)
+            }
+          }
+          return movement
+        })
+
+        // Update the state with a new reference
+        state.selected = {
+          ...selected,
+          movements
+        }
       }
     }
   },
@@ -101,23 +145,16 @@ const routinesSlice = createSlice({
       })
 
     builder
-      .addCase(createRoutineAction.pending, state => {
+      .addCase(deleteRoutineAction.pending, state => {
         state.isUpdating = true
-        state.error = null
       })
-      .addCase(createRoutineAction.fulfilled, (state, action) => {
-        const { date } = action.payload
-        const index = state.list.findIndex(rtn => rtn.date <= date)
-        if (index === -1) {
-          state.list.push(action.payload)
-        } else {
-          state.list.splice(index, 0, action.payload)
-        }
+      .addCase(deleteRoutineAction.fulfilled, (state, action) => {
         state.isUpdating = false
+        state.list = state.list.filter(routine => routine.id !== action.meta.arg.routineId)
       })
-      .addCase(createRoutineAction.rejected, (state, action) => {
+      .addCase(deleteRoutineAction.rejected, (state, action) => {
+        state.isUpdating = false
         state.error = action.payload as string
-        state.isUpdating = false
       })
 
     builder
@@ -131,20 +168,6 @@ const routinesSlice = createSlice({
       })
       .addCase(updateRoutineAction.rejected, (state, action) => {
         state.error = action.payload || "An error occurred"
-        state.isUpdating = false
-      })
-
-    builder
-      .addCase(deleteRoutineAction.pending, state => {
-        state.isUpdating = true
-        state.error = null
-      })
-      .addCase(deleteRoutineAction.fulfilled, (state, action) => {
-        state.list = state.list.filter(rtn => rtn.id !== action.payload.id)
-        state.isUpdating = false
-      })
-      .addCase(deleteRoutineAction.rejected, (state, action) => {
-        state.error = action.payload as string
         state.isUpdating = false
       })
 
@@ -176,9 +199,9 @@ const routinesSlice = createSlice({
       })
       .addCase(removeMovementAction.fulfilled, (state, action) => {
         state.isUpdating = false
-        state.selected!.movements = state.selected!.movements.filter(
-          m => m.id !== action.meta.arg.movementId
-        )
+        state.selected!.movements = state
+          .selected!.movements.filter(m => m.id !== action.meta.arg.movementId)
+          .map((m, index) => ({ ...m, order: index }))
       })
       .addCase(removeMovementAction.rejected, (state, action) => {
         state.error = action.payload as string
@@ -229,6 +252,7 @@ const routinesSlice = createSlice({
         state.selected!.movements.find(m => m.id === action.meta.arg.movementId)!.sets = state
           .selected!.movements.find(m => m.id === action.meta.arg.movementId)!
           .sets.filter(s => s.id !== action.meta.arg.setId)
+          .map((s, index) => ({ ...s, order: index })) // reindex
       })
       .addCase(removeSetAction.rejected, (state, action) => {
         state.error = action.payload as string
@@ -274,14 +298,37 @@ const routinesSlice = createSlice({
   }
 })
 
-export const { loadRoutine, initRoutine, togglePlannedActual, updateMovementSummary } =
-  routinesSlice.actions
+export const {
+  loadRoutine,
+  initRoutine,
+  togglePlannedActual,
+  updateMovementSummary,
+  updateSet,
+  reorderMovements,
+  reorderSets,
+  editMovement,
+  closeMovement
+} = routinesSlice.actions
 
 export default routinesSlice.reducer
 
-// startAppListening({
-//   actionCreator: createRoutineAction.fulfilled,
-//   effect: async (_, { dispatch }) => {
-//     dispatch(setRightPanel(undefined))
-//   }
-// })
+// TODO move debounce into component, keep reset timer here as a trigger for the debounce
+// Singleton instance of the debounced function
+
+startAppListening({
+  matcher: isAnyOf(updateSet, addSetAction.fulfilled, removeSetAction.fulfilled, reorderSets),
+  effect: async (action, { dispatch }) => {
+    const { movementId } = action.payload as { movementId: number }
+    dispatch(startTimer({ payload: 4000, meta: { requestId: uuid() } }))
+    dispatch(updateMovementSummary(movementId))
+  }
+})
+
+startAppListening({
+  matcher: isAnyOf(reorderMovements),
+  effect: async (_, { getState, dispatch }) => {
+    const movements = getState().routines.selected!.movements
+    const reorderPayload = trimObjectsArray(movements, ["id", "order"])
+    dispatch(updateMovementOrderAction({ userId: 1, routineId: 1, payload: reorderPayload }))
+  }
+})

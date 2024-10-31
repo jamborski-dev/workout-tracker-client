@@ -1,10 +1,11 @@
 import { FC } from "react"
-import { PrimaryButton } from "./Button"
 import styled from "styled-components"
+import { IconButton } from "./Button"
 
 type Action = {
   callback: () => void
   label: string
+  icon: React.ReactNode
 }
 
 interface PageHeaderProps {
@@ -22,9 +23,12 @@ export const PageHeader: FC<PageHeaderProps> = ({ title, brew, action }) => {
       </Title>
       {action && (
         <Action>
-          <PrimaryButton onClick={action.callback} type="button">
-            {action.label}
-          </PrimaryButton>
+          <ActionContainer>
+            <IconButton onClick={action.callback} $size="lg">
+              {action.icon}
+            </IconButton>
+            <ActionLabel>{action.label}</ActionLabel>
+          </ActionContainer>
         </Action>
       )}
     </Header>
@@ -36,10 +40,15 @@ const Header = styled.header`
   align-items: center;
   justify-content: space-between;
   padding: 2rem;
-
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 `
+
+const ActionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`
+
+const ActionLabel = styled.div``
 
 const Title = styled.div`
   flex: 1;

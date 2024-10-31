@@ -16,7 +16,7 @@ export const NumberInput: FC<NumberInputProps> = ({
   fieldId,
   register,
   handleKeyDown,
-  handleChange: handleBlur,
+  handleChange,
   handleFocus,
   min = 0,
   step,
@@ -31,7 +31,7 @@ export const NumberInput: FC<NumberInputProps> = ({
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       {...register(fieldId, {
-        onChange: handleBlur
+        onChange: handleChange
       })}
     />
   )

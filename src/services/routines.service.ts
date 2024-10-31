@@ -1,5 +1,4 @@
 import {
-  CreateRoutinePayload,
   GetAllRoutinesPayload,
   GetRoutineByIdPayload,
   InitRoutinePayload,
@@ -18,75 +17,70 @@ import {
   UpdateManySetsActionPayload,
   UpdateManySetsServicePayload,
   UpdateRoutineServicePayload,
-  UpdateRoutineActionPayload
+  UpdateRoutineActionPayload,
+  Movement,
+  IDType,
+  DeleteRoutineActionPayload
 } from "@root/types/data"
-import { buildUserEndpointPath, serviceCall } from "@root/utils/service"
+import { buildEndpointPath, serviceCall, secureServiceCall } from "@root/utils/service"
 
-export const getAllRoutines = async (payload: GetAllRoutinesPayload) => {
-  const { userId } = payload
-  const path = `${buildUserEndpointPath({ userId })}/routines`
-  return await serviceCall<undefined, Routine[]>(
-    undefined as never,
-    "get",
+// ✅ Done
+export const getAllRoutines = (payload: GetAllRoutinesPayload) => {
+  const { userId, accessToken } = payload
+  const path = `${buildEndpointPath({ userId })}/routines`
+  return secureServiceCall<undefined, Routine[]>({
+    method: "get",
     path,
-    "Error fetching routines"
-  )
+    errorMessage: "Error fetching routines",
+    accessToken
+  })
 }
 
+// ✅ Done
 export const getRoutineById = async (payload: GetRoutineByIdPayload) => {
-  const { userId, routineId } = payload
-  const path = `${buildUserEndpointPath({ userId, routineId })}`
-  return await serviceCall<undefined, Routine>(
-    undefined as never,
-    "get",
+  const { userId, routineId, accessToken } = payload
+  const path = buildEndpointPath({ userId, routineId })
+  return await secureServiceCall<undefined, Routine>({
+    method: "get",
     path,
-    "Error fetching routine"
-  )
+    errorMessage: "Error fetching routine",
+    accessToken
+  })
 }
 
 // create new routine and return its ID
 export const initRoutine = async (payload: InitRoutinePayload) => {
-  const { userId } = payload
-  const path = `${buildUserEndpointPath({ userId })}/routines/init`
-  return await serviceCall<Omit<InitRoutinePayload, "userId">, InitRoutineServiceReturn>(
-    payload,
-    "post",
-    path,
-    "Error fetching routines"
-  )
-}
-
-// This could be repurposed to create a new routine template
-// rename to postRoutine
-export const createRoutine = async (routine: CreateRoutinePayload) => {
-  return await serviceCall<CreateRoutinePayload, Routine>(
-    routine,
-    "post",
-    "/routines",
-    "Error creating routine:"
-  )
+  const { userId, accessToken } = payload
+  return await secureServiceCall<undefined, InitRoutineServiceReturn>({
+    method: "post",
+    path: `users/${userId}/routines/init`,
+    errorMessage: "Error fetching routines",
+    accessToken
+  })
 }
 
 // for metadata updates
 // rename to patchRoutine
 export const updateRoutine = async (updatePayload: UpdateRoutineActionPayload) => {
-  const { userId, routineId, payload } = updatePayload
-  return await serviceCall<UpdateRoutineServicePayload, Routine>(
-    payload,
-    "patch",
-    `users/${userId}/routines/${routineId}`,
-    "Error editing routine"
-  )
+  const { userId, routineId, payload, accessToken } = updatePayload
+  return await secureServiceCall<UpdateRoutineServicePayload, Routine>({
+    params: payload,
+    method: "patch",
+    path: `users/${userId}/routines/${routineId}`,
+    errorMessage: "Error editing routine",
+    accessToken
+  })
 }
 
 // delete routine
-export const deleteRoutine = async (routineId: string) => {
-  return await serviceCall<undefined, Routine>(
-    undefined as never,
-    "delete",
-    `/routines/${routineId}`,
-    "Error deleting routine"
-  )
+export const deleteRoutine = async (params: DeleteRoutineActionPayload) => {
+  const { userId, routineId, accessToken } = params
+  return await secureServiceCall<undefined, never>({
+    method: "delete",
+    path: `/users/${userId}/routines/${routineId}`,
+    errorMessage: "Error deleting routine",
+    accessToken
+  })
 }
 
 // partial updates
@@ -94,35 +88,56 @@ export const deleteRoutine = async (routineId: string) => {
 // should return just ID for new movement
 // rename to postMovement
 export const addMovement = async (params: AddMovementActionPayload) => {
-  const { routineId, userId } = params
-  return await serviceCall<undefined, Routine>(
-    undefined as never,
-    "post",
-    `users/${userId}/routines/${routineId}/movements`,
-    "Error adding movement",
-    true
-  )
+  const { routineId, userId, order, accessToken } = params
+  return await secureServiceCall<Pick<AddMovementActionPayload, "order">, Routine>({
+    params: { order },
+    method: "post",
+    path: `users/${userId}/routines/${routineId}/movements`,
+    errorMessage: "Error adding movement",
+    accessToken
+  })
 }
 
 // todo rename to deleteMovement
 export const removeMovement = async (params: RemoveMovementActionPayload) => {
-  const { routineId, userId, movementId } = params
-  return await serviceCall(
-    undefined as never,
-    "delete",
-    `users/${userId}/routines/${routineId}/movements/${movementId}`,
-    "Error removing movement"
-  )
+  const { routineId, userId, movementId, accessToken } = params
+  return await secureServiceCall<undefined, never>({
+    method: "delete",
+    path: `users/${userId}/routines/${routineId}/movements/${movementId}`,
+    errorMessage: "Error removing movement",
+    accessToken
+  })
 }
 
 // rename to patchMovement
 export const updateMovement = async (params: UpdateMovementActionPayload) => {
-  const { routineId, userId, movementId, payload } = params
-  return await serviceCall<UpdateMovementServicePayload, Routine>(
-    payload,
+  const { routineId, userId, movementId, accessToken, payload } = params
+  return await secureServiceCall<UpdateMovementServicePayload, Movement>({
+    params: payload,
+    method: "patch",
+    path: `users/${userId}/routines/${routineId}/movements/${movementId}`,
+    errorMessage: "Error updating movement",
+    accessToken
+  })
+}
+
+export type UpdateManyMovementsActionPayload = {
+  userId: IDType
+  routineId: IDType
+  payload: UpdateMovementServicePayload[]
+}
+
+export type UpdateManyMovementsServicePayload = {
+  payload: UpdateMovementServicePayload[]
+}
+
+export const updateManyMovements = async (params: UpdateManyMovementsActionPayload) => {
+  const { userId, routineId, payload } = params
+  return await serviceCall<UpdateManyMovementsServicePayload, Movement[]>(
+    { payload },
     "patch",
-    `users/${userId}/routines/${routineId}/movements/${movementId}`,
-    "Error updating movement"
+    `users/${userId}/routines/${routineId}/movements`,
+    "Error updating movements"
   )
 }
 

@@ -31,8 +31,8 @@
       "@types/*": ["src/types/*"],
       "@context/*": ["src/context/*"],
       "@templates/*": ["src/templates/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/pages/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/components/__shared/Form"]
 }

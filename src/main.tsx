@@ -4,7 +4,7 @@ import "@fontsource/poppins/latin.css"
 import "@fontsource/pt-sans-narrow/latin.css"
 import "@fontsource-variable/afacad-flux"
 
-import AppRoot from "./routes/AppRoot.tsx"
+import AppRoot from "./pages/AppRoot.tsx"
 import "./index.css"
 import { store } from "@store/store"
 import { Provider } from "react-redux"

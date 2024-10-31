@@ -24,6 +24,7 @@ const appSlice = createSlice({
   reducers: {
     resetTimer: state => {
       state.timer = 0
+      state.uuid = null
       state.status = "idle"
     }
   },

@@ -3,6 +3,9 @@
 
 export type IDType = number | string
 
+export type AccessToken = string | null
+export type WithAuth = { accessToken: AccessToken }
+
 export type ErrorPayload = {
   message: string
   status: number
@@ -33,19 +36,20 @@ export type Routine = {
 
 export type DBRoutine = MetaData & Routine
 
-export type GetAllRoutinesPayload = { userId: IDType }
-export type GetRoutineByIdPayload = { userId: IDType; routineId: IDType }
-export type CreateRoutinePayload = Omit<DBRoutine, MetaDataKeys>
+export type GetAllRoutinesPayload = { userId: IDType } & WithAuth
+export type GetRoutineByIdPayload = { userId: IDType; routineId: IDType } & WithAuth
 
 export type UpdateRoutineActionPayload = {
   userId: IDType
   routineId: IDType
   payload: UpdateRoutineServicePayload
-}
+} & WithAuth
 export type UpdateRoutineServicePayload = Partial<Omit<DBRoutine, MetaDataKeys>>
 
-export type InitRoutinePayload = { userId: IDType; date?: string }
+export type InitRoutinePayload = { userId: IDType } & WithAuth
 export type InitRoutineServiceReturn = { id: IDType }
+
+export type DeleteRoutineActionPayload = { userId: IDType; routineId: IDType } & WithAuth
 
 export interface MovementSet {
   id: IDType
@@ -93,20 +97,21 @@ export type AddMovementActionPayload = {
   routineId: IDType
   userId: IDType
   order: number
-}
+} & WithAuth
 
 export type RemoveMovementActionPayload = {
   routineId: IDType
   userId: IDType
   movementId: IDType
-}
+} & WithAuth
 
 export type UpdateMovementActionPayload = {
   userId: IDType
   routineId: IDType
   movementId: IDType
   payload: UpdateMovementServicePayload
-}
+} & WithAuth
+
 export type UpdateMovementServicePayload = Partial<Omit<Movement, MetaDataKeys>>
 
 // Sets

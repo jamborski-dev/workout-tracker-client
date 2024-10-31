@@ -3,14 +3,14 @@ import { selectTimer } from "@root/store/slices/app/app.slice"
 import { FC, ReactNode } from "react"
 import styled from "styled-components"
 import { Timer } from "./Timer"
+import { BottomNav } from "./BottomNav"
 
 interface PageProps {
   headerComponent: ReactNode
-  footerComponent: ReactNode
   children: ReactNode
 }
 
-export const Page: FC<PageProps> = ({ headerComponent, footerComponent, children }) => {
+export const Page: FC<PageProps> = ({ headerComponent, children }) => {
   const timer = useAppSelector(selectTimer)
   return (
     <Root>
@@ -19,7 +19,9 @@ export const Page: FC<PageProps> = ({ headerComponent, footerComponent, children
         <Timer key={timer} />
       </header>
       <main>{children}</main>
-      <footer>{footerComponent}</footer>
+      <footer>
+        <BottomNav />
+      </footer>
     </Root>
   )
 }
@@ -40,11 +42,8 @@ export const Root = styled.div`
   }
 
   > footer {
-    min-height: 3rem;
-    padding-inline: 2rem;
     text-align: center;
     border-top: 1px solid #e6e6e6;
-    padding-top: 2rem;
   }
 
   > header {

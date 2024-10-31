@@ -1,13 +1,16 @@
-Flow:
+### TODO
 
-Click 'Start Training' or 'Start Training (from a template)'
+#### Features
 
-1. Option 'Start Training'
+- [ ] Templates
+- [ ] User Settings
+- [ ] Add new exercise form
+- [ ] Auth ?
+- [ ] Deployment
 
-- backend pinged to create new empty routine record and return ID
-- UI changes to empty routine with current date, route: /routine/:id
-- User chooses first exercise from SelectList and its being added to the routine as a Movement,
-- User selects variable or fixed sets option (use fixed as default),
-- User sets planned sets, reps and weight as he goes - each is being save in to the backend as it goes
+#### Refactor
 
-- repeat for all rest exercises
+- [ ] Add label option to IconButton component - requires moving it into FC from styled
+- [ ] organize project files
+
+Once routines are done I can start working on the family / house notes stuff

@@ -41,11 +41,8 @@
 
 a {
   font-weight: 500;
-  color: #ffea64;
+  color: #7b64ff;
   text-decoration: inherit;
-}
-a:hover {
-  color: #ecb50d;
 }
 
 body {
@@ -116,4 +113,17 @@ h6 {
   margin: 0;
   font-weight: 500;
   color: #213547;
+}
+
+button {
+  padding: 0.6rem 2rem;
+  border: none;
+  background-color: transparent;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 300;
+  transition: all 0.25s linear;
+  border: 1px solid grey;
+  font-size: 1.2rem;
 }

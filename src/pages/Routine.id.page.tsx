@@ -1,4 +1,5 @@
 import { IconButton } from "@root/components/__shared/Button"
+import { DateInput } from "@root/components/__shared/Form/DateInput"
 import { NameInput } from "@root/components/__shared/Form/NameInput"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { Page } from "@root/components/__shared/layout/Page"
@@ -24,7 +25,8 @@ const DEFAULT_ROUTINE_NAME = "New Routine"
 const userId = 1 // mock
 
 const RoutineById = () => {
-  const [isInEditMode, setIsInEditMode] = useState(false)
+  const [editTitle, setEditTitle] = useState(false)
+  const [editDate, setEditDate] = useState(false)
   const { id } = useParams()
   const dispatch = useAppDispatch()
   const isLoading = useAppSelector(selectRoutinesLoading)
@@ -39,41 +41,52 @@ const RoutineById = () => {
       return
     }
 
-    await dispatch(getRoutineByIdAction({ userId, routineId: id }))
+    await dispatch(getRoutineByIdAction({ routineId: id }))
   }
 
   const handleEditTitle = () => {
-    setIsInEditMode(true)
+    setEditTitle(true)
   }
 
-  const handleSaveTitle = () => {
+  const handleEditDate = () => {
+    setEditDate(true)
+  }
+
+  const handleSave = () => {
     handleSubmit(onSubmit)()
-    setIsInEditMode(false)
+    handleDismissEdit()
   }
 
-  const handleCancelEdit = () => {
-    setIsInEditMode(false)
+  const handleDismissEdit = () => {
+    if (editTitle) {
+      setEditTitle(false)
+      return
+    }
+
+    if (editDate) {
+      setEditDate(false)
+      return
+    }
   }
 
   const onSubmit = async (data: Record<string, string | number>) => {
     try {
-      console.log(data)
-      const action = await dispatch(updateRoutineAction({ userId, routineId: id!, payload: data }))
+      const action = await dispatch(updateRoutineAction({ payload: data }))
 
       if (action.type === "updateRoutineAction/fulfilled") {
-        setIsInEditMode(false)
+        handleDismissEdit()
         return
       }
 
       if (action.type === "updateRoutineAction/rejected") {
-        setError("name", {
+        setError(editTitle ? "name" : "date", {
           type: "manual",
           message: "Failed to update routine"
         })
       }
     } catch (error) {
       console.error("Failed to update routine", error)
-      setError("name", {
+      setError(editTitle ? "name" : "date", {
         type: "manual",
         message: "Failed to update routine"
       })
@@ -101,34 +114,52 @@ const RoutineById = () => {
       headerComponent={
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              {date.day}
-              <sup>{date.getOrdinalSuffix}</sup> {date.month} {date.year}
-            </div>
+            {editDate ? (
+              <EditableContentContainer>
+                <DateContainer>
+                  <DateInput id="date" defaultValue={routine?.date} />
+                </DateContainer>
+                <IconButton onClick={handleSave}>
+                  <MdCheck />
+                </IconButton>
+                <IconButton onClick={handleDismissEdit}>
+                  <MdClose />
+                </IconButton>
+              </EditableContentContainer>
+            ) : (
+              <EditableContentContainer>
+                <div>
+                  {date.day}
+                  <sup>{date.getOrdinalSuffix}</sup> {date.month} {date.year}
+                </div>
+                <IconButton onClick={handleEditDate}>
+                  <MdModeEdit />
+                </IconButton>
+              </EditableContentContainer>
+            )}
             <Stack>
-              {isInEditMode ? (
-                <NameContainer>
+              {editTitle ? (
+                <EditableContentContainer>
                   <NameInput id={"name"} defaultValue={routine?.name} />
-                  <IconButton onClick={handleSaveTitle}>
+                  <IconButton onClick={handleSave}>
                     <MdCheck />
                   </IconButton>
-                  <IconButton onClick={handleCancelEdit}>
+                  <IconButton onClick={handleDismissEdit}>
                     <MdClose />
                   </IconButton>
-                </NameContainer>
+                </EditableContentContainer>
               ) : (
-                <NameContainer>
+                <EditableContentContainer>
                   <h4>{routine?.name || DEFAULT_ROUTINE_NAME}</h4>
                   <IconButton onClick={handleEditTitle}>
                     <MdModeEdit />
                   </IconButton>
-                </NameContainer>
+                </EditableContentContainer>
               )}
             </Stack>
           </form>
         </FormProvider>
       }
-      footerComponent={<> footer </>}
     >
       <RoutineUpdater />
     </Page>
@@ -137,9 +168,16 @@ const RoutineById = () => {
 
 export default RoutineById
 
-const NameContainer = styled.div`
+const EditableContentContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transform: translateX(1rem);
+`
+
+const DateContainer = styled.div`
+  display: flex;
   justify-content: center;
   gap: 0.5rem;
   transform: translateX(1rem);

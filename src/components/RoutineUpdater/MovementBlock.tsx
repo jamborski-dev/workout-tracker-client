@@ -1,16 +1,15 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
-import { resetTimer, startTimer } from "@root/store/slices/app/app.slice"
-import { updateMovementSummary } from "@root/store/slices/routines/routines.slice"
+import { reorderMovements, updateSet } from "@root/store/slices/routines/routines.slice"
 import {
   addSetAction,
-  updateManySetsAction,
+  saveMovementAction,
   updateMovementAction
 } from "@root/store/slices/routines/routines.thunks"
-import { IDType, Movement, MovementSet, UpdateManySetsServicePayload } from "@root/types/data"
-import debounce from "lodash.debounce"
-import { FC, useCallback, useState } from "react"
+import { IDType, Movement } from "@root/types/data"
+import { FC, useCallback, useEffect, useState } from "react"
 import { FaTrash } from "react-icons/fa6"
-import { MdAdd, MdClose, MdModeEdit } from "react-icons/md"
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
+import { MdAdd, MdClose, MdModeEdit, MdSave } from "react-icons/md"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
 import { Text } from "../__shared/Typography"
@@ -18,11 +17,10 @@ import { ExerciseSelect } from "./ExerciseSelect"
 import { exerciseList } from "./mock-data"
 import { SetRow } from "./SetRow"
 import { SwitchToggle } from "./SwitchToggle"
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
 
-import { v4 as uuid } from "uuid"
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
-import { buildSummary, mergePayload } from "./utils"
+import { RootState } from "@root/store/store"
+import debounce from "lodash.debounce"
 
 const userId = 1
 const routineId = 1
@@ -32,15 +30,26 @@ export const MovementBlock: FC<{
   count: number
   isExpanded: boolean
   onEditClick: (id: IDType | null) => void
+  onCloseClick: () => void
   onDelete: (id: IDType) => void
-}> = ({ movement, count, isExpanded = false, onEditClick, onDelete }) => {
+}> = ({ movement, count, isExpanded = false, onEditClick, onCloseClick, onDelete }) => {
   const dispatch = useAppDispatch()
-  const timerId = useAppSelector(state => state.app.uuid)
+  const timerId = useAppSelector((state: RootState) => state.app.uuid)
   const [showActual, setShowActual] = useState(true)
+  const sets = useAppSelector(
+    (state: RootState) => state.routines.selected?.movements.find(m => m.id === movement.id)?.sets
+  )
+
+  const canMoveUp = movement.order > 0
+
+  // TODO move to .selectors
+  const canMoveDown = useAppSelector((state: RootState) => {
+    const movements = state.routines.selected?.movements ?? []
+    const maxOrder = movements.length - 1
+    return movement.order < maxOrder
+  })
 
   // Local state to manage changes to sets
-  const [updatePayload, setUpdatePayload] = useState<MovementSet[]>([])
-
   const handleShowActual = () => {
     setShowActual(prev => !prev)
   }
@@ -64,92 +73,42 @@ export const MovementBlock: FC<{
     )
   }
 
-  // TODO implement this
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleReorderUp = () => {
-    // dispatch(
-    //   updateMovementAction({
-    //     userId: 1, // get from state later
-    //     routineId: 1, // get from state later
-    //     movementId: movement.id!,
-    //     payload: { order: count - 1 } // partial update
-    //   })
+    dispatch(reorderMovements({ movementId: movement.id as number, direction: "up" }))
   }
 
-  const handleSetChange = (setId: IDType, field: string, value: number) => {
-    console.log("handleSetChange", value)
-    // Update local state for immediate UI response
-    const payload = getTransformedPayloadObject(setId, field, value)
-    const summary = buildSummary(mergePayload(movement.sets, payload))
-    dispatch(updateMovementSummary({ movementId: movement.id!, summary }))
-
-    setUpdatePayload(payload)
-
-    // Start the timer
-    dispatch(startTimer({ payload: 4000, meta: { requestId: uuid() } }))
-
-    // Trigger debounced update for the backend
-    debouncedUpdateSet({
-      sets: payload,
-      summary
-    })
+  const handleReorderDown = () => {
+    dispatch(reorderMovements({ movementId: movement.id as number, direction: "down" }))
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const debouncedUpdateSet = useCallback(
-    debounce((updatedValues: UpdateManySetsServicePayload) => {
-      console.log("debouncedUpdateSet")
-      dispatch(
-        updateManySetsAction({
-          userId,
-          routineId,
-          movementId: movement.id,
-          payload: updatedValues
-        })
-      )
+  const onSaveClick = () => {
+    dispatch(saveMovementAction(movement.id as number))
+  }
 
-      // Reset the timer
-      dispatch(resetTimer())
-    }, 5000), // wait 5 seconds before sending request
-    [dispatch, userId, routineId, timerId]
+  const handleSetChange = (payload: { setId: IDType; field: string; value: number }) => {
+    dispatch(updateSet({ movementId: movement.id, ...payload }))
+  }
+
+  const debouncedSaveAction = useCallback(
+    debounce(() => {
+      dispatch(saveMovementAction(movement.id as number))
+    }, 5000),
+    [dispatch, movement.id, timerId]
   )
 
-  const getTransformedPayloadObject = (
-    setId: IDType,
-    field: string,
-    value: number
-  ): MovementSet[] => {
-    const transformedField = field.split(".")[2]
-
-    // find if the set exists in the local state
-    const set = updatePayload.find(set => set.id === setId)
-
-    // if it exists, update the field
-    if (set) {
-      return updatePayload.map(set => {
-        if (set.id === setId) {
-          return {
-            ...set,
-            [transformedField]: value
-          }
-        }
-        return set
-      })
+  useEffect(() => {
+    if (isExpanded) {
+      // Trigger the save action whenever timerId changes to collect for batch partial updates
+      debouncedSaveAction()
+    } else {
+      debouncedSaveAction.cancel()
     }
 
-    // get order variable from the set of id setId
-    const order = movement.sets.find(set => set.id === setId)?.order || movement.sets.length
-
-    // if not found, create a new set with the updated field
-    return [
-      ...updatePayload,
-      {
-        id: setId,
-        order,
-        [transformedField]: value
-      }
-    ]
-  }
+    return () => {
+      // Cancel the debounce when component unmounts or timerId changes
+      debouncedSaveAction.cancel()
+    }
+  }, [debouncedSaveAction, isExpanded, dispatch, movement.id])
 
   return (
     <Section $isExpanded={isExpanded}>
@@ -163,8 +122,14 @@ export const MovementBlock: FC<{
         <Stack>
           {!isExpanded && (
             <h2>
-              {exerciseList.find(m => m.id === movement.exerciseId)?.name || "-"}
-              <ButtonGroup $gap={0.5}>
+              <span>{exerciseList.find(m => m.id === movement.exerciseId)?.name || "-"}</span>
+              <ButtonGroup $gap={0}>
+                <IconButton onClick={handleReorderUp} disabled={!canMoveUp}>
+                  <IoIosArrowUp />
+                </IconButton>
+                <IconButton onClick={handleReorderDown} disabled={!canMoveDown}>
+                  <IoIosArrowDown />
+                </IconButton>
                 <IconButton onClick={() => onEditClick(movement.id!)}>
                   <MdModeEdit />
                 </IconButton>
@@ -186,22 +151,18 @@ export const MovementBlock: FC<{
       </header>
       {isExpanded && (
         <HeaderAction $isActive={isExpanded}>
-          <ButtonGroup $direction="column">
-            <IconButton onClick={() => onEditClick(null)}>
+          <ButtonGroup $gap={0.5}>
+            <IconButton onClick={() => onSaveClick()}>
+              <MdSave />
+            </IconButton>
+            <IconButton onClick={() => onCloseClick()}>
               <MdClose />
-            </IconButton>
-            {/* TODO implement logic */}
-            <IconButton onClick={handleReorderUp}>
-              <IoIosArrowUp />
-            </IconButton>
-            <IconButton onClick={handleReorderUp}>
-              <IoIosArrowDown />
             </IconButton>
           </ButtonGroup>
         </HeaderAction>
       )}
       <SetRepPanel $isExpanded={isExpanded}>
-        {!movement.sets.length ? (
+        {!sets?.length ? (
           <Text $align="left">No sets yet...</Text>
         ) : (
           <ul>
@@ -210,7 +171,7 @@ export const MovementBlock: FC<{
               <span>Weight</span>
               <span></span>
             </li>
-            {movement.sets.map((set, index) => (
+            {sets.map((set, index) => (
               <SetRow
                 key={index}
                 set={set}

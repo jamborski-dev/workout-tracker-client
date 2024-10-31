@@ -1,23 +1,23 @@
 import styled from "styled-components"
 import { MovementBlock } from "./MovementBlock"
-import { useState } from "react"
 import { IDType, Movement } from "@root/types/data"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
-import { selectRoutine } from "@root/store/slices/routines/routines.selectors"
+import { selectOpenMovementId, selectRoutine } from "@root/store/slices/routines/routines.selectors"
 import { Text } from "@root/components/__shared/Typography"
 import { FormProvider, useForm } from "react-hook-form"
-import { FixMeLater } from "@root/types/FixMeLater"
 import {
   addMovementAction,
-  removeMovementAction
+  removeMovementAction,
+  saveMovementAction
 } from "@root/store/slices/routines/routines.thunks"
-
-const userId = 1
+import { closeMovement, editMovement } from "@root/store/slices/routines/routines.slice"
 
 export const RoutineUpdater = () => {
   const dispatch = useAppDispatch()
   const routine = useAppSelector(selectRoutine)
-  const [expandedPanelId, setExpandedPanelId] = useState<IDType | null>(null)
+  const movements = useAppSelector(state => state.routines.selected?.movements)
+  const timerId = useAppSelector(state => state.app.uuid)
+  const panelId = useAppSelector(selectOpenMovementId)
   const methods = useForm()
 
   if (!routine)
@@ -27,35 +27,44 @@ export const RoutineUpdater = () => {
       </div>
     )
 
-  const handleEditClick = (value: IDType | null) => {
-    setExpandedPanelId(value)
+  const handleEditClick = (id: IDType | null) => {
+    if (timerId && panelId) {
+      dispatch(saveMovementAction(panelId))
+    }
+
+    dispatch(editMovement(id))
+  }
+
+  const handleCloseMovement = () => {
+    if (timerId && panelId) {
+      dispatch(saveMovementAction(panelId))
+    }
+
+    dispatch(closeMovement())
   }
 
   const handleAddMovement = () => {
-    dispatch(addMovementAction({ userId, routineId: routine.id, order: routine.movements.length }))
+    dispatch(addMovementAction({ order: movements?.length || 0 }))
   }
 
   const handleRemoveMovement = (id: IDType) => {
-    dispatch(removeMovementAction({ userId, routineId: routine.id, movementId: id }))
-  }
-
-  const onSubmit = (data: FixMeLater) => {
-    console.log(data)
+    dispatch(removeMovementAction({ movementId: id }))
   }
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
-        {!routine.movements?.length ? (
+      <form onSubmit={methods.handleSubmit(() => console.log("Submit"))}>
+        {!movements?.length ? (
           <Text>Add movements to start your routine...</Text>
         ) : (
-          routine.movements.map((movement: Movement, index: number) => (
+          movements.map((movement: Movement, index: number) => (
             <MovementBlock
               key={index}
               movement={movement}
               count={index + 1}
-              isExpanded={expandedPanelId === movement.id}
+              isExpanded={panelId === movement.id}
               onEditClick={handleEditClick}
+              onCloseClick={handleCloseMovement}
               onDelete={handleRemoveMovement}
             />
           ))

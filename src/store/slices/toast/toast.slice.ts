@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 // import { startAppListening } from "@store/middleware/listenerMiddleware"
 // import {
-//   createRoutineAction,
 //   deleteRoutineAction,
 //   updateRoutineAction,
 //   getRoutinesAction
@@ -42,21 +41,6 @@ export default toastSlice.reducer
 
 // startAppListening({
 //   actionCreator: getRoutinesAction.rejected,
-//   effect: async (action, { dispatch }) => {
-//     dispatch(showToast({ message: action.payload, type: "error" }))
-//   }
-// })
-
-// // CREATE
-// startAppListening({
-//   actionCreator: createRoutineAction.fulfilled,
-//   effect: async (_, { dispatch }) => {
-//     dispatch(showToast({ message: "Routine created", type: "success" }))
-//   }
-// })
-
-// startAppListening({
-//   actionCreator: createRoutineAction.rejected,
 //   effect: async (action, { dispatch }) => {
 //     dispatch(showToast({ message: action.payload, type: "error" }))
 //   }
