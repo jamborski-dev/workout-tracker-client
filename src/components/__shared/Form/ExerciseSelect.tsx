@@ -1,32 +1,25 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { selectExerciseList } from "@root/store/slices/exercises/exercises.selectors"
 import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
-import { selectUserId } from "@root/store/slices/user/user.selectors"
 import { Exercise } from "@root/types/data"
-import { useEffect } from "react"
+import { ChangeEvent, useEffect } from "react"
 
 interface ExerciseSelectProps {
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
+  onChange: (event: ChangeEvent<HTMLSelectElement>) => void
   defaultValue?: string
 }
 
 export const ExerciseSelect = ({ onChange, defaultValue }: ExerciseSelectProps) => {
   const dispatch = useAppDispatch()
-  const userId = useAppSelector(selectUserId)
   const exerciseList = useAppSelector(selectExerciseList)
 
   const getExercises = async () => {
-    if (!userId) return
-    await dispatch(getAllExercisesAction({ userId }))
+    await dispatch(getAllExercisesAction())
   }
 
   useEffect(() => {
     getExercises()
   }, [])
-
-  if (!userId) {
-    return null
-  }
 
   return (
     <select onChange={onChange} defaultValue={defaultValue}>

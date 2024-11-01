@@ -11,9 +11,6 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
 import { RootState } from "@root/store/store"
 import { reorderSets } from "@root/store/slices/routines/routines.slice"
 
-const userId = 1
-const routineId = 1
-
 const allowReorder = false // FIXME there is an issue with re-rendering when this is true, state updates but UI not, need to investigate later
 interface SetRowProps {
   set: MovementSet
@@ -60,7 +57,7 @@ export const SetRow: FC<SetRowProps> = ({
   })
 
   const handleRemoveSet = () => {
-    dispatch(removeSetAction({ userId, routineId, movementId, setId: id! }))
+    dispatch(removeSetAction({ setId: id! }))
     onDelete()
   }
 

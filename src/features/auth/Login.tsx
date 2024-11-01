@@ -2,8 +2,9 @@ import { NoAuthPage } from "@root/templates/NoAuthPage"
 import { useForm } from "react-hook-form"
 import { LoginPayload, loginUser } from "@store/slices/auth/auth.slice"
 import { useNavigate } from "react-router-dom"
-import { useAppDispatch } from "@root/store/hooks/store"
+import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import styled from "styled-components"
+import { PrimaryButton } from "@root/components/__shared/Button"
 
 export const Login = () => {
   const {
@@ -11,6 +12,7 @@ export const Login = () => {
     handleSubmit,
     formState: { errors }
   } = useForm<LoginPayload>()
+  const apiError = useAppSelector(state => state.auth.error)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -25,27 +27,70 @@ export const Login = () => {
 
   return (
     <NoAuthPage>
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <label htmlFor="email">Email</label>
-        <input type="email" {...register("email", { required: "Email is required" })} />
-        {errors.email && typeof errors.email.message === "string" && (
-          <span>{errors.email.message}</span>
-        )}
+      <StyledFormContainer>
+        <StyledForm onSubmit={handleSubmit(onSubmit)}>
+          <FormGroup>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormInput type="email" {...register("email", { required: "Email is required" })} />
+            {errors.email && typeof errors.email.message === "string" && (
+              <ErrorMessage>{errors.email.message}</ErrorMessage>
+            )}
+          </FormGroup>
 
-        <label htmlFor="password">Password</label>
-        <input type="password" {...register("password", { required: "Password is required" })} />
-        {errors.password && typeof errors.password.message === "string" && (
-          <span>{errors.password.message}</span>
-        )}
+          <FormGroup>
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormInput
+              type="password"
+              {...register("password", { required: "Password is required" })}
+            />
+            {errors.password && typeof errors.password.message === "string" && (
+              <ErrorMessage>{errors.password.message}</ErrorMessage>
+            )}
+          </FormGroup>
 
-        <button type="submit">Login</button>
-      </Form>
+          <PrimaryButton type="submit">Login</PrimaryButton>
+          {apiError && <ErrorMessage>{apiError}</ErrorMessage>}
+        </StyledForm>
+      </StyledFormContainer>
     </NoAuthPage>
   )
 }
 
-const Form = styled.form`
+const StyledFormContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const StyledForm = styled.form`
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+`
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const FormLabel = styled.label`
+  font-size: 1rem;
+  font-weight: 300;
+`
+
+const FormInput = styled.input`
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  &:focus {
+    border-color: var(--app-accent);
+  }
+`
+
+const ErrorMessage = styled.span`
+  color: #d9534f;
+  font-size: 0.875rem;
 `

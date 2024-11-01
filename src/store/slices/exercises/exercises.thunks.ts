@@ -4,30 +4,29 @@ import {
   updateExercise,
   getAllExercises
 } from "@root/services/exercises.service"
-import {
-  CreateExercisePayload,
-  GetAllExercisesPayload,
-  Exercise,
-  UpdateExercisePayload
-} from "@root/types/data"
-import { createAsyncThunkWithHandler } from "@root/utils/store"
+import { CreateExercisePayload, Exercise, IDType } from "@root/types/data"
+import { createThunk } from "@root/utils/store"
 
-export const getAllExercisesAction = createAsyncThunkWithHandler<
-  Exercise[],
-  GetAllExercisesPayload
->("exercises/getAll", getAllExercises)
+export const getAllExercisesAction = createThunk<undefined, Exercise[]>(
+  "exercises/getAll",
+  getAllExercises
+)
 
-export const createExerciseAction = createAsyncThunkWithHandler<Exercise, CreateExercisePayload>(
+export const createExerciseAction = createThunk<{ exercise: CreateExercisePayload }, Exercise>(
   "exercises/create",
-  createExercise
+  createExercise,
+  [],
+  { includeUserId: false }
 )
 
-export const updateExerciseAction = createAsyncThunkWithHandler<Exercise, UpdateExercisePayload>(
-  "exercises/update",
-  updateExercise
-)
+export const updateExerciseAction = createThunk<
+  { exerciseId: IDType; payload: Partial<Exercise> },
+  Exercise
+>("exercises/update", updateExercise, [], { includeUserId: false })
 
-export const deleteExerciseAction = createAsyncThunkWithHandler<Exercise, string>(
+export const deleteExerciseAction = createThunk<{ exerciseId: IDType }, Exercise>(
   "exercises/delete",
-  deleteExercise
+  deleteExercise,
+  [],
+  { includeUserId: false }
 )

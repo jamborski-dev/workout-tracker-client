@@ -14,16 +14,12 @@ import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
 import { Text } from "../__shared/Typography"
 import { ExerciseSelect } from "./ExerciseSelect"
-import { exerciseList } from "./mock-data"
 import { SetRow } from "./SetRow"
 import { SwitchToggle } from "./SwitchToggle"
 
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
 import { RootState } from "@root/store/store"
 import debounce from "lodash.debounce"
-
-const userId = 1
-const routineId = 1
 
 export const MovementBlock: FC<{
   movement: Movement
@@ -35,6 +31,8 @@ export const MovementBlock: FC<{
 }> = ({ movement, count, isExpanded = false, onEditClick, onCloseClick, onDelete }) => {
   const dispatch = useAppDispatch()
   const timerId = useAppSelector((state: RootState) => state.app.uuid)
+  const exerciseList = useAppSelector(state => state.exercises.list)
+
   const [showActual, setShowActual] = useState(true)
   const sets = useAppSelector(
     (state: RootState) => state.routines.selected?.movements.find(m => m.id === movement.id)?.sets
@@ -55,9 +53,7 @@ export const MovementBlock: FC<{
   }
 
   const handleAddSet = async () => {
-    await dispatch(
-      addSetAction({ userId, routineId, movementId: movement.id!, order: movement.sets.length })
-    )
+    await dispatch(addSetAction({ movementId: movement.id!, order: movement.sets.length }))
   }
 
   const handleOnDeleteRow = () => {}
@@ -65,8 +61,6 @@ export const MovementBlock: FC<{
   const handleOnExerciseSelect = (selected: IDType) => {
     dispatch(
       updateMovementAction({
-        userId: 1, // get from state later
-        routineId: 1, // get from state later
         movementId: movement.id!,
         payload: { exerciseId: parseInt(selected as string) } // partial update
       })

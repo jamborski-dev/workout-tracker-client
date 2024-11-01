@@ -10,7 +10,7 @@ export const NoAuthPage: FC<NoAuthPageProps> = ({ children }) => {
   return (
     <Page>
       <header>
-        <Logo />
+        <Logo size={"lg"} />
       </header>
       <main>{children}</main>
     </Page>

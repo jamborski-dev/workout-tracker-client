@@ -7,10 +7,12 @@ import { Text } from "@root/components/__shared/Typography"
 import { FormProvider, useForm } from "react-hook-form"
 import {
   addMovementAction,
-  removeMovementAction,
+  deleteMovementAction,
   saveMovementAction
 } from "@root/store/slices/routines/routines.thunks"
 import { closeMovement, editMovement } from "@root/store/slices/routines/routines.slice"
+import { useEffect } from "react"
+import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
 
 export const RoutineUpdater = () => {
   const dispatch = useAppDispatch()
@@ -19,13 +21,6 @@ export const RoutineUpdater = () => {
   const timerId = useAppSelector(state => state.app.uuid)
   const panelId = useAppSelector(selectOpenMovementId)
   const methods = useForm()
-
-  if (!routine)
-    return (
-      <div>
-        <Text>No routine found</Text>
-      </div>
-    )
 
   const handleEditClick = (id: IDType | null) => {
     if (timerId && panelId) {
@@ -48,8 +43,23 @@ export const RoutineUpdater = () => {
   }
 
   const handleRemoveMovement = (id: IDType) => {
-    dispatch(removeMovementAction({ movementId: id }))
+    dispatch(deleteMovementAction({ movementId: id }))
   }
+
+  const getExercises = async () => {
+    await dispatch(getAllExercisesAction())
+  }
+
+  useEffect(() => {
+    getExercises()
+  }, [])
+
+  if (!routine)
+    return (
+      <div>
+        <Text>No routine found</Text>
+      </div>
+    )
 
   return (
     <FormProvider {...methods}>

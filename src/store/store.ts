@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit"
 import routinesReducer from "@store/slices/routines/routines.slice"
-import usersReducer from "@root/store/slices/user/user.slice"
+import userReducer from "@root/store/slices/user/user.slice"
 import toastReducer from "@store/slices/toast/toast.slice"
 import pageReducer from "@store/slices/page/page.slice"
 import exercisesReducer from "@store/slices/exercises/exercises.slice"
@@ -13,7 +13,7 @@ export const store = configureStore({
     auth: authReducer,
     app: appReducer,
     page: pageReducer,
-    users: usersReducer,
+    user: userReducer,
     toast: toastReducer,
     routines: routinesReducer,
     exercises: exercisesReducer

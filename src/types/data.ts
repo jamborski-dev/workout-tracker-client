@@ -99,7 +99,7 @@ export type AddMovementActionPayload = {
   order: number
 } & WithAuth
 
-export type RemoveMovementActionPayload = {
+export type DeleteMovementActionPayload = {
   routineId: IDType
   userId: IDType
   movementId: IDType
@@ -114,13 +114,23 @@ export type UpdateMovementActionPayload = {
 
 export type UpdateMovementServicePayload = Partial<Omit<Movement, MetaDataKeys>>
 
+export type UpdateManyMovementsActionPayload = {
+  userId: IDType
+  routineId: IDType
+  payload: UpdateMovementServicePayload[]
+} & WithAuth
+
+export type UpdateManyMovementsServicePayload = {
+  payload: UpdateMovementServicePayload[]
+}
+
 // Sets
 export type AddSetActionPayload = {
   userId: IDType
   routineId: IDType
   movementId: IDType
   order: number
-}
+} & WithAuth
 export type AddSetServicePayload = Pick<MovementSet, "order">
 
 export type RemoveSetActionPayload = {
@@ -128,7 +138,7 @@ export type RemoveSetActionPayload = {
   routineId: IDType
   movementId: IDType
   setId: IDType
-}
+} & WithAuth
 export type RemoveSetServicePayload = Pick<RemoveSetActionPayload, "setId">
 
 export type UpdateSetActionPayload = {
@@ -137,7 +147,7 @@ export type UpdateSetActionPayload = {
   movementId: IDType
   setId: IDType
   payload: UpdateSetServicePayload
-}
+} & WithAuth
 export type UpdateSetServicePayload = Partial<Omit<MovementSet, MetaDataKeys | "movementId">>
 
 export type UpdateManySetsActionPayload = {
@@ -145,7 +155,7 @@ export type UpdateManySetsActionPayload = {
   routineId: IDType
   movementId: IDType
   payload: UpdateManySetsServicePayload
-}
+} & WithAuth
 export type UpdateManySetsServicePayload = {
   summary: MovementSummary
   sets: Partial<Omit<MovementSet, MetaDataKeys | "movementId">>[]

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC, PropsWithChildren } from "react"
-import { RightPanel } from "@components/RightPanel/RightPanel"
+// import { RightPanel } from "@components/RightPanel/RightPanel"
 import { useAppDispatch, useAppSelector } from "@store/hooks/store"
 import { selectRightPanel, setRightPanel } from "@store/slices/page/page.slice"
-import { FaUserNinja } from "react-icons/fa6"
-import { GrHomeOption } from "react-icons/gr"
-import { ImList2 } from "react-icons/im"
+// import { FaUserNinja } from "react-icons/fa6"
+// import { GrHomeOption } from "react-icons/gr"
+// import { ImList2 } from "react-icons/im"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 
@@ -29,7 +29,7 @@ export const MainTemplate: FC<PropsWithChildren> = ({ children }) => {
       <Content>
         {children}
         {Boolean(rightPanelState) && <Overlay onClick={onOverlayClick} />}
-        <RightPanel />
+        {/* <RightPanel /> */}
       </Content>
     </Main>
   )
@@ -54,8 +54,10 @@ const NavItem: FC<NavItemProps> = ({ route, label, Icon }) => {
 }
 
 const Main = styled.main`
-  min-height: 95vh;
-  max-height: 90vh;
+  // use this these to simulate phone look
+  /* min-height: 95vh; */
+  /* max-height: 90vh; */
+  /* border-radius: 3rem; */
   position: relative;
   display: grid;
   grid-template-areas:
@@ -66,7 +68,6 @@ const Main = styled.main`
   width: 100%;
   height: 100%;
   position: relative;
-  border-radius: 3rem;
   overflow: hidden;
 
   background-color: var(--app-bg);

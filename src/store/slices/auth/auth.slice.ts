@@ -18,7 +18,7 @@ export const loginUser = createAsyncThunk<string, LoginPayload, { rejectValue: s
       return response.data.accessToken // Return only the access token
     } catch (error: FixMeLater) {
       if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data)
+        return rejectWithValue(error.response.data.error)
       }
       return rejectWithValue(error.message)
     }

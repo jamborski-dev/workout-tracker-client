@@ -44,12 +44,13 @@ const Home = () => {
 export default Home
 
 const RouteCard: FC<{ route: FixMeLater; index: number }> = ({ route, index }) => {
+  const position = index % 2 === 0 ? "left" : "right"
   return (
     <Card to={route.path} $isEnabled={route.isEnabled} $index={index}>
       <ImageWrapper>
         <Image src={route.image} alt={route.title} />
-        <Title $position={index % 2 === 0 ? "left" : "right"}>{route.title}</Title>
-        <Gradient $position={index % 2 === 0 ? "left" : "right"} />
+        <Title $position={position}>{route.title}</Title>
+        <Gradient $position={position} />
       </ImageWrapper>
     </Card>
   )
@@ -64,13 +65,14 @@ const RootRoutes = styled.div`
 `
 
 const Card = styled(Link)<{ $isEnabled: boolean; $index: number }>`
-  max-width: 400px;
   width: 80%;
+  max-width: 400px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.3s ease;
+  position: relative;
 
   ${({ $isEnabled }) =>
     !$isEnabled &&
@@ -98,7 +100,11 @@ const Image = styled.img`
   }
 `
 
-const Title = styled.h4<{ $position: "left" | "right" }>`
+type PositionProps = {
+  $position: "left" | "right"
+}
+
+const Title = styled.h4<PositionProps>`
   position: absolute;
   top: 1rem;
   ${({ $position }) => $position}: 1.5rem;
@@ -108,7 +114,7 @@ const Title = styled.h4<{ $position: "left" | "right" }>`
   font-weight: 200;
 `
 
-const Gradient = styled.div<{ $position: "left" | "right" }>`
+const Gradient = styled.div<PositionProps>`
   position: absolute;
   top: 0;
   left: 0;

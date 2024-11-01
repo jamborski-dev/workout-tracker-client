@@ -16,6 +16,7 @@ import { useEffect } from "react"
 import { refreshAccessToken } from "@root/store/slices/auth/auth.slice"
 import { Logout } from "@root/features/auth/Logout"
 import { NotFound } from "./NotFound.page"
+import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 
 function App() {
   const dispatch = useAppDispatch()
@@ -33,7 +34,7 @@ function App() {
 
   if (!isAuthChecked) {
     // Render a loading spinner while authentication is being checked
-    return <div>Loading...</div>
+    return <FullPageLoader />
   }
 
   return (

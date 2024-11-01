@@ -5,7 +5,7 @@ import {
   getAllRoutinesAction,
   getRoutineByIdAction,
   addMovementAction,
-  removeMovementAction,
+  deleteMovementAction,
   updateMovementAction,
   addSetAction,
   removeSetAction,
@@ -193,17 +193,17 @@ const routinesSlice = createSlice({
       })
 
     builder
-      .addCase(removeMovementAction.pending, state => {
+      .addCase(deleteMovementAction.pending, state => {
         state.isUpdating = true
         state.error = null
       })
-      .addCase(removeMovementAction.fulfilled, (state, action) => {
+      .addCase(deleteMovementAction.fulfilled, (state, action) => {
         state.isUpdating = false
         state.selected!.movements = state
           .selected!.movements.filter(m => m.id !== action.meta.arg.movementId)
           .map((m, index) => ({ ...m, order: index }))
       })
-      .addCase(removeMovementAction.rejected, (state, action) => {
+      .addCase(deleteMovementAction.rejected, (state, action) => {
         state.error = action.payload as string
         state.isUpdating = false
       })
@@ -249,9 +249,9 @@ const routinesSlice = createSlice({
       })
       .addCase(removeSetAction.fulfilled, (state, action) => {
         state.isUpdating = false
-        state.selected!.movements.find(m => m.id === action.meta.arg.movementId)!.sets = state
-          .selected!.movements.find(m => m.id === action.meta.arg.movementId)!
-          .sets.filter(s => s.id !== action.meta.arg.setId)
+        state.selected!.movements.find(m => m.id === action.payload.movementId)!.sets = state
+          .selected!.movements.find(m => m.id === action.payload.movementId)!
+          .sets.filter(s => s.id !== action.payload.setId)
           .map((s, index) => ({ ...s, order: index })) // reindex
       })
       .addCase(removeSetAction.rejected, (state, action) => {
@@ -266,10 +266,10 @@ const routinesSlice = createSlice({
       })
       .addCase(updateSetAction.fulfilled, (state, action) => {
         state.isUpdating = false
-        const { movementId, setId, payload } = action.meta.arg
+        const { movementId, id: setId } = action.payload
         const movement = state.selected!.movements.find(m => m.id === movementId)!
         const setIndex = movement.sets.findIndex(s => s.id === setId)
-        movement.sets[setIndex] = { ...movement.sets[setIndex], ...payload }
+        movement.sets[setIndex] = { ...movement.sets[setIndex], ...action.payload }
       })
       .addCase(updateSetAction.rejected, (state, action) => {
         state.error = action.payload as string
@@ -283,7 +283,7 @@ const routinesSlice = createSlice({
       })
       .addCase(updateManySetsAction.fulfilled, (state, action) => {
         state.isUpdating = false
-        const { movementId } = action.meta.arg
+        const { movementId } = action.payload[0]
         const { payload } = action
         const movement = state.selected!.movements.find(m => m.id === movementId)!
         movement.sets = movement.sets.map(s => {
@@ -329,6 +329,6 @@ startAppListening({
   effect: async (_, { getState, dispatch }) => {
     const movements = getState().routines.selected!.movements
     const reorderPayload = trimObjectsArray(movements, ["id", "order"])
-    dispatch(updateMovementOrderAction({ userId: 1, routineId: 1, payload: reorderPayload }))
+    dispatch(updateMovementOrderAction({ payload: reorderPayload }))
   }
 })

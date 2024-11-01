@@ -6,7 +6,7 @@ import {
   getRoutineById,
   initRoutine,
   addMovement,
-  removeMovement,
+  deleteMovement,
   updateMovement,
   addSet,
   removeSet,
@@ -23,7 +23,7 @@ import {
   InitRoutineServiceReturn,
   Movement,
   MovementSet,
-  RemoveMovementActionPayload,
+  DeleteMovementActionPayload,
   RemoveSetActionPayload,
   Routine,
   UpdateManySetsActionPayload,
@@ -31,12 +31,7 @@ import {
   UpdateRoutineActionPayload,
   UpdateSetActionPayload
 } from "@root/types/data"
-import {
-  createAsyncThunkWithHandler,
-  createThunk,
-  getErrorMessage,
-  wrapSelector
-} from "@root/utils/store"
+import { createThunk, getErrorMessage, wrapSelector } from "@root/utils/store"
 import { RootState } from "@root/store/store"
 import { resetTimer } from "@store/slices/app/app.slice"
 import { FixMeLater } from "@root/types/FixMeLater"
@@ -79,19 +74,17 @@ export const addMovementAction = createThunk<
   Pick<AddMovementActionPayload, "routineId">
 >("routines/thunk/addMovement", addMovement, [wrapSelector(selectRoutineId, "routineId")])
 
-export const removeMovementAction = createThunk<
-  Pick<RemoveMovementActionPayload, "movementId">,
+export const deleteMovementAction = createThunk<
+  Pick<DeleteMovementActionPayload, "movementId">,
   undefined,
-  Pick<RemoveMovementActionPayload, "routineId" | "movementId">
->("routines/thunk/removeMovement", removeMovement, [wrapSelector(selectRoutineId, "routineId")])
+  Pick<DeleteMovementActionPayload, "routineId" | "movementId">
+>("routines/thunk/deleteMovement", deleteMovement, [wrapSelector(selectRoutineId, "routineId")])
 
-// All above done ✅
-
-// TODO: refactor below to use authed calls
-export const updateMovementAction = createAsyncThunkWithHandler<
-  UpdateMovementActionPayload,
-  Movement
->("routines/thunk/updateMovement", updateMovement)
+export const updateMovementAction = createThunk<
+  Pick<UpdateMovementActionPayload, "movementId" | "payload">,
+  Movement,
+  Pick<UpdateMovementActionPayload, "routineId">
+>("routines/thunk/updateMovement", updateMovement, [wrapSelector(selectRoutineId, "routineId")])
 
 export const saveMovementAction = createAsyncThunk<
   Movement,
@@ -101,8 +94,8 @@ export const saveMovementAction = createAsyncThunk<
   try {
     const movement = getState().routines.selected!.movements.find(m => m.id === id)
     const result = await updateMovement({
-      userId: 1,
-      routineId: 1,
+      userId: getState().user.userId,
+      routineId: getState().routines.selected!.id,
       movementId: id,
       payload: { ...movement },
       accessToken: getState().auth.accessToken
@@ -116,28 +109,44 @@ export const saveMovementAction = createAsyncThunk<
   }
 })
 
-export const updateMovementOrderAction = createAsyncThunk<FixMeLater, FixMeLater>(
+// TODO define the type
+export const updateMovementOrderAction = createThunk<FixMeLater, FixMeLater>(
   "routines/thunk/updateOrder",
   updateManyMovements
 )
 
 // Sets
-export const addSetAction = createAsyncThunkWithHandler<AddSetActionPayload, MovementSet>(
-  "routines/thunk/addSet",
-  addSet
-)
+export const addSetAction = createThunk<
+  Pick<AddSetActionPayload, "movementId" | "order">,
+  MovementSet,
+  Pick<AddSetActionPayload, "routineId">
+>("routines/thunk/addSet", addSet, [wrapSelector(selectRoutineId, "routineId")])
 
-export const removeSetAction = createAsyncThunkWithHandler<RemoveSetActionPayload>(
-  "routines/thunk/removeSet",
-  removeSet
-)
+export const removeSetAction = createThunk<
+  Pick<RemoveSetActionPayload, "setId">,
+  { movementId: IDType; setId: IDType },
+  Pick<RemoveSetActionPayload, "routineId" | "movementId">
+>("routines/thunk/removeSet", removeSet, [
+  wrapSelector(selectRoutineId, "routineId"),
+  wrapSelector(selectRoutineId, "movementId")
+])
 
-export const updateSetAction = createAsyncThunkWithHandler<UpdateSetActionPayload, MovementSet>(
-  "routines/thunk/updateSet",
-  patchSet
-)
+// Not used
+export const updateSetAction = createThunk<
+  Pick<UpdateSetActionPayload, "setId" | "payload">,
+  MovementSet,
+  Pick<UpdateSetActionPayload, "routineId" | "movementId">
+>("routines/thunk/updateSet", patchSet, [
+  wrapSelector(selectRoutineId, "routineId"),
+  wrapSelector(selectRoutineId, "movementId")
+])
 
-export const updateManySetsAction = createAsyncThunkWithHandler<
-  UpdateManySetsActionPayload,
-  MovementSet[]
->("routines/thunk/patchManySets", patchManySets)
+// Not used
+export const updateManySetsAction = createThunk<
+  Pick<UpdateManySetsActionPayload, "payload">,
+  MovementSet[],
+  Pick<UpdateManySetsActionPayload, "routineId" | "movementId">
+>("routines/thunk/patchManySets", patchManySets, [
+  wrapSelector(selectRoutineId, "routineId"),
+  wrapSelector(selectRoutineId, "movementId")
+])

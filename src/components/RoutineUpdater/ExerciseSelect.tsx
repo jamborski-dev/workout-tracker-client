@@ -1,9 +1,9 @@
 import { FC, Ref, useEffect } from "react"
 import { OptionProps, SingleValue, StylesConfig } from "react-select"
 import Select from "react-select"
-import { exerciseList } from "./mock-data"
 import { Exercise, IDType } from "@root/types/data"
 import { Controller, useFormContext } from "react-hook-form"
+import { useAppSelector } from "@root/store/hooks/store"
 
 const CustomOption: FC<OptionProps<Exercise>> = props => {
   const { data, innerRef, innerProps, isFocused } = props
@@ -107,7 +107,8 @@ interface ExerciseSelectProps {
 
 export const ExerciseSelect: FC<ExerciseSelectProps> = ({ movementId, exerciseId, onChange }) => {
   const { control, setValue } = useFormContext() // Use useFormContext if you're inside a FormProvider
-
+  const exerciseList = useAppSelector(state => state.exercises.list)
+  const isLoading = useAppSelector(state => state.exercises.isLoading)
   const handleOnChange = (selected: SingleValue<Exercise>) => {
     if (!selected) return
 
@@ -136,6 +137,7 @@ export const ExerciseSelect: FC<ExerciseSelectProps> = ({ movementId, exerciseId
             {...field}
             inputRef={field.ref}
             styles={customStyles}
+            isLoading={isLoading}
             isSearchable
             placeholder="-"
             getOptionLabel={option => option.name}

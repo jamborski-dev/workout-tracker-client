@@ -1,39 +1,66 @@
-import { CreateExercisePayload, Exercise, UpdateExercisePayload } from "@root/types/data"
-import { serviceCall } from "@root/utils/service"
+import { AccessToken, CreateExercisePayload, Exercise, IDType } from "@root/types/data"
+import { secureServiceCall } from "@root/utils/service"
 
-export const getAllExercises = async () => {
+export const getAllExercises = async ({ accessToken }: { accessToken: AccessToken }) => {
   const path = `/exercises`
-  return await serviceCall<undefined, Exercise[]>(
-    undefined,
-    "get",
+  return await secureServiceCall<undefined, Exercise[]>({
+    method: "get",
     path,
-    "Error fetching exercises"
-  )
+    errorMessage: "Error fetching exercises",
+    accessToken
+  })
 }
 
-export const createExercise = async (exercise: CreateExercisePayload) => {
-  return await serviceCall<CreateExercisePayload, Exercise>(
-    exercise,
-    "post",
-    "/exercises",
-    "Error creating exercise:"
-  )
+export const createExercise = async (params: {
+  accessToken: AccessToken
+  exercise: CreateExercisePayload
+}) => {
+  const { accessToken, exercise } = params
+  return await secureServiceCall<
+    {
+      exercise: CreateExercisePayload
+    },
+    Exercise
+  >({
+    params: { exercise },
+    method: "post",
+    path: "/exercises",
+    errorMessage: "Error creating exercise:",
+    accessToken
+  })
 }
 
-export const updateExercise = async (updatePayload: UpdateExercisePayload) => {
-  return await serviceCall<UpdateExercisePayload, Exercise>(
-    updatePayload,
-    "patch",
-    `/exercises/${updatePayload.id}`,
-    "Error editing exercise"
-  )
+export const updateExercise = async (params: {
+  payload: Partial<Exercise>
+  accessToken: AccessToken
+  exerciseId: IDType
+}) => {
+  const { payload, accessToken, exerciseId } = params
+  return await secureServiceCall<
+    {
+      payload: Partial<Exercise>
+    },
+    Exercise
+  >({
+    params: { payload },
+    method: "patch",
+    path: `/exercises/${exerciseId}`,
+    errorMessage: "Error editing exercise",
+    accessToken
+  })
 }
 
-export const deleteExercise = async (exerciseId: string) => {
-  return await serviceCall<undefined, Exercise>(
-    undefined,
-    "delete",
-    `/exercises/${exerciseId}`,
-    "Error deleting exercise"
-  )
+export const deleteExercise = async ({
+  exerciseId,
+  accessToken
+}: {
+  exerciseId: IDType
+  accessToken: AccessToken
+}) => {
+  return await secureServiceCall<undefined, Exercise>({
+    method: "delete",
+    path: `/exercises/${exerciseId}`,
+    errorMessage: "Error deleting exercise",
+    accessToken
+  })
 }
