@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSelector } from "@reduxjs/toolkit"
-import { selectAccessToken } from "@root/store/slices/auth/auth.slice"
+import { selectAccessToken } from "@root/store/slices/auth/auth.selectors"
 import { selectUserId } from "@root/store/slices/user/user.selectors"
 import { RootState } from "@root/store/store"
 import { IDType } from "@root/types/data"

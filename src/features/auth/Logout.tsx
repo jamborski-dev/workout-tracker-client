@@ -13,14 +13,12 @@ export const Logout = () => {
       try {
         // Call the backend logout endpoint to clear the refresh token cookie
         await API.post("/auth/logout", {}, { withCredentials: true })
-
-        // Dispatch logout action to clear accessToken from Redux store
-        dispatch(logout())
-
-        // Redirect user to login page after successful logout
-        navigate("/auth/login")
       } catch (error) {
         console.error("Logout failed: ", error)
+      } finally {
+        // Dispatch the logout action to clear the accessToken in the store
+        dispatch(logout())
+        navigate("/auth/login")
       }
     }
 

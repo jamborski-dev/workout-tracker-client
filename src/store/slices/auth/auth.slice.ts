@@ -1,29 +1,11 @@
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { API } from "@root/services/axios"
-import { RootState } from "@root/store/store"
 import { AccessToken } from "@root/types/data"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FixMeLater } from "@root/types/FixMeLater"
+import { loginUserAction } from "./auth.thunks"
 
 export type LoginPayload = { email: string; password: string }
-
-// Define the loginUser thunk
-export const loginUser = createAsyncThunk<string, LoginPayload, { rejectValue: string }>(
-  "auth/loginUser",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await API.post("/auth/login", credentials, {
-        withCredentials: true
-      })
-      return response.data.accessToken // Return only the access token
-    } catch (error: FixMeLater) {
-      if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data.error)
-      }
-      return rejectWithValue(error.message)
-    }
-  }
-)
 
 // Define the refreshAccessToken thunk
 export const refreshAccessToken = createAsyncThunk(
@@ -70,16 +52,16 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(loginUser.pending, state => {
+      .addCase(loginUserAction.pending, state => {
         state.isLoading = true
         state.error = null
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUserAction.fulfilled, (state, action) => {
         state.isAuthChecked = true
         state.isLoading = false
-        state.accessToken = action.payload
+        state.accessToken = action.payload.accessToken
       })
-      .addCase(loginUser.rejected, (state, action) => {
+      .addCase(loginUserAction.rejected, (state, action) => {
         state.isAuthChecked = true
         state.isLoading = false
         state.error = action.payload as string
@@ -103,8 +85,3 @@ const authSlice = createSlice({
 
 export const { logout } = authSlice.actions
 export default authSlice.reducer
-
-const selectAuthState = (state: RootState) => state.auth
-
-// for use in thunks + services
-export const selectAccessToken = createSelector(selectAuthState, state => state.accessToken)

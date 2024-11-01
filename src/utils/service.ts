@@ -57,6 +57,8 @@ export const serviceCall = async <T = Record<string, unknown>, Returned = undefi
       throw new Error(`${errorMessage}: ${error.message}`)
     }
 
+    console.log(error)
+
     throw new Error(errorMessage)
   }
 }
@@ -73,7 +75,7 @@ export const secureServiceCall = async <T = Record<string, unknown>, Returned = 
   method: HTTPMethod
   path: string
   errorMessage: string
-  accessToken: AccessToken
+  accessToken?: AccessToken
   debug?: boolean // Mark `debug` as optional since it has a default value.
 }): Promise<Returned> => {
   try {
@@ -112,6 +114,11 @@ export const secureServiceCall = async <T = Record<string, unknown>, Returned = 
     // Handling Axios-specific errors
     if (error instanceof AxiosError) {
       if (error.response) {
+        // Handle rate limiting (429) error
+        if (error.response.status === 429 && typeof error.response.data === "string") {
+          throw new Error(`${errorMessage}: ${error.response.data}`)
+        }
+
         if (debug) {
           console.error(`Error status: ${error.response.status}`)
           console.error(`Error data:`, error.response.data)

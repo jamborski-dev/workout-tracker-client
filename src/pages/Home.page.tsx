@@ -64,6 +64,13 @@ const RootRoutes = styled.div`
   gap: 1rem;
 `
 
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+`
+
 const Card = styled(Link)<{ $isEnabled: boolean; $index: number }>`
   width: 80%;
   max-width: 400px;
@@ -75,29 +82,24 @@ const Card = styled(Link)<{ $isEnabled: boolean; $index: number }>`
   position: relative;
 
   ${({ $isEnabled }) =>
-    !$isEnabled &&
-    css`
-      filter: grayscale(1);
-      user-select: none;
-      cursor: not-allowed;
-    `}
+    !$isEnabled
+      ? css`
+          filter: grayscale(1);
+          user-select: none;
+          cursor: not-allowed;
+          opacity: 0.5;
+        `
+      : css`
+          &:hover ${Image} {
+            transform: scale(1.05);
+          }
+        `}
 `
 
 const ImageWrapper = styled.div`
   position: relative;
   display: grid;
   aspect-ratio: 16 / 5;
-`
-
-const Image = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-
-  ${Card}:hover & {
-    transform: scale(1.05);
-  }
 `
 
 type PositionProps = {
