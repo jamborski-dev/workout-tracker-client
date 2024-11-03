@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc"
 import svgr from "vite-plugin-svgr"
 import fs from "fs"
 
+// Define full-reload plugin
 const fullReloadAlways: PluginOption = {
   name: "full-reload-always",
   handleHotUpdate({ server }) {
@@ -11,22 +12,36 @@ const fullReloadAlways: PluginOption = {
   }
 } as PluginOption
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    https: {
-      key: fs.readFileSync("certs/localhost+2-key.pem"),
-      cert: fs.readFileSync("certs/localhost+2.pem")
-    },
-    port: 5173,
-    proxy: {
-      "/api": {
-        target: "http://localhost:5001", // Your backend server
-        changeOrigin: true
-        // rewrite: path => path.replace(/^\/api/, "") // Optional: removes '/api' prefix if needed
+// Conditional server configuration based on environment
+const serverConfig =
+  process.env.NODE_ENV === "development"
+    ? {
+        https: {
+          key: fs.readFileSync("certs/localhost+2-key.pem"),
+          cert: fs.readFileSync("certs/localhost+2.pem")
+        },
+        port: 5173,
+        proxy: {
+          "/api": {
+            target: "http://localhost:5001", // Your backend server
+            changeOrigin: true
+            // rewrite: path => path.replace(/^\/api/, "") // Optional: removes '/api' prefix if needed
+          }
+        }
       }
-    }
-  },
+    : {
+        port: 5173,
+        proxy: {
+          "/api": {
+            target: "http://localhost:5001", // Your backend server
+            changeOrigin: true
+          }
+        }
+      }
+
+// Export Vite configuration
+export default defineConfig({
+  server: serverConfig,
   resolve: {
     alias: {
       "@root": "/src",
