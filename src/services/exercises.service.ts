@@ -1,4 +1,4 @@
-import { AccessToken, CreateExercisePayload, Exercise, IDType } from "@root/types/data"
+import { AccessToken, Exercise, IDType } from "@root/types/data"
 import { secureServiceCall } from "@root/utils/service"
 
 export const getAllExercises = async ({ accessToken }: { accessToken: AccessToken }) => {
@@ -11,18 +11,9 @@ export const getAllExercises = async ({ accessToken }: { accessToken: AccessToke
   })
 }
 
-export const createExercise = async (params: {
-  accessToken: AccessToken
-  exercise: CreateExercisePayload
-}) => {
-  const { accessToken, exercise } = params
-  return await secureServiceCall<
-    {
-      exercise: CreateExercisePayload
-    },
-    Exercise
-  >({
-    params: { exercise },
+export const createExercise = async (params: { accessToken: AccessToken }) => {
+  const { accessToken } = params
+  return await secureServiceCall<undefined, Pick<Exercise, "id">>({
     method: "post",
     path: "/exercises",
     errorMessage: "Error creating exercise:",

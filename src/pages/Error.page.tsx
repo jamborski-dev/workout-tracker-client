@@ -1,3 +1,4 @@
+import { NoAuthPage } from "@root/templates/NoAuthPage"
 import { useRouteError } from "react-router-dom"
 
 interface RouteError {
@@ -9,12 +10,12 @@ export default function ErrorPage() {
   console.error(error)
 
   return (
-    <div id="error-page">
+    <NoAuthPage>
       <h1>Oops!</h1>
       <p>Sorry, an unexpected error has occurred.</p>
       <p>
         <i>{(error as RouteError).statusText || (error as RouteError).message}</i>
       </p>
-    </div>
+    </NoAuthPage>
   )
 }

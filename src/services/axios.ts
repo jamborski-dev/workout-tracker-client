@@ -10,7 +10,7 @@ if (!serverUrl) {
 export const API = axios.create({
   baseURL: `${serverUrl}/api`, // Base URL for your API
   // baseURL: "http://192.168.1.60:5001/api", // Base URL for your API
-  timeout: 10000, // Optional: Request timeout in milliseconds
+  timeout: 60000, // 60s as Render cold start is about 50s
   headers: {
     "Content-Type": "application/json" // Default header for JSON
   }

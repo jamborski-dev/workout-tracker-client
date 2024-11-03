@@ -15,8 +15,9 @@ import { ProtectedRoute } from "@root/features/auth/Protected"
 import { useEffect } from "react"
 import { refreshAccessToken } from "@root/store/slices/auth/auth.slice"
 import { Logout } from "@root/features/auth/Logout"
-import { NotFound } from "./NotFound.page"
+import { HttpErrorPage } from "./HttpError.page"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
+import ExercisesPage from "./Exercises.page"
 
 function App() {
   const dispatch = useAppDispatch()
@@ -41,11 +42,38 @@ function App() {
     <>
       <MainTemplate>
         <Routes>
+          <Route path="/auth" element={<Login />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/register" element={<Register />} />
           <Route path="/auth/logout" element={<Logout />} />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/401" element={<div>401: Not Authorised</div>} />
+          <Route
+            path="*"
+            element={
+              <HttpErrorPage
+                code={404}
+                status="Not Found"
+                text="Sorry, the page you are looking for does not exist."
+                action={{
+                  label: "Go Back",
+                  to: "/"
+                }}
+              />
+            }
+          />
+          <Route
+            path="/401"
+            element={
+              <HttpErrorPage
+                code={401}
+                status="Not Authorized"
+                text="Sorry, you do not have access to this content."
+                action={{
+                  label: "Login",
+                  to: "/auth/login"
+                }}
+              />
+            }
+          />
 
           <Route
             path="/"
@@ -65,6 +93,22 @@ function App() {
           />
           <Route
             path="/routines/:id"
+            element={
+              <ProtectedRoute>
+                <RoutineByIdPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/exercises"
+            element={
+              <ProtectedRoute>
+                <ExercisesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/exercises/:id"
             element={
               <ProtectedRoute>
                 <RoutineByIdPage />

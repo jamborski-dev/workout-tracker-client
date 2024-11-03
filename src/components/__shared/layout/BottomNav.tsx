@@ -1,11 +1,13 @@
 import { IoIosFitness, IoIosLogOut } from "react-icons/io"
+import { IoFitness } from "react-icons/io5"
 import { RiHomeLine } from "react-icons/ri"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 
 const menuItems = [
   { label: "Home", path: "/", icon: RiHomeLine },
-  { label: "Routines", path: "/routines", icon: IoIosFitness },
+  { label: "Routines", path: "/routines", icon: IoFitness },
+  { label: "Exercise List", path: "/exercises ", icon: IoIosFitness },
   { label: "Logout", path: "/auth/logout", icon: IoIosLogOut }
   // { label: "Settings", path: "/settings" },
   // { label: "Profile", path: "/profile" },

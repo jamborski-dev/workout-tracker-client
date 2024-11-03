@@ -1,11 +1,13 @@
-import { FC } from "react"
+import { FC, ReactNode } from "react"
 import styled from "styled-components"
-import { IconButton } from "./Button"
+import { Button } from "./Button"
 
 type Action = {
   callback: () => void
   label: string
-  icon: React.ReactNode
+  icon: ReactNode
+  isLoading?: boolean
+  loadingText?: string
 }
 
 interface PageHeaderProps {
@@ -23,12 +25,12 @@ export const PageHeader: FC<PageHeaderProps> = ({ title, brew, action }) => {
       </Title>
       {action && (
         <Action>
-          <ActionContainer>
-            <IconButton onClick={action.callback} $size="lg">
-              {action.icon}
-            </IconButton>
-            <ActionLabel>{action.label}</ActionLabel>
-          </ActionContainer>
+          <Button
+            onClick={action.callback}
+            label={action.label}
+            loadingText={action.loadingText}
+            isLoading={action.isLoading}
+          />
         </Action>
       )}
     </Header>
@@ -41,14 +43,6 @@ const Header = styled.header`
   justify-content: space-between;
   padding: 2rem;
 `
-
-const ActionContainer = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-`
-
-const ActionLabel = styled.div``
 
 const Title = styled.div`
   flex: 1;

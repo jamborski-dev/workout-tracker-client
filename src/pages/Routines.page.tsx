@@ -40,7 +40,13 @@ const RoutinesPage = () => {
       headerComponent={
         <PageHeader
           title="Routines"
-          action={{ callback: handlePageAction, label: "New Routine", icon: <IoCreateOutline /> }}
+          action={{
+            callback: handlePageAction,
+            label: "New Routine",
+            icon: <IoCreateOutline />,
+            isLoading,
+            loadingText: "Creating..."
+          }}
         />
       }
     >

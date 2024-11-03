@@ -10,6 +10,14 @@ import { store } from "@store/store"
 import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 
+const requiredEnvVars = ["VITE_SERVER_URL"]
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !import.meta.env[envVar])
+
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(", ")}`)
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>

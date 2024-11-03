@@ -4,7 +4,7 @@ import { LoginPayload } from "@store/slices/auth/auth.slice"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import styled from "styled-components"
-import { PrimaryButton } from "@root/components/__shared/Button"
+import { Button } from "@root/components/__shared/Button"
 import { loginUserAction } from "@root/store/slices/auth/auth.thunks"
 
 export const Login = () => {
@@ -14,6 +14,7 @@ export const Login = () => {
     formState: { errors }
   } = useForm<LoginPayload>()
   const apiError = useAppSelector(state => state.auth.error)
+  const isLoading = useAppSelector(state => state.auth.isLoading)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -49,7 +50,12 @@ export const Login = () => {
             )}
           </FormGroup>
 
-          <PrimaryButton type="submit">Login</PrimaryButton>
+          <Button
+            type="submit"
+            label="Login"
+            loadingText="Authenticating..."
+            isLoading={isLoading}
+          />
           {apiError && <ErrorMessage>{apiError}</ErrorMessage>}
         </StyledForm>
       </StyledFormContainer>

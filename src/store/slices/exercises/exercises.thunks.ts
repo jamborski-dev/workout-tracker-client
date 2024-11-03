@@ -4,7 +4,7 @@ import {
   updateExercise,
   getAllExercises
 } from "@root/services/exercises.service"
-import { CreateExercisePayload, Exercise, IDType } from "@root/types/data"
+import { Exercise, IDType } from "@root/types/data"
 import { createThunk } from "@root/utils/store"
 
 export const getAllExercisesAction = createThunk<undefined, Exercise[]>(
@@ -12,7 +12,7 @@ export const getAllExercisesAction = createThunk<undefined, Exercise[]>(
   getAllExercises
 )
 
-export const createExerciseAction = createThunk<{ exercise: CreateExercisePayload }, Exercise>(
+export const createExerciseAction = createThunk<undefined, Pick<Exercise, "id">>(
   "exercises/create",
   createExercise,
   [],

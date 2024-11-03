@@ -1,16 +1,29 @@
 import { PrimaryButton } from "@root/components/__shared/Button"
 import { NoAuthPage } from "@root/templates/NoAuthPage"
+import { FC } from "react"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 
-export const NotFound = () => {
+interface HttpErrorPageProps {
+  code: number
+  status: string
+  text: string
+  action: {
+    label: string
+    to: string
+  }
+}
+
+export const HttpErrorPage: FC<HttpErrorPageProps> = ({ code, status, text, action }) => {
   return (
     <NoAuthPage>
       <Container>
-        <h1>404: Not Found</h1>
-        <p>Sorry, the page you are looking for does not exist.</p>
-        <Link to="/">
-          <PrimaryButton>Go Back</PrimaryButton>
+        <h1>
+          ${code}: {status}
+        </h1>
+        <p>{text}.</p>
+        <Link to={action.to}>
+          <PrimaryButton>{action.label}</PrimaryButton>
         </Link>
       </Container>
     </NoAuthPage>

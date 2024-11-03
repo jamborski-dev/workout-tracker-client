@@ -1,4 +1,37 @@
+import { ButtonHTMLAttributes, FC } from "react"
 import styled from "styled-components"
+import LoaderSVG from "@root/assets/loading-eclipse.svg"
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  isLoading?: boolean
+  loadingText?: string
+  label?: string
+}
+
+export const Button: FC<ButtonProps> = ({
+  isLoading,
+  loadingText = "Loading...",
+  label,
+  ...rest
+}) => {
+  return (
+    <PrimaryButton {...rest}>
+      {isLoading && <Spinner />}
+      {isLoading ? loadingText : label}
+    </PrimaryButton>
+  )
+}
+
+const Spinner = styled(LoaderSVG)`
+  --size: 1.5rem;
+  background: transparent !important;
+  width: var(--size);
+  height: var(--size);
+
+  path {
+    fill: white;
+  }
+`
 
 const sizeMap = {
   sm: 0.8,
@@ -45,7 +78,7 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
   }
 `
 
-export const Button = styled.button`
+export const StyledButton = styled.button`
   border-radius: 8px;
   border: 2px solid transparent;
   padding: 0.6em 1.7em;
@@ -76,6 +109,11 @@ export const PrimaryButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background-color: var(--app-accent-hover);
