@@ -4,7 +4,6 @@ import {
   Exercise
   //  Routine
 } from "@root/types/data"
-import { formatDate } from "@root/utils/date"
 // import { useAppDispatch } from "@store/hooks/store"
 // import { deleteRoutineAction } from "@store/slices/routines/routines.thunks"
 import {
@@ -24,16 +23,6 @@ interface ExerciseListProps {
 
 export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
   const navigate = useNavigate()
-
-  const renderDate = (timestamp: string) => {
-    const { day, month, getOrdinalSuffix } = formatDate(timestamp)
-    return (
-      <>
-        {day}
-        <sup>{getOrdinalSuffix}</sup> {month}
-      </>
-    )
-  }
 
   const handleRowClick = (id: string | number) => {
     navigate(`/items/${id}`)
@@ -70,11 +59,6 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
       <Table
         config={{
           columns: [
-            {
-              name: "Date",
-              accessor: "date",
-              render: renderDate
-            },
             {
               name: "Name",
               accessor: "name"

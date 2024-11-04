@@ -9,6 +9,7 @@ import "./index.css"
 import { store } from "@store/store"
 import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
+import ErrorBoundary from "@components/ErrorBoundary.tsx"
 
 const requiredEnvVars = ["VITE_SERVER_URL"]
 
@@ -22,7 +23,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Provider store={store}>
-        <AppRoot />
+        <ErrorBoundary>
+          <AppRoot />
+        </ErrorBoundary>
       </Provider>
     </BrowserRouter>
   </StrictMode>
