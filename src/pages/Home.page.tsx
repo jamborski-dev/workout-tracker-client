@@ -31,7 +31,13 @@ const routes = [
 
 const Home = () => {
   return (
-    <Page headerComponent={<Logo />}>
+    <Page
+      headerComponent={
+        <Padding>
+          <Logo />
+        </Padding>
+      }
+    >
       <RootRoutes>
         {routes.map((route, index) => (
           <RouteCard key={index} route={route} index={index} />
@@ -55,6 +61,10 @@ const RouteCard: FC<{ route: FixMeLater; index: number }> = ({ route, index }) =
     </Card>
   )
 }
+
+const Padding = styled.div`
+  padding: 2rem;
+`
 
 const RootRoutes = styled.div`
   display: flex;

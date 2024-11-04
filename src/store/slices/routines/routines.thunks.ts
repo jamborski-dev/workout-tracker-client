@@ -92,13 +92,17 @@ export const saveMovementAction = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >("routines/thunk/saveMovement", async (id: IDType, { getState, dispatch, rejectWithValue }) => {
   try {
+    const userId = getState().user.userId
+
+    if (!userId) {
+      throw new Error("Not authorized")
+    }
+
     const movement = getState().routines.selected!.movements.find(m => m.id === id)
     const result = await updateMovement({
-      userId: getState().user.userId,
       routineId: getState().routines.selected!.id,
       movementId: id,
-      payload: { ...movement },
-      accessToken: getState().auth.accessToken
+      payload: { ...movement }
     })
     return result
   } catch (error) {

@@ -67,7 +67,7 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
     }
   }
 
-  h2 {
+  /* h2 {
     // shared with select
     margin: 0;
     font-weight: 400;
@@ -81,7 +81,7 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
     span {
       font-size: 1.4rem;
     }
-  }
+  } */
 `
 
 export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`

@@ -40,7 +40,12 @@ const ExercisesPage = () => {
       headerComponent={
         <PageHeader
           title="Exercises"
-          action={{ callback: handlePageAction, label: "New Exercise", icon: <IoCreateOutline /> }}
+          action={{
+            callback: handlePageAction,
+            label: "New Exercise",
+            icon: <IoCreateOutline />,
+            disabled: true
+          }}
         />
       }
     >

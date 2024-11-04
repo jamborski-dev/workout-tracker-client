@@ -1,21 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { IDType } from "@root/types/data"
 
-export interface User {
-  id: IDType
-  email: string
-  username: string
-}
-
 interface UserState {
   isLoading: boolean
-  error?: string
-  userId: IDType
+  error: string | null
+  userId?: IDType
+  username?: string
 }
 
 const initialState: UserState = {
   isLoading: false,
-  userId: 1
+  error: null
 }
 
 const usersSlice = createSlice({

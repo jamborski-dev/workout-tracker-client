@@ -1,11 +1,12 @@
 import { NoAuthPage } from "@root/templates/NoAuthPage"
 import { useForm } from "react-hook-form"
-import { LoginPayload } from "@store/slices/auth/auth.slice"
-import { useNavigate } from "react-router-dom"
+import { LoginPayload } from "@store/slices/auth/auth.types"
+import { Navigate, useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import styled from "styled-components"
 import { Button } from "@root/components/__shared/Button"
 import { loginUserAction } from "@root/store/slices/auth/auth.thunks"
+import { RootState } from "@root/store/store"
 
 export const Login = () => {
   const {
@@ -15,6 +16,9 @@ export const Login = () => {
   } = useForm<LoginPayload>()
   const apiError = useAppSelector(state => state.auth.error)
   const isLoading = useAppSelector(state => state.auth.isLoading)
+  const user = useAppSelector((state: RootState) => state.auth.user)
+  const isAuthChecked = useAppSelector((state: RootState) => state.auth.isAuthChecked)
+
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -25,6 +29,11 @@ export const Login = () => {
     } catch (error) {
       console.error("Login failed: ", error)
     }
+  }
+
+  if (user && isAuthChecked) {
+    // If user is logged in and auth state is checked, redirect to home page
+    return <Navigate to="/" replace />
   }
 
   return (

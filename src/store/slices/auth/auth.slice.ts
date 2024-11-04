@@ -1,53 +1,28 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import { API } from "@root/services/axios"
-import { AccessToken } from "@root/types/data"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FixMeLater } from "@root/types/FixMeLater"
-import { loginUserAction } from "./auth.thunks"
-
-export type LoginPayload = { email: string; password: string }
-
-// Define the refreshAccessToken thunk
-export const refreshAccessToken = createAsyncThunk(
-  "auth/refreshAccessToken",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await API.post(
-        "/auth/refresh-token",
-        {},
-        {
-          withCredentials: true
-        }
-      )
-      return response.data.accessToken
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error: FixMeLater) {
-      return rejectWithValue("Failed to refresh access token")
-    }
-  }
-)
+import { createSlice } from "@reduxjs/toolkit"
+import { loginUserAction, refreshTokenAction } from "@store/slices/auth/auth.thunks"
+import { User } from "@store/slices/auth/auth.types"
 
 // Define the AuthSliceState type
 type AuthSliceState = {
-  accessToken: AccessToken
   isLoading: boolean
-  refreshing: boolean
+  isRefreshing: boolean
   isAuthChecked: boolean
   error: string | null
+  user: User | null
 }
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    accessToken: null,
     isLoading: false,
-    refreshing: false,
+    isRefreshing: false,
     isAuthChecked: false,
-    error: null
+    error: null,
+    user: null
   } as AuthSliceState,
   reducers: {
     logout: state => {
-      state.accessToken = null
+      state.user = null
     }
   },
   extraReducers: builder => {
@@ -59,26 +34,26 @@ const authSlice = createSlice({
       .addCase(loginUserAction.fulfilled, (state, action) => {
         state.isAuthChecked = true
         state.isLoading = false
-        state.accessToken = action.payload.accessToken
+        state.user = action.payload.user
       })
       .addCase(loginUserAction.rejected, (state, action) => {
         state.isAuthChecked = true
         state.isLoading = false
         state.error = action.payload as string
       })
-      .addCase(refreshAccessToken.pending, state => {
-        state.refreshing = true
+      .addCase(refreshTokenAction.pending, state => {
+        state.isRefreshing = true
         state.error = null
       })
-      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+      .addCase(refreshTokenAction.fulfilled, (state, action) => {
         state.isAuthChecked = true
-        state.refreshing = false
-        state.accessToken = action.payload
+        state.isRefreshing = false
+        state.user = action.payload.user
       })
-      .addCase(refreshAccessToken.rejected, state => {
+      .addCase(refreshTokenAction.rejected, state => {
         state.isAuthChecked = true
-        state.refreshing = false
-        state.accessToken = null
+        state.isRefreshing = false
+        state.user = null
       })
   }
 })

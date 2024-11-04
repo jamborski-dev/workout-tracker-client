@@ -107,7 +107,6 @@ export const PrimaryButton = styled.button`
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  cursor: pointer;
   transition: background-color 0.3s;
 
   display: flex;
@@ -115,7 +114,13 @@ export const PrimaryButton = styled.button`
   align-items: center;
   justify-content: center;
 
-  &:hover {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    cursor: pointer;
     background-color: var(--app-accent-hover);
   }
 `

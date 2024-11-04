@@ -8,15 +8,16 @@ import { BottomNav } from "./BottomNav"
 interface PageProps {
   headerComponent: ReactNode
   children: ReactNode
+  renderTimer?: boolean
 }
 
-export const Page: FC<PageProps> = ({ headerComponent, children }) => {
+export const Page: FC<PageProps> = ({ headerComponent, children, renderTimer = false }) => {
   const timer = useAppSelector(selectTimer)
   return (
     <Root>
       <header>
-        <Padding>{headerComponent}</Padding>
-        <Timer key={timer} />
+        {headerComponent}
+        {renderTimer ? <Timer key={timer} /> : null}
       </header>
       <main>{children}</main>
       <footer>
@@ -25,10 +26,6 @@ export const Page: FC<PageProps> = ({ headerComponent, children }) => {
     </Root>
   )
 }
-
-const Padding = styled.div`
-  padding: 1rem;
-`
 
 export const Root = styled.div`
   display: flex;
@@ -56,7 +53,7 @@ export const Root = styled.div`
 
     div {
       font-size: 0.8rem;
-      text-align: center;
+      /* text-align: center; */
       color: #22222299;
 
       sup {

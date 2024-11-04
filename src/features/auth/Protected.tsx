@@ -9,20 +9,21 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
-  const accessToken = useAppSelector((state: RootState) => state.auth.accessToken)
   const isLoading = useAppSelector((state: RootState) => state.auth.isLoading)
-  const refreshing = useAppSelector((state: RootState) => state.auth.refreshing)
+  const isRefreshing = useAppSelector((state: RootState) => state.auth.isRefreshing)
   const isAuthChecked = useAppSelector((state: RootState) => state.auth.isAuthChecked)
+  const user = useAppSelector((state: RootState) => state.auth.user)
   const location = useLocation()
 
-  if ((isLoading || refreshing) && !isAuthChecked) {
+  if (isLoading || isRefreshing) {
     // Show a loading spinner while checking auth state or refreshing the token
     return <FullPageLoader />
   }
 
-  return accessToken ? (
-    <>{children}</>
-  ) : (
-    <Navigate to="/auth/login" state={{ from: location }} replace />
-  )
+  if (user && isAuthChecked && ["/auth/login", "/auth", "/auth/"].includes(location.pathname)) {
+    // If user is logged in and auth state is checked, redirect to home page
+    return <Navigate to="/" replace />
+  }
+
+  return user ? <>{children}</> : <Navigate to="/auth/login" state={{ from: location }} replace />
 }

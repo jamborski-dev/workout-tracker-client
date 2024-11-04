@@ -8,6 +8,7 @@ type Action = {
   icon: ReactNode
   isLoading?: boolean
   loadingText?: string
+  disabled?: boolean
 }
 
 interface PageHeaderProps {
@@ -30,6 +31,7 @@ export const PageHeader: FC<PageHeaderProps> = ({ title, brew, action }) => {
             label={action.label}
             loadingText={action.loadingText}
             isLoading={action.isLoading}
+            disabled={action.disabled}
           />
         </Action>
       )}

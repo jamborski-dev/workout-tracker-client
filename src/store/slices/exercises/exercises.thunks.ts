@@ -14,19 +14,15 @@ export const getAllExercisesAction = createThunk<undefined, Exercise[]>(
 
 export const createExerciseAction = createThunk<undefined, Pick<Exercise, "id">>(
   "exercises/create",
-  createExercise,
-  [],
-  { includeUserId: false }
+  createExercise
 )
 
 export const updateExerciseAction = createThunk<
   { exerciseId: IDType; payload: Partial<Exercise> },
   Exercise
->("exercises/update", updateExercise, [], { includeUserId: false })
+>("exercises/update", updateExercise)
 
 export const deleteExerciseAction = createThunk<{ exerciseId: IDType }, Exercise>(
   "exercises/delete",
-  deleteExercise,
-  [],
-  { includeUserId: false }
+  deleteExercise
 )

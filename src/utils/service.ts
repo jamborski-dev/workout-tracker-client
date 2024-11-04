@@ -1,7 +1,6 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 import { API } from "@root/services/axios"
-import { AccessToken, IDType } from "@root/types/data"
-// import { getUserIdFromStore } from "./store"
+import { IDType } from "@root/types/data"
 
 type HTTPMethod = "get" | "post" | "put" | "delete" | "patch"
 type Params<T = Record<string, unknown>> = T & AxiosRequestConfig<T>
@@ -11,53 +10,27 @@ export const secureServiceCall = async <T = Record<string, unknown>, Returned = 
   method,
   path,
   errorMessage,
-  accessToken,
-  debug = false // Default value is set here correctly.
+  debug = false
 }: {
   params?: Params<T>
   method: HTTPMethod
   path: string
   errorMessage: string
-  accessToken?: AccessToken
-  debug?: boolean // Mark `debug` as optional since it has a default value.
+  debug?: boolean
 }): Promise<Returned> => {
   try {
-    if (debug) {
-      console.log(`Debug log: ${method} | ${path}`)
-    }
-
     let response: AxiosResponse<Returned>
-
-    console.log("accessToken", accessToken)
-
     if (method === "get" || method === "delete") {
-      // GET and DELETE requests
       response = await API[method](path, {
-        params,
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+        params
       })
     } else {
       // POST, PUT, PATCH requests
-      response = await API[method](path, params, {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
+      response = await API[method](path, params)
     }
 
-    if (debug) {
-      console.log(`Response: `, response)
-    }
     return response.data
   } catch (error: unknown) {
-    if (debug) {
-      console.error(error)
-    }
-
     // Handling Axios-specific errors
     if (error instanceof AxiosError) {
       if (error.response) {
@@ -101,15 +74,10 @@ type Segments = {
   setId: IDType
 }
 
-type EndpointParams = { userId: IDType } & Partial<Segments>
+type EndpointParams = Partial<Segments>
 
 // Utility to enforce required nesting
-export const buildEndpointPath = ({
-  userId,
-  routineId,
-  movementId,
-  setId
-}: EndpointParams): string => {
+export const buildEndpointPath = ({ routineId, movementId, setId }: EndpointParams): string => {
   // Validate the hierarchy of parameters
   if (setId && !movementId) {
     throw new Error("setId requires movementId")
@@ -119,7 +87,7 @@ export const buildEndpointPath = ({
   }
 
   // Build the path
-  let path = `/users/${userId}`
+  let path = ``
   if (routineId) path += `/routines/${routineId}`
   if (movementId) path += `/movements/${movementId}`
   if (setId) path += `/sets/${setId}`

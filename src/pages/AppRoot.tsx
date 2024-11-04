@@ -1,19 +1,17 @@
-// import { useEffect } from "react"
-// import { getUsersAction } from "@store/slices/users/users.slice"
 import { MainTemplate } from "@root/templates/MainTemplate"
 import { hideToast } from "@store/slices/toast/toast.slice"
 import { RootState } from "@store/store"
-import { Route, Routes } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom"
 import { Toast } from "@components/Toast/Toast"
 import { useAppDispatch, useAppSelector } from "../store/hooks/store"
 import HomePage from "./Home.page"
 import RoutinesPage from "./Routines.page"
 import RoutineByIdPage from "./Routine.id.page"
 import { Login } from "@root/features/auth/Login"
-import { Register } from "@root/features/auth/Register"
+// import { Register } from "@root/features/auth/Register"
 import { ProtectedRoute } from "@root/features/auth/Protected"
 import { useEffect } from "react"
-import { refreshAccessToken } from "@root/store/slices/auth/auth.slice"
+import { refreshTokenAction } from "@root/store/slices/auth/auth.thunks"
 import { Logout } from "@root/features/auth/Logout"
 import { HttpErrorPage } from "./HttpError.page"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
@@ -24,28 +22,29 @@ function App() {
 
   const { message, type, show } = useAppSelector((state: RootState) => state.toast)
 
-  const accessToken = useAppSelector((state: RootState) => state.auth.accessToken)
+  const user = useAppSelector((state: RootState) => state.auth.user)
   const isAuthChecked = useAppSelector((state: RootState) => state.auth.isAuthChecked)
 
   useEffect(() => {
-    if (!accessToken && !isAuthChecked) {
-      dispatch(refreshAccessToken())
+    if (!user && !isAuthChecked) {
+      dispatch(refreshTokenAction())
     }
-  }, [dispatch, accessToken, isAuthChecked])
+  }, [dispatch, isAuthChecked, user])
 
   if (!isAuthChecked) {
     // Render a loading spinner while authentication is being checked
-    return <FullPageLoader />
+    return <FullPageLoader text={"Retrieving session..."} />
   }
 
   return (
     <>
       <MainTemplate>
         <Routes>
-          <Route path="/auth" element={<Login />} />
+          <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
           <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/register" element={<Register />} />
+          {/* <Route path="/auth/register" element={<Register />} /> */}
           <Route path="/auth/logout" element={<Logout />} />
+          <Route path="/auth/*" element={<Navigate to="/auth/login" replace />} />
           <Route
             path="*"
             element={

@@ -22,6 +22,7 @@ import { useParams } from "react-router-dom"
 import styled from "styled-components"
 
 const DEFAULT_ROUTINE_NAME = "New Routine"
+const userId = 1 // mock
 
 const RoutineById = () => {
   const [editTitle, setEditTitle] = useState(false)
@@ -30,7 +31,6 @@ const RoutineById = () => {
   const dispatch = useAppDispatch()
   const isLoading = useAppSelector(selectRoutinesLoading)
   const routine = useAppSelector(selectRoutine)
-  const userId = useAppSelector(state => state.auth.user?.id)
 
   const methods = useForm()
   const { handleSubmit, setError } = methods
@@ -111,7 +111,6 @@ const RoutineById = () => {
 
   return (
     <Page
-      renderTimer
       headerComponent={
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)}>

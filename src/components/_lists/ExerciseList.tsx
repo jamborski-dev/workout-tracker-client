@@ -62,6 +62,14 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
             {
               name: "Name",
               accessor: "name"
+            },
+            {
+              name: "Description",
+              accessor: "description"
+            },
+            {
+              name: "Muscle Group",
+              accessor: "muscleGroup"
             }
             // {
             //   name: "Actions",
