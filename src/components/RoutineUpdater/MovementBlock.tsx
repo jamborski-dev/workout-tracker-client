@@ -20,6 +20,7 @@ import { SwitchToggle } from "./SwitchToggle"
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
 import { RootState } from "@root/store/store"
 import debounce from "lodash.debounce"
+import styled from "styled-components"
 
 export const MovementBlock: FC<{
   movement: Movement
@@ -115,7 +116,7 @@ export const MovementBlock: FC<{
       <header>
         <Stack>
           {!isExpanded && (
-            <h2>
+            <ExerciseHeader>
               <span>{exerciseList.find(m => m.id === movement.exerciseId)?.name || "-"}</span>
               <ButtonGroup $gap={0}>
                 <IconButton onClick={handleReorderUp} disabled={!canMoveUp}>
@@ -131,7 +132,7 @@ export const MovementBlock: FC<{
                   <FaTrash />
                 </IconButton>
               </ButtonGroup>
-            </h2>
+            </ExerciseHeader>
           )}
           {isExpanded && (
             <ExerciseSelect
@@ -192,3 +193,19 @@ export const MovementBlock: FC<{
     </Section>
   )
 }
+
+const ExerciseHeader = styled.h2`
+  /* // shared with select
+  margin: 0;
+  font-weight: 400;
+  color: #616161;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  > span {
+    font-size: 1.4rem;
+  } */
+`
