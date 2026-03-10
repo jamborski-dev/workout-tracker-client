@@ -35,15 +35,6 @@ const RoutineById = () => {
   const methods = useForm()
   const { handleSubmit, setError } = methods
 
-  const getRoutine = async () => {
-    if (!userId || !id) {
-      console.info("No user or routine id")
-      return
-    }
-
-    await dispatch(getRoutineByIdAction({ routineId: id }))
-  }
-
   const handleEditTitle = () => {
     setEditTitle(true)
   }
@@ -94,10 +85,16 @@ const RoutineById = () => {
   }
 
   useEffect(() => {
-    if (!id) return
-    getRoutine()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+    if (!userId || !id) {
+      return
+    }
+
+    if (`${routine?.id}` === `${id}`) {
+      return
+    }
+
+    dispatch(getRoutineByIdAction({ routineId: id }))
+  }, [dispatch, id, routine?.id, userId])
 
   if (isLoading) {
     return <FullPageLoader />
@@ -111,7 +108,6 @@ const RoutineById = () => {
 
   return (
     <Page
-      renderTimer
       headerComponent={
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)}>

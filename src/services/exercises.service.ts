@@ -9,8 +9,9 @@ export const getAllExercises = async () => {
   })
 }
 
-export const createExercise = async () => {
-  return await secureServiceCall<undefined, Pick<Exercise, "id">>({
+export const createExercise = async (payload: Omit<Exercise, "id">) => {
+  return await secureServiceCall<Omit<Exercise, "id">, Exercise>({
+    params: payload,
     method: "post",
     path: "/fit/exercises",
     errorMessage: "Error creating exercise:"

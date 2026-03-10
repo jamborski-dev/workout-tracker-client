@@ -28,6 +28,7 @@ export const MainTemplate: FC<PropsWithChildren> = ({ children }) => {
       </Menu> */}
       <Content>
         {children}
+
         {Boolean(rightPanelState) && <Overlay onClick={onOverlayClick} />}
         {/* <RightPanel /> */}
       </Content>
@@ -73,6 +74,7 @@ const Main = styled.main`
   background-color: var(--app-bg);
 
   box-shadow: 0 0 10px rgb(0, 0, 0, 0.1);
+  max-width: 500px;
 `
 
 const Menu = styled.aside`

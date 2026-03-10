@@ -29,12 +29,12 @@ import {
   UpdateManySetsActionPayload,
   UpdateMovementActionPayload,
   UpdateRoutineActionPayload,
-  UpdateSetActionPayload
+  UpdateSetActionPayload,
+  UpdateManyMovementsActionPayload
 } from "@root/types/data"
 import { createThunk, getErrorMessage, wrapSelector } from "@root/utils/store"
 import { RootState } from "@root/store/store"
 import { resetTimer } from "@store/slices/app/app.slice"
-import { FixMeLater } from "@root/types/FixMeLater"
 import { selectRoutineId } from "./routines.selectors"
 
 // Routines
@@ -114,7 +114,7 @@ export const saveMovementAction = createAsyncThunk<
 })
 
 // TODO define the type
-export const updateMovementOrderAction = createThunk<FixMeLater, FixMeLater>(
+export const updateMovementOrderAction = createThunk<UpdateManyMovementsActionPayload, Movement[]>(
   "routines/thunk/updateOrder",
   updateManyMovements
 )

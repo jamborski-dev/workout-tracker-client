@@ -1,6 +1,6 @@
 import styled from "styled-components"
 import { MovementBlock } from "./MovementBlock"
-import { IDType, Movement } from "@root/types/data"
+import type { IDType, Movement } from "@root/types/data"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { selectOpenMovementId, selectRoutine } from "@root/store/slices/routines/routines.selectors"
 import { Text } from "@root/components/__shared/Typography"
@@ -11,19 +11,18 @@ import {
   saveMovementAction
 } from "@root/store/slices/routines/routines.thunks"
 import { closeMovement, editMovement } from "@root/store/slices/routines/routines.slice"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
 
 export const RoutineUpdater = () => {
   const dispatch = useAppDispatch()
   const routine = useAppSelector(selectRoutine)
   const movements = useAppSelector(state => state.routines.selected?.movements)
-  const timerId = useAppSelector(state => state.app.uuid)
   const panelId = useAppSelector(selectOpenMovementId)
   const methods = useForm()
 
   const handleEditClick = (id: IDType | null) => {
-    if (timerId && panelId) {
+    if (panelId) {
       dispatch(saveMovementAction(panelId))
     }
 
@@ -31,7 +30,7 @@ export const RoutineUpdater = () => {
   }
 
   const handleCloseMovement = () => {
-    if (timerId && panelId) {
+    if (panelId) {
       dispatch(saveMovementAction(panelId))
     }
 
@@ -46,13 +45,13 @@ export const RoutineUpdater = () => {
     dispatch(deleteMovementAction({ movementId: id }))
   }
 
-  const getExercises = async () => {
+  const getExercises = useCallback(async () => {
     await dispatch(getAllExercisesAction())
-  }
+  }, [dispatch])
 
   useEffect(() => {
     getExercises()
-  }, [])
+  }, [getExercises])
 
   if (!routine)
     return (
@@ -69,7 +68,7 @@ export const RoutineUpdater = () => {
         ) : (
           movements.map((movement: Movement, index: number) => (
             <MovementBlock
-              key={index}
+              key={movement.id}
               movement={movement}
               count={index + 1}
               isExpanded={panelId === movement.id}

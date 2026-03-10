@@ -13,4 +13,5 @@ export type User = {
   id: IDType
   email: string
   username?: string
+  accessRole?: string
 }

@@ -5,8 +5,8 @@ import {
   saveMovementAction,
   updateMovementAction
 } from "@root/store/slices/routines/routines.thunks"
-import { IDType, Movement } from "@root/types/data"
-import { FC, useCallback, useEffect, useState } from "react"
+import type { IDType, Movement } from "@root/types/data"
+import { type FC, useEffect, useState } from "react"
 import { FaTrash } from "react-icons/fa6"
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
 import { MdAdd, MdClose, MdModeEdit, MdSave } from "react-icons/md"
@@ -18,8 +18,7 @@ import { SetRow } from "./SetRow"
 import { SwitchToggle } from "./SwitchToggle"
 
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
-import { RootState } from "@root/store/store"
-import debounce from "lodash.debounce"
+import type { RootState } from "@root/store/store"
 import styled from "styled-components"
 
 export const MovementBlock: FC<{
@@ -31,13 +30,23 @@ export const MovementBlock: FC<{
   onDelete: (id: IDType) => void
 }> = ({ movement, count, isExpanded = false, onEditClick, onCloseClick, onDelete }) => {
   const dispatch = useAppDispatch()
-  const timerId = useAppSelector((state: RootState) => state.app.uuid)
   const exerciseList = useAppSelector(state => state.exercises.list)
 
   const [showActual, setShowActual] = useState(true)
   const sets = useAppSelector(
     (state: RootState) => state.routines.selected?.movements.find(m => m.id === movement.id)?.sets
   )
+
+  const autosaveSignal = JSON.stringify({
+    exerciseId: movement.exerciseId ?? null,
+    sets: (sets || []).map(set => ({
+      id: set.id,
+      actualReps: set.actualReps,
+      actualWeight: set.actualWeight,
+      plannedReps: set.plannedReps,
+      plannedWeight: set.plannedWeight
+    }))
+  })
 
   const canMoveUp = movement.order > 0
 
@@ -84,26 +93,23 @@ export const MovementBlock: FC<{
     dispatch(updateSet({ movementId: movement.id, ...payload }))
   }
 
-  const debouncedSaveAction = useCallback(
-    debounce(() => {
-      dispatch(saveMovementAction(movement.id as number))
-    }, 5000),
-    [dispatch, movement.id, timerId]
-  )
-
   useEffect(() => {
-    if (isExpanded) {
-      // Trigger the save action whenever timerId changes to collect for batch partial updates
-      debouncedSaveAction()
-    } else {
-      debouncedSaveAction.cancel()
+    if (!isExpanded) {
+      return
     }
+
+    // Access signal to intentionally resubscribe autosave when edit payload changes.
+    void autosaveSignal
+
+    // Collect frequent edits and persist them with fewer network calls.
+    const timeout = window.setTimeout(() => {
+      dispatch(saveMovementAction(movement.id as number))
+    }, 12000)
 
     return () => {
-      // Cancel the debounce when component unmounts or timerId changes
-      debouncedSaveAction.cancel()
+      window.clearTimeout(timeout)
     }
-  }, [debouncedSaveAction, isExpanded, dispatch, movement.id])
+  }, [autosaveSignal, dispatch, isExpanded, movement.id])
 
   return (
     <Section $isExpanded={isExpanded}>
@@ -166,9 +172,9 @@ export const MovementBlock: FC<{
               <span>Weight</span>
               <span></span>
             </li>
-            {sets.map((set, index) => (
+            {sets.map(set => (
               <SetRow
-                key={index}
+                key={set.id}
                 set={set}
                 movementId={movement.id!}
                 onFieldChange={handleSetChange}
@@ -179,7 +185,7 @@ export const MovementBlock: FC<{
           </ul>
         )}
         <ButtonGroup>
-          <button className="add-set" onClick={handleAddSet}>
+          <button type="button" className="add-set" onClick={handleAddSet}>
             <MdAdd />
             <span>Add Set</span>
           </button>

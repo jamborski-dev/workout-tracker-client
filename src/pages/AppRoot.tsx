@@ -1,24 +1,34 @@
-import { MainTemplate } from "@root/templates/MainTemplate"
-import { hideToast } from "@store/slices/toast/toast.slice"
-import { RootState } from "@store/store"
-import { Navigate, Route, Routes } from "react-router-dom"
 import { Toast } from "@components/Toast/Toast"
-import { useAppDispatch, useAppSelector } from "../store/hooks/store"
-import HomePage from "./Home.page"
-import RoutinesPage from "./Routines.page"
-import RoutineByIdPage from "./Routine.id.page"
 import { Login } from "@root/features/auth/Login"
-// import { Register } from "@root/features/auth/Register"
-import { ProtectedRoute } from "@root/features/auth/Protected"
-import { useEffect } from "react"
-import { refreshTokenAction } from "@root/store/slices/auth/auth.thunks"
-import { Logout } from "@root/features/auth/Logout"
-import { HttpErrorPage } from "./HttpError.page"
-import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
+import { MainTemplate } from "@root/templates/MainTemplate"
+import {
+  LAST_APP_LOCATION_STORAGE_KEY,
+  getFromLocalStorage,
+  saveToLocalStorage
+} from "@root/utils/local-storage"
+import { hideToast } from "@store/slices/toast/toast.slice"
+import type { RootState } from "@store/store"
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom"
+import { useAppDispatch, useAppSelector } from "../store/hooks/store"
+import ExerciseCreatePage from "./Exercise.create.page"
 import ExercisesPage from "./Exercises.page"
+import RoutineByIdPage from "./Routine.id.page"
+import RoutinesPage from "./Routines.page"
+// import { Register } from "@root/features/auth/Register"
+import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
+import { Logout } from "@root/features/auth/Logout"
+import { ProtectedRoute } from "@root/features/auth/Protected"
+import { refreshTokenAction } from "@root/store/slices/auth/auth.thunks"
+import { useEffect, useRef } from "react"
+import { HttpErrorPage } from "./HttpError.page"
+
+const AUTH_ROUTES = ["/auth", "/auth/login", "/auth/logout"]
 
 function App() {
   const dispatch = useAppDispatch()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const hasTriedRestoringLocation = useRef(false)
 
   const { message, type, show } = useAppSelector((state: RootState) => state.toast)
 
@@ -30,6 +40,38 @@ function App() {
       dispatch(refreshTokenAction())
     }
   }, [dispatch, isAuthChecked, user])
+
+  useEffect(() => {
+    if (!user || !isAuthChecked) {
+      return
+    }
+
+    if (AUTH_ROUTES.some(path => location.pathname.startsWith(path))) {
+      return
+    }
+
+    saveToLocalStorage(
+      LAST_APP_LOCATION_STORAGE_KEY,
+      `${location.pathname}${location.search}${location.hash}`
+    )
+  }, [isAuthChecked, location.hash, location.pathname, location.search, user])
+
+  useEffect(() => {
+    if (!user || !isAuthChecked || hasTriedRestoringLocation.current) {
+      return
+    }
+
+    hasTriedRestoringLocation.current = true
+
+    const lastLocation = getFromLocalStorage<string>(LAST_APP_LOCATION_STORAGE_KEY)
+    if (!lastLocation) {
+      return
+    }
+
+    if (location.pathname === "/" && lastLocation !== "/") {
+      navigate(lastLocation, { replace: true })
+    }
+  }, [isAuthChecked, location.pathname, navigate, user])
 
   if (!isAuthChecked) {
     // Render a loading spinner while authentication is being checked
@@ -78,10 +120,11 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <HomePage />
+                <Navigate to="/routines" replace />
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/routines"
             element={
@@ -107,10 +150,10 @@ function App() {
             }
           />
           <Route
-            path="/exercises/:id"
+            path="/exercises/create"
             element={
               <ProtectedRoute>
-                <RoutineByIdPage />
+                <ExerciseCreatePage />
               </ProtectedRoute>
             }
           />

@@ -11,15 +11,19 @@ import {
   removeSetAction,
   updateSetAction,
   updateManySetsAction,
-  updateMovementOrderAction
+  updateMovementOrderAction,
+  saveMovementAction
 } from "./routines.thunks"
-import { RoutinesState } from "./routines.types"
-import { IDType, Movement, Routine } from "@root/types/data"
+import type { RoutinesState } from "./routines.types"
+import type { IDType, Movement, Routine } from "@root/types/data"
 import { startAppListening } from "@root/store/middleware/listenerMiddleware"
 import { buildSummary } from "@root/components/RoutineUpdater/utils"
-import { startTimer } from "../app/app.slice"
-import { v4 as uuid } from "uuid"
 import { reorderItems, trimObjectsArray } from "@root/utils/array"
+import {
+  ROUTINES_STATE_STORAGE_KEY,
+  getFromLocalStorage,
+  saveToLocalStorage
+} from "@root/utils/local-storage"
 
 const getEmptyMovement = ({
   id,
@@ -39,13 +43,38 @@ const getEmptyMovement = ({
   sets: []
 })
 
-const initialState: RoutinesState = {
+type PersistedRoutinesState = Pick<
+  RoutinesState,
+  "list" | "selected" | "openMovementId" | "showActualReps"
+>
+
+const defaultState: RoutinesState = {
   list: [],
   showActualReps: true,
   isLoading: false,
   isUpdating: false,
   error: null
 }
+
+const getInitialState = (): RoutinesState => {
+  const persistedState = getFromLocalStorage<PersistedRoutinesState>(ROUTINES_STATE_STORAGE_KEY)
+
+  return {
+    ...defaultState,
+    ...persistedState
+  }
+}
+
+const persistRoutinesState = (state: RoutinesState): void => {
+  saveToLocalStorage<PersistedRoutinesState>(ROUTINES_STATE_STORAGE_KEY, {
+    list: state.list,
+    selected: state.selected,
+    openMovementId: state.openMovementId,
+    showActualReps: state.showActualReps
+  })
+}
+
+const initialState: RoutinesState = getInitialState()
 
 const routinesSlice = createSlice({
   name: "routines",
@@ -319,8 +348,36 @@ startAppListening({
   matcher: isAnyOf(updateSet, addSetAction.fulfilled, removeSetAction.fulfilled, reorderSets),
   effect: async (action, { dispatch }) => {
     const { movementId } = action.payload as { movementId: number }
-    dispatch(startTimer({ payload: 4000, meta: { requestId: uuid() } }))
     dispatch(updateMovementSummary(movementId))
+  }
+})
+
+startAppListening({
+  matcher: isAnyOf(
+    loadRoutine,
+    initRoutine,
+    editMovement,
+    closeMovement,
+    togglePlannedActual,
+    getAllRoutinesAction.fulfilled,
+    getRoutineByIdAction.fulfilled,
+    updateRoutineAction.fulfilled,
+    deleteRoutineAction.fulfilled,
+    updateSet,
+    addSetAction.fulfilled,
+    removeSetAction.fulfilled,
+    updateSetAction.fulfilled,
+    updateManySetsAction.fulfilled,
+    reorderSets,
+    addMovementAction.fulfilled,
+    deleteMovementAction.fulfilled,
+    updateMovementAction.fulfilled,
+    saveMovementAction.fulfilled,
+    reorderMovements,
+    updateMovementOrderAction.fulfilled
+  ),
+  effect: async (_, { getState }) => {
+    persistRoutinesState(getState().routines)
   }
 })
 
@@ -328,7 +385,10 @@ startAppListening({
   matcher: isAnyOf(reorderMovements),
   effect: async (_, { getState, dispatch }) => {
     const movements = getState().routines.selected!.movements
+    if (!movements.length) return
     const reorderPayload = trimObjectsArray(movements, ["id", "order"])
-    dispatch(updateMovementOrderAction({ payload: reorderPayload }))
+    dispatch(
+      updateMovementOrderAction({ routineId: movements[0].routineId!, payload: reorderPayload })
+    )
   }
 })

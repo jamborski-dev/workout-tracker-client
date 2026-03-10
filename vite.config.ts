@@ -1,5 +1,5 @@
-import { defineConfig, PluginOption } from "vite"
-import react from "@vitejs/plugin-react-swc"
+import { defineConfig, type PluginOption } from "vite"
+import react from "@vitejs/plugin-react"
 import svgr from "vite-plugin-svgr"
 import fs from "fs"
 
@@ -16,6 +16,7 @@ const fullReloadAlways: PluginOption = {
 const serverConfig =
   process.env.NODE_ENV === "development"
     ? {
+        host: true,
         https: {
           key: fs.readFileSync("certs/localhost+2-key.pem"),
           cert: fs.readFileSync("certs/localhost+2.pem")
@@ -23,8 +24,9 @@ const serverConfig =
         port: 5173,
         proxy: {
           "/api": {
-            target: "http://localhost:5001", // Your backend server
-            changeOrigin: true
+            target: "https://localhost:5001", // Your backend server
+            changeOrigin: true,
+            secure: false
             // rewrite: path => path.replace(/^\/api/, "") // Optional: removes '/api' prefix if needed
           }
         }
@@ -33,8 +35,9 @@ const serverConfig =
         port: 5173,
         proxy: {
           "/api": {
-            target: "http://localhost:5001", // Your backend server
-            changeOrigin: true
+            target: "https://localhost:5001", // Your backend server
+            changeOrigin: true,
+            secure: false
           }
         }
       }
@@ -57,5 +60,21 @@ export default defineConfig({
       "@context": "/src/context"
     }
   },
-  plugins: [react(), svgr({ include: "**/*.svg" }), fullReloadAlways]
+  plugins: [
+    react({
+      babel: {
+        plugins: [
+          [
+            "babel-plugin-styled-components",
+            {
+              displayName: true,
+              fileName: true
+            }
+          ]
+        ]
+      }
+    }),
+    svgr({ include: "**/*.svg" }),
+    fullReloadAlways
+  ]
 })

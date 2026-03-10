@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { getAllExercisesAction } from "./exercises.thunks"
+import { createExerciseAction, getAllExercisesAction } from "./exercises.thunks"
 import { ExercisesState } from "./exercises.types"
 
 const initialState: ExercisesState = {
@@ -37,6 +37,20 @@ const exercisesSlice = createSlice({
       })
       .addCase(getAllExercisesAction.rejected, (state, action) => {
         state.isLoading = false
+        state.error = action.payload as string
+      })
+
+    builder
+      .addCase(createExerciseAction.pending, state => {
+        state.isUpdating = true
+        state.error = null
+      })
+      .addCase(createExerciseAction.fulfilled, (state, action) => {
+        state.isUpdating = false
+        state.list.push(action.payload)
+      })
+      .addCase(createExerciseAction.rejected, (state, action) => {
+        state.isUpdating = false
         state.error = action.payload as string
       })
   }

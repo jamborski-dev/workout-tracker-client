@@ -5,6 +5,7 @@ import { FC, ReactNode } from "react"
 import { Navigate, useLocation } from "react-router-dom"
 
 interface ProtectedRouteProps {
+  accessRole?: string // convert to enum
   children: ReactNode
 }
 
@@ -13,6 +14,7 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const isRefreshing = useAppSelector((state: RootState) => state.auth.isRefreshing)
   const isAuthChecked = useAppSelector((state: RootState) => state.auth.isAuthChecked)
   const user = useAppSelector((state: RootState) => state.auth.user)
+  // const { role } = user || ""
   const location = useLocation()
 
   if (isLoading || isRefreshing) {

@@ -5,10 +5,7 @@ import { Page } from "@root/components/__shared/layout/Page"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { IoCreateOutline } from "react-icons/io5"
-import {
-  createExerciseAction,
-  getAllExercisesAction
-} from "@root/store/slices/exercises/exercises.thunks"
+import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
 import {
   selectExerciseList,
   selectExercisesLoading
@@ -20,12 +17,7 @@ const ExercisesPage = () => {
   const navigate = useNavigate()
 
   const handlePageAction = async () => {
-    try {
-      const { id } = await dispatch(createExerciseAction()).unwrap()
-      navigate(`/exercise/${id}`)
-    } catch (err) {
-      console.error(err)
-    }
+    navigate(`/exercises/create`)
   }
 
   const isLoading = useAppSelector(selectExercisesLoading)
@@ -43,8 +35,7 @@ const ExercisesPage = () => {
           action={{
             callback: handlePageAction,
             label: "New Exercise",
-            icon: <IoCreateOutline />,
-            disabled: true
+            icon: <IoCreateOutline />
           }}
         />
       }

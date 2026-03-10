@@ -12,7 +12,7 @@ export const getAllExercisesAction = createThunk<undefined, Exercise[]>(
   getAllExercises
 )
 
-export const createExerciseAction = createThunk<undefined, Pick<Exercise, "id">>(
+export const createExerciseAction = createThunk<Omit<Exercise, "id">, Exercise>(
   "exercises/create",
   createExercise
 )

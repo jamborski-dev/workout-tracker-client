@@ -25,7 +25,8 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
   const navigate = useNavigate()
 
   const handleRowClick = (id: string | number) => {
-    navigate(`/items/${id}`)
+    return
+    navigate(`/exercises/${id}`)
   }
 
   const sectionHeadingProps = {
@@ -63,10 +64,10 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
               name: "Name",
               accessor: "name"
             },
-            {
-              name: "Description",
-              accessor: "description"
-            },
+            // {
+            //   name: "Description",
+            //   accessor: "description"
+            // },
             {
               name: "Muscle Group",
               accessor: "muscleGroup"
