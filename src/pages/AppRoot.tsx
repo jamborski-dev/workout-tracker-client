@@ -19,6 +19,7 @@ import ExercisesPage from "./Exercises.page"
 import RoutineByIdPage from "./Routine.id.page"
 import RoutinesPage from "./Routines.page"
 import RoutineNewPage from "./RoutineNew.page"
+import TemplateEditPage from "./Template.edit.page"
 // import { Register } from "@root/features/auth/Register"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { Logout } from "@root/features/auth/Logout"
@@ -162,6 +163,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RoutineNewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/templates/:id"
+            element={
+              <ProtectedRoute>
+                <TemplateEditPage />
               </ProtectedRoute>
             }
           />

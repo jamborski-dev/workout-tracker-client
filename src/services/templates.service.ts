@@ -1,4 +1,4 @@
-import type { IDType, RoutineTemplate } from "@root/types/data"
+import type { IDType, RoutineTemplate, TemplatePayload } from "@root/types/data"
 import { secureServiceCall } from "@root/utils/service"
 
 export const getAllTemplates = async () => {
@@ -18,10 +18,17 @@ export const createTemplateFromRoutine = async (params: { fromRoutineId: IDType;
   })
 }
 
-export const updateTemplate = async (params: {
-  templateId: IDType
-  payload: { name?: string; routineTypeId?: IDType }
-}) => {
+// Build a template from scratch
+export const createTemplate = async (params: Required<TemplatePayload>) => {
+  return await secureServiceCall<typeof params, RoutineTemplate>({
+    method: "post",
+    path: "/fit/templates",
+    params,
+    errorMessage: "Failed to save template"
+  })
+}
+
+export const updateTemplate = async (params: { templateId: IDType; payload: TemplatePayload }) => {
   const { templateId, payload } = params
   return await secureServiceCall<typeof payload, RoutineTemplate>({
     method: "patch",

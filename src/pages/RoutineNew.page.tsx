@@ -165,7 +165,7 @@ const RoutineNewPage = () => {
           <Hint>
             {typeTemplates.length
               ? "Start from a saved plan; its exercises and planned sets are copied into the new routine."
-              : `No templates for ${selectedType?.name ?? "this workout"} yet. Open a finished routine and use "Save as template".`}
+              : `No templates for ${selectedType?.name ?? "this workout"} yet. Create one here, or open a routine and use "Save as template".`}
           </Hint>
           {typeTemplates.length > 0 && (
             <Templates>
@@ -195,6 +195,13 @@ const RoutineNewPage = () => {
                         {template.movements.map(movement => movement.exercise?.name).filter(Boolean).join(", ")}
                       </small>
                     </TemplateTile>
+                    <Remove
+                      type="button"
+                      aria-label={`Edit template ${template.name}`}
+                      onClick={() => navigate(`/templates/${template.id}`)}
+                    >
+                      Edit
+                    </Remove>
                     {confirmDeleteId === template.id ? (
                       <Remove type="button" $danger onClick={() => removeTemplate(template.id)}>
                         Confirm
@@ -213,6 +220,9 @@ const RoutineNewPage = () => {
               })}
             </Templates>
           )}
+          <NewTemplate type="button" onClick={() => navigate(`/templates/new?type=${typeId ?? ""}`)}>
+            + New template
+          </NewTemplate>
         </Field>
 
         <Button
@@ -318,6 +328,17 @@ const TemplateTile = styled(TypeButton)`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+`
+
+const NewTemplate = styled.button`
+  align-self: flex-start;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--accent-text);
+  font-size: 0.85rem;
+  cursor: pointer;
 `
 
 const Remove = styled.button<{ $danger?: boolean }>`

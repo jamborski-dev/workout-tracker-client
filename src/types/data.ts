@@ -67,6 +67,19 @@ export type RoutineTemplate = {
   updatedAt: string
 }
 
+// What the template editor sends: a whole plan (the server replaces the stored one)
+export type TemplatePlanMovement = {
+  exerciseId: number
+  notes?: string | null
+  sets: { reps?: number | null; weight?: number | null; restTime?: number | null }[]
+}
+
+export type TemplatePayload = {
+  name?: string
+  routineTypeId?: IDType
+  movements?: TemplatePlanMovement[]
+}
+
 export type CreateRoutineTypeDto = {
   name: string
 }

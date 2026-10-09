@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 import { logout } from "@root/store/slices/auth/auth.slice"
 import {
   createTemplateAction,
+  createTemplateFromScratchAction,
   deleteTemplateAction,
   getAllTemplatesAction,
   updateTemplateAction
@@ -33,6 +34,9 @@ const templatesSlice = createSlice({
         state.error = action.payload as string
       })
       .addCase(createTemplateAction.fulfilled, (state, action) => {
+        state.list = [action.payload, ...state.list]
+      })
+      .addCase(createTemplateFromScratchAction.fulfilled, (state, action) => {
         state.list = [action.payload, ...state.list]
       })
       .addCase(updateTemplateAction.fulfilled, (state, action) => {

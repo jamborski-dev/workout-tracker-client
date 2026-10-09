@@ -1,10 +1,11 @@
 import {
+  createTemplate,
   createTemplateFromRoutine,
   deleteTemplate,
   getAllTemplates,
   updateTemplate
 } from "@root/services/templates.service"
-import type { IDType, RoutineTemplate } from "@root/types/data"
+import type { IDType, RoutineTemplate, TemplatePayload } from "@root/types/data"
 import { createThunk } from "@root/utils/store"
 
 export const getAllTemplatesAction = createThunk<undefined, RoutineTemplate[]>(
@@ -17,8 +18,13 @@ export const createTemplateAction = createThunk<
   RoutineTemplate
 >("templates/create", createTemplateFromRoutine)
 
+export const createTemplateFromScratchAction = createThunk<Required<TemplatePayload>, RoutineTemplate>(
+  "templates/createFromScratch",
+  createTemplate
+)
+
 export const updateTemplateAction = createThunk<
-  { templateId: IDType; payload: { name?: string; routineTypeId?: IDType } },
+  { templateId: IDType; payload: TemplatePayload },
   RoutineTemplate
 >("templates/update", updateTemplate)
 
