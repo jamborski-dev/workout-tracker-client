@@ -4,4 +4,5 @@ import { RootState } from "@store/store"
 const selectUsersState = (state: RootState) => state.user
 
 export const selectUsersLoading = createSelector(selectUsersState, state => state.isLoading)
-export const selectUserId = createSelector(selectUsersState, state => state.userId)
+// The logged-in user lives in the auth slice; the user slice is a leftover placeholder.
+export const selectUserId = (state: RootState) => state.auth.user?.id

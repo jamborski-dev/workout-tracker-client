@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit"
+import { selectUserId } from "@root/store/slices/user/user.selectors"
 import {
   deleteRoutine,
   updateRoutine,
@@ -92,7 +93,7 @@ export const saveMovementAction = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >("routines/thunk/saveMovement", async (id: IDType, { getState, dispatch, rejectWithValue }) => {
   try {
-    const userId = getState().user.userId
+    const userId = selectUserId(getState())
 
     if (!userId) {
       throw new Error("Not authorized")

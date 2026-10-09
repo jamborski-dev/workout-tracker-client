@@ -25,7 +25,7 @@ const RoutinesPage = () => {
     }
   }
 
-  const userId = useAppSelector(selectUserId) || 1
+  const userId = useAppSelector(selectUserId)
   const isLoading = useAppSelector(selectRoutinesLoading)
   const routines = useAppSelector(selectList) || []
 
