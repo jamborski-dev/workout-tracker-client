@@ -1,5 +1,3 @@
-import { IDType } from "@root/types/data"
-
 export type LoginPayload = {
   email: string
   password: string
@@ -10,8 +8,8 @@ export type AuthReturn = {
 }
 
 export type User = {
-  id: IDType
+  id: string
   email: string
-  username?: string
-  accessRole?: string
+  name: string
+  role?: string
 }

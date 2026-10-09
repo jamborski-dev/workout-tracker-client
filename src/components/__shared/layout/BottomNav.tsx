@@ -1,4 +1,6 @@
 import { IoIosFitness, IoIosLogOut } from "react-icons/io"
+import { IoShieldCheckmarkOutline } from "react-icons/io5"
+import { useAppSelector } from "@root/store/hooks/store"
 import { IoFitness } from "react-icons/io5"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
@@ -12,9 +14,17 @@ const menuItems = [
 ]
 
 export const BottomNav = () => {
+  const isAdmin = useAppSelector(state => state.auth.user?.role === "ADMIN")
+  const items = isAdmin
+    ? [
+        ...menuItems.slice(0, -1),
+        { label: "Admin", path: "/admin", icon: IoShieldCheckmarkOutline },
+        ...menuItems.slice(-1)
+      ]
+    : menuItems
   return (
     <Root>
-      {menuItems.map(item => {
+      {items.map(item => {
         const Icon = item.icon
         return (
           <Link key={item.label} to={item.path}>

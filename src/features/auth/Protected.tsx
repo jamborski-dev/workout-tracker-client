@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
   children: ReactNode
 }
 
-export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, accessRole }) => {
   const isLoading = useAppSelector((state: RootState) => state.auth.isLoading)
   const isRefreshing = useAppSelector((state: RootState) => state.auth.isRefreshing)
   const isAuthChecked = useAppSelector((state: RootState) => state.auth.isAuthChecked)
@@ -25,6 +25,10 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   if (user && isAuthChecked && ["/auth/login", "/auth", "/auth/"].includes(location.pathname)) {
     // If user is logged in and auth state is checked, redirect to home page
     return <Navigate to="/" replace />
+  }
+
+  if (user && accessRole && user.role !== accessRole) {
+    return <Navigate to="/401" replace />
   }
 
   return user ? <>{children}</> : <Navigate to="/auth/login" state={{ from: location }} replace />

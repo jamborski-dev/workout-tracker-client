@@ -22,6 +22,7 @@ const serverConfig =
           cert: fs.readFileSync("certs/localhost+2.pem")
         },
         port: 5173,
+        strictPort: true,
         proxy: {
           "/api": {
             target: "https://localhost:5001", // Your backend server

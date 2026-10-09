@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { loginUserAction, refreshTokenAction } from "@store/slices/auth/auth.thunks"
+import { loginUserAction, loadSessionAction } from "@store/slices/auth/auth.thunks"
 import { User } from "@store/slices/auth/auth.types"
 
 // Define the AuthSliceState type
@@ -41,16 +41,16 @@ const authSlice = createSlice({
         state.isLoading = false
         state.error = action.payload as string
       })
-      .addCase(refreshTokenAction.pending, state => {
+      .addCase(loadSessionAction.pending, state => {
         state.isRefreshing = true
         state.error = null
       })
-      .addCase(refreshTokenAction.fulfilled, (state, action) => {
+      .addCase(loadSessionAction.fulfilled, (state, action) => {
         state.isAuthChecked = true
         state.isRefreshing = false
         state.user = action.payload.user
       })
-      .addCase(refreshTokenAction.rejected, state => {
+      .addCase(loadSessionAction.rejected, state => {
         state.isAuthChecked = true
         state.isRefreshing = false
         state.user = null

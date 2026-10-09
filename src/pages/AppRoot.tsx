@@ -1,5 +1,8 @@
 import { Toast } from "@components/Toast/Toast"
 import { Login } from "@root/features/auth/Login"
+import { ForgotPassword } from "@root/features/auth/ForgotPassword"
+import { ResetPassword } from "@root/features/auth/ResetPassword"
+import AdminPage from "./Admin"
 import { MainTemplate } from "@root/templates/MainTemplate"
 import {
   LAST_APP_LOCATION_STORAGE_KEY,
@@ -18,11 +21,11 @@ import RoutinesPage from "./Routines.page"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { Logout } from "@root/features/auth/Logout"
 import { ProtectedRoute } from "@root/features/auth/Protected"
-import { refreshTokenAction } from "@root/store/slices/auth/auth.thunks"
+import { loadSessionAction } from "@root/store/slices/auth/auth.thunks"
 import { useEffect, useRef } from "react"
 import { HttpErrorPage } from "./HttpError.page"
 
-const AUTH_ROUTES = ["/auth", "/auth/login", "/auth/logout"]
+const AUTH_ROUTES = ["/auth"]
 
 function App() {
   const dispatch = useAppDispatch()
@@ -37,7 +40,7 @@ function App() {
 
   useEffect(() => {
     if (!user && !isAuthChecked) {
-      dispatch(refreshTokenAction())
+      dispatch(loadSessionAction())
     }
   }, [dispatch, isAuthChecked, user])
 
@@ -85,6 +88,8 @@ function App() {
           <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
           <Route path="/auth/login" element={<Login />} />
           {/* <Route path="/auth/register" element={<Register />} /> */}
+          <Route path="/auth/forgot" element={<ForgotPassword />} />
+          <Route path="/auth/reset" element={<ResetPassword />} />
           <Route path="/auth/logout" element={<Logout />} />
           <Route path="/auth/*" element={<Navigate to="/auth/login" replace />} />
           <Route
@@ -121,6 +126,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Navigate to="/routines" replace />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute accessRole="ADMIN">
+                <AdminPage />
               </ProtectedRoute>
             }
           />

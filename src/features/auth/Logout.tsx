@@ -1,5 +1,5 @@
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
-import { API } from "@root/services/axios"
+import { logoutUser } from "@root/services/auth.service"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { logout } from "@root/store/slices/auth/auth.slice"
 import type { RootState } from "@root/store/store"
@@ -13,7 +13,7 @@ export const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      await API.post("/auth/logout", {}, { withCredentials: true })
+      await logoutUser()
     } catch (error) {
       console.error("Logout failed: ", error)
     } finally {
