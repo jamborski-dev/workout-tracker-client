@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import {
   createExerciseAction,
+  deleteExerciseAction,
   getAllExercisesAction,
   updateExerciseAction
 } from "./exercises.thunks"
@@ -78,6 +79,10 @@ const exercisesSlice = createSlice({
         state.isUpdating = false
         state.error = action.payload as string
       })
+
+    builder.addCase(deleteExerciseAction.fulfilled, (state, action) => {
+      state.list = state.list.filter(exercise => exercise.id !== action.meta.arg.exerciseId)
+    })
   }
 })
 

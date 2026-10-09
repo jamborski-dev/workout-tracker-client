@@ -9,8 +9,14 @@ export const getAllExercises = async () => {
   })
 }
 
-export const createExercise = async (payload: Omit<Exercise, "id">) => {
-  return await secureServiceCall<Omit<Exercise, "id">, Exercise>({
+// `requestPublic` files an admin review request; `base` (admins only) adds to the base library
+export type CreateExerciseServicePayload = Omit<Exercise, "id"> & {
+  requestPublic?: boolean
+  base?: boolean
+}
+
+export const createExercise = async (payload: CreateExerciseServicePayload) => {
+  return await secureServiceCall<CreateExerciseServicePayload, Exercise>({
     params: payload,
     method: "post",
     path: "/fit/exercises",
@@ -19,17 +25,12 @@ export const createExercise = async (payload: Omit<Exercise, "id">) => {
 }
 
 export const updateExercise = async (params: {
-  payload: Partial<Exercise>
+  payload: Partial<Exercise> & { requestPublic?: boolean }
   exerciseId: IDType
 }) => {
   const { payload, exerciseId } = params
-  return await secureServiceCall<
-    {
-      payload: Partial<Exercise>
-    },
-    Exercise
-  >({
-    params: { payload },
+  return await secureServiceCall<Partial<Exercise> & { requestPublic?: boolean }, Exercise>({
+    params: payload,
     method: "patch",
     path: `/fit/exercises/${exerciseId}`,
     errorMessage: "Error editing exercise"
@@ -37,7 +38,7 @@ export const updateExercise = async (params: {
 }
 
 export const deleteExercise = async ({ exerciseId }: { exerciseId: IDType }) => {
-  return await secureServiceCall<undefined, Exercise>({
+  return await secureServiceCall<undefined, undefined>({
     method: "delete",
     path: `/fit/exercises/${exerciseId}`,
     errorMessage: "Error deleting exercise"

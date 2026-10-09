@@ -89,6 +89,12 @@ export type Exercise = {
   complexity?: string | null
   equipment?: string | null
   favourite?: boolean
+  // Library state (set by the server)
+  visibility?: "PRIVATE" | "PUBLIC"
+  reviewStatus?: "NONE" | "PENDING" | "APPROVED" | "REJECTED"
+  reviewNote?: string | null
+  isMine?: boolean
+  isBase?: boolean
 }
 
 export type DBExercise = MetaData & Exercise

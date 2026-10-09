@@ -31,3 +31,31 @@ export const getApiErrorMessage = (error: unknown): string => {
   const message = (error as { response?: { data?: { error?: string } } })?.response?.data?.error
   return message || (error instanceof Error ? error.message : "Something went wrong")
 }
+
+export type PendingExercise = {
+  id: number
+  name: string
+  description: string | null
+  muscleGroup: string | null
+  category: string | null
+  complexity: string | null
+  equipment: string | null
+  submittedAt: string | null
+  owner: { email: string; name: string } | null
+  similar: { id: number; name: string; category: string | null; equipment: string | null }[]
+}
+
+export const getPendingExercises = async () =>
+  (await API.get<PendingExercise[]>("/fit/admin/exercises/pending")).data
+
+export const approveExercise = async (id: number) => {
+  await API.post(`/fit/admin/exercises/${id}/approve`)
+}
+
+export const rejectExercise = async (id: number, note: string) => {
+  await API.post(`/fit/admin/exercises/${id}/reject`, { note })
+}
+
+export const mergeExercise = async (id: number, targetId: number) => {
+  await API.post(`/fit/admin/exercises/${id}/merge`, { targetId })
+}

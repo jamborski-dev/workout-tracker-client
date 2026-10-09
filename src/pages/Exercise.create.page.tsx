@@ -30,9 +30,12 @@ const normalizeExercisePayload = (payload: Omit<Exercise, "id">): Omit<Exercise,
   favourite: payload.favourite ?? false
 })
 
+type ExerciseFormValues = Omit<Exercise, "id"> & { requestPublic?: boolean; base?: boolean }
+
 const CreateExercisePage = () => {
   const dispatch = useAppDispatch()
   const exercises = useAppSelector(state => state.exercises.list)
+  const isAdmin = useAppSelector(state => state.auth.user?.role === "ADMIN")
   const isLoading = useAppSelector(state => state.exercises.isLoading)
   const isUpdating = useAppSelector(state => state.exercises.isUpdating)
   const [filtered, setFiltered] = useState<Exercise[]>([])
@@ -52,7 +55,7 @@ const CreateExercisePage = () => {
     }
   }
 
-  const methods = useForm<Omit<Exercise, "id">>({
+  const methods = useForm<ExerciseFormValues>({
     mode: "onChange"
   })
   const { handleSubmit, formState, register } = methods
@@ -61,7 +64,11 @@ const CreateExercisePage = () => {
   const onSubmit = async (data: FieldValues) => {
     try {
       await dispatch(
-        createExerciseAction(normalizeExercisePayload(data as Omit<Exercise, "id">))
+        createExerciseAction({
+          ...normalizeExercisePayload(data as Omit<Exercise, "id">),
+          requestPublic: Boolean(data.requestPublic),
+          base: isAdmin && Boolean(data.base)
+        })
       ).unwrap()
       dispatch(getAllExercisesAction())
       methods.reset({
@@ -71,7 +78,9 @@ const CreateExercisePage = () => {
         category: "",
         complexity: "",
         equipment: "",
-        favourite: false
+        favourite: false,
+        requestPublic: false,
+        base: false
       })
       setFiltered([])
     } catch (error) {
@@ -154,6 +163,19 @@ const CreateExercisePage = () => {
               <CheckboxInput type="checkbox" {...register("favourite")} />
               <CheckboxLabel>Pin as favourite</CheckboxLabel>
             </CheckboxRow>
+            <CheckboxRow>
+              <CheckboxInput type="checkbox" {...register("requestPublic")} />
+              <CheckboxLabel>
+                Share with everyone. An admin reviews it first; until then it stays private and you
+                can use it right away.
+              </CheckboxLabel>
+            </CheckboxRow>
+            {isAdmin && (
+              <CheckboxRow>
+                <CheckboxInput type="checkbox" {...register("base")} />
+                <CheckboxLabel>Add straight to the base library (admin)</CheckboxLabel>
+              </CheckboxRow>
+            )}
             <Button type="submit" label="Save" loadingText="Saving..." isLoading={isUpdating} />
           </Form>
         </FormProvider>
