@@ -105,6 +105,7 @@ export interface MovementSet {
   actualWeight?: number
   plannedReps?: number
   plannedWeight?: number
+  completed?: boolean
   isWU?: boolean
 }
 

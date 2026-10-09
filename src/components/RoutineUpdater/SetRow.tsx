@@ -2,6 +2,8 @@ import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { removeSetAction } from "@root/store/slices/routines/routines.thunks"
 import type { IDType, MovementSet } from "@root/types/data"
 import { useEffect, useCallback } from "react"
+import { MdCheck } from "react-icons/md"
+import { actualsFromPlan } from "./utils"
 import type { FC, SyntheticEvent, KeyboardEvent, FocusEvent, PointerEvent } from "react"
 import { useForm } from "react-hook-form"
 import { ButtonGroup, IconButton } from "../__shared/Button"
@@ -17,7 +19,8 @@ interface SetRowProps {
   set: MovementSet
   movementId: IDType
   showActual: boolean
-  onFieldChange: (payload: { setId: IDType; field: string; value: number }) => void
+  isCurrent?: boolean
+  onFieldChange: (payload: { setId: IDType; field: string; value: number | boolean }) => void
   onDelete: () => void
 }
 
@@ -25,6 +28,7 @@ export const SetRow: FC<SetRowProps> = ({
   set,
   movementId,
   showActual,
+  isCurrent,
   onFieldChange,
   onDelete
 }) => {
@@ -46,7 +50,7 @@ export const SetRow: FC<SetRowProps> = ({
   const setsFieldId = `set.${resolvedSet.id}.sets`
   const isWUFieldId = `set.${resolvedSet.id}.isWU`
 
-  const { register, setValue } = useForm({
+  const { register, setValue, getValues } = useForm({
     defaultValues: {
       [actualRepsFieldId]: actualReps || 0,
       [actualWeightFieldId]: actualWeight || 0,
@@ -115,6 +119,26 @@ export const SetRow: FC<SetRowProps> = ({
     dragControls.start(event)
   }
 
+  // Values filled from outside (tick-off / "complete all") must show in the uncontrolled inputs
+  useEffect(() => {
+    if (actualReps !== undefined && actualReps !== null && Number(getValues(actualRepsFieldId)) !== actualReps) {
+      setValue(actualRepsFieldId, actualReps)
+    }
+    if (actualWeight !== undefined && actualWeight !== null && Number(getValues(actualWeightFieldId)) !== actualWeight) {
+      setValue(actualWeightFieldId, actualWeight)
+    }
+  }, [actualReps, actualWeight, actualRepsFieldId, actualWeightFieldId, getValues, setValue])
+
+  const completed = Boolean(resolvedSet.completed)
+  const handleToggleCompleted = () => {
+    if (!completed) {
+      Object.entries(actualsFromPlan(resolvedSet)).forEach(([field, value]) =>
+        onFieldChange({ setId: id, field, value })
+      )
+    }
+    onFieldChange({ setId: id, field: "completed", value: !completed })
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: updates should run only when showActual toggles
   useEffect(() => {
     if (showActual) {
@@ -135,6 +159,8 @@ export const SetRow: FC<SetRowProps> = ({
       dragListener={false}
       whileDrag={{ zIndex: "var(--layer-dragging)" }}
       className="set-grid set-row"
+      data-done={completed}
+      data-current={isCurrent && !completed}
       style={{
         listStyle: "none",
         zIndex: "var(--layer-content)",
@@ -185,6 +211,14 @@ export const SetRow: FC<SetRowProps> = ({
       )}
       {/* Is WU checkbox - Is Warm Up? */}
       <StyledCheckbox type="checkbox" {...register(isWUFieldId)} />
+      <DoneButton
+        type="button"
+        aria-label={completed ? "Mark set not done" : "Mark set done"}
+        aria-pressed={completed}
+        onClick={handleToggleCompleted}
+      >
+        <MdCheck />
+      </DoneButton>
       <ButtonGroup className="set-actions">
         <IconButton $size="sm" onClick={handleRemoveSet} $fontSize=".7rem">
           <FaTrash />
@@ -196,6 +230,30 @@ export const SetRow: FC<SetRowProps> = ({
     </Reorder.Item>
   )
 }
+
+const DoneButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+
+  svg {
+    font-size: 1.1rem;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+`
 
 const StyledCheckbox = styled.input`
   margin: 0;

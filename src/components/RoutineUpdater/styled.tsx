@@ -123,7 +123,7 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
 
     .set-grid {
       display: grid;
-      grid-template-columns: repeat(3, 60px) min-content 1fr min-content;
+      grid-template-columns: repeat(3, 60px) min-content min-content 1fr min-content;
       align-items: center;
       gap: 0.5rem;
 
@@ -143,6 +143,20 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
 
       .set-actions {
         justify-self: end;
+      }
+
+      &.set-row {
+        padding-block: 0.15rem;
+        border-left: 3px solid transparent;
+        padding-left: 0.3rem;
+      }
+
+      &.set-row[data-done="true"] {
+        background: var(--accent-soft);
+      }
+
+      &.set-row[data-current="true"] {
+        border-left-color: var(--accent);
       }
     }
   }

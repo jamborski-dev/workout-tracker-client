@@ -10,7 +10,8 @@ import {
 import type { IDType, Movement } from "@root/types/data"
 import { type FC, type MouseEvent, type PointerEvent, useEffect, useState } from "react"
 import { FaTrash } from "react-icons/fa6"
-import { MdAdd, MdClose } from "react-icons/md"
+import { MdAdd, MdCheck, MdClose } from "react-icons/md"
+import { actualsFromPlan } from "./utils"
 import { IoStar, IoStarOutline } from "react-icons/io5"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
@@ -52,7 +53,8 @@ export const MovementBlock: FC<{
       actualReps: set.actualReps,
       actualWeight: set.actualWeight,
       plannedReps: set.plannedReps,
-      plannedWeight: set.plannedWeight
+      plannedWeight: set.plannedWeight,
+      completed: Boolean(set.completed)
     }))
   })
 
@@ -116,7 +118,7 @@ export const MovementBlock: FC<{
     onOpenClick(movement.id as IDType)
   }
 
-  const handleSetChange = (payload: { setId: IDType; field: string; value: number }) => {
+  const handleSetChange = (payload: { setId: IDType; field: string; value: number | boolean }) => {
     dispatch(updateSet({ movementId: movement.id, ...payload }))
   }
 
@@ -125,6 +127,23 @@ export const MovementBlock: FC<{
   }
 
   const orderedSets = [...(sets || [])].sort((left, right) => left.order - right.order)
+  const currentSetId = orderedSets.find(set => !set.completed)?.id
+  const allDone = orderedSets.length > 0 && orderedSets.every(set => set.completed)
+
+  // Tick off every remaining set at its planned values, or untick all when everything is done
+  const handleCompleteAll = () => {
+    orderedSets.forEach(set => {
+      if (allDone) {
+        handleSetChange({ setId: set.id, field: "completed", value: false })
+        return
+      }
+      if (set.completed) return
+      Object.entries(actualsFromPlan(set)).forEach(([field, value]) =>
+        handleSetChange({ setId: set.id, field, value })
+      )
+      handleSetChange({ setId: set.id, field: "completed", value: true })
+    })
+  }
 
   useEffect(() => {
     if (!isExpanded) {
@@ -242,6 +261,7 @@ export const MovementBlock: FC<{
                 <span>Reps</span>
                 <span>Weight</span>
                 <span>WU</span>
+                <span>Done</span>
                 <span></span>
                 <span></span>
               </li>
@@ -252,15 +272,20 @@ export const MovementBlock: FC<{
                   movementId={movementId}
                   onFieldChange={handleSetChange}
                   showActual={showActual}
+                  isCurrent={set.id === currentSetId}
                   onDelete={handleOnDeleteRow}
                 />
               ))}
             </Reorder.Group>
           )}
-          <ButtonGroup>
+          <ButtonGroup $gap={0.6} style={{ flexWrap: "wrap" }}>
             <AddRowButton type="button" onClick={handleAddSet}>
               <MdAdd />
               <span>Add Row</span>
+            </AddRowButton>
+            <AddRowButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
+              <MdCheck />
+              <span>{allDone ? "Undo all" : "Complete all"}</span>
             </AddRowButton>
             <SwitchToggle
               isOn={showActual}
@@ -358,12 +383,13 @@ const Title = styled.span`
 `
 
 const AddRowButton = styled.button`
-  font-size: 1rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
   font-weight: 500;
 
   background: var(--accent);
   color: var(--accent-contrast);
-  padding: 0.3rem 1rem;
+  padding: 0.3rem 0.8rem;
 
   border: none;
   border-radius: var(--radius-control);
