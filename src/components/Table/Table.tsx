@@ -81,10 +81,8 @@ export const TableRoot = styled.table`
   overflow: scroll;
   background-color: var(--surface);
   color: var(--text-2);
-  border-radius: var(--border-radius);
-  box-shadow: 0 0 0 1px var(--border-subtle);
   backdrop-filter: var(--glass-blur);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);

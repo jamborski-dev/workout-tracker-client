@@ -263,7 +263,7 @@ const GroupToggleButton = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? "var(--accent)" : "var(--border-default)")};
   background: ${({ $active }) => ($active ? "var(--accent-soft)" : "transparent")};
   color: var(--text-2);
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   padding: 0.2rem 0.55rem;
   font-size: 0.68rem;
   cursor: pointer;

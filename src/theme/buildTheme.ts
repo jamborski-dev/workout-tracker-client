@@ -109,21 +109,21 @@ const flat = (dark: boolean): Spec =>
 // Vivid: gradient glow backdrop with frosted-glass surfaces on top
 const vividDark = (p: Palette): Spec => {
   const [g1, g2, g3] = p.glow
-  const base = "#0a0c1a"
-  const bg = mix(base, g1, 0.1)
-  const a = 0.08
+  const base = "#0b0c12"
+  const bg = mix(base, g1, 0.04)
+  const a = 0.07
   const surface = over("#ffffff", a, bg)
   return {
     base,
-    backdrop: `radial-gradient(70% 38% at 12% -4%, ${rgba(g1, 0.55)} 0%, transparent 70%), radial-gradient(60% 34% at 104% 24%, ${rgba(g2, 0.34)} 0%, transparent 72%), radial-gradient(70% 40% at -10% 104%, ${rgba(g3, 0.4)} 0%, transparent 70%), linear-gradient(180deg, #0d1026, #080a17)`,
+    backdrop: `radial-gradient(70% 38% at 12% -4%, ${rgba(g1, 0.2)} 0%, transparent 70%), radial-gradient(60% 34% at 104% 24%, ${rgba(g2, 0.12)} 0%, transparent 72%), radial-gradient(70% 40% at -10% 104%, ${rgba(g3, 0.14)} 0%, transparent 70%), linear-gradient(180deg, #0e1018, #090a11)`,
     surface,
     elevated: over("#ffffff", a + 0.05, bg),
     overlay: over("#ffffff", a + 0.1, bg),
     borderSubtle: "rgba(255,255,255,0.09)",
     borderDefault: "rgba(255,255,255,0.15)",
     borderStrong: "rgba(255,255,255,0.3)",
-    cardBorder: "rgba(255,255,255,0.14)",
-    cardShadow: "0 1px 0 rgba(255,255,255,0.06) inset, 0 12px 32px -12px rgba(0,0,0,0.6)",
+    cardBorder: "rgba(255,255,255,0.10)",
+    cardShadow: "none",
     text1: "#f7f8ff",
     text2: "#c6cadf",
     text3: "#a2a8c4",
@@ -132,33 +132,33 @@ const vividDark = (p: Palette): Spec => {
     warning: "#fbbf24",
     info: "#8cc0ee",
     pillBg: "rgba(255,255,255,0.10)",
-    glassHeader: "rgba(10,12,26,0.55)",
-    glassNav: "rgba(18,21,42,0.68)",
-    glassSheet: "rgba(18,21,42,0.82)",
-    glassBlur: "blur(20px) saturate(140%)",
-    navShadow: "0 -10px 34px -10px rgba(0,0,0,0.45)",
-    shadowSm: "0 1px 0 rgba(255,255,255,0.05) inset",
-    shadowMd: "0 8px 24px -10px rgba(0,0,0,0.55)",
-    shadowLg: "0 16px 40px -14px rgba(0,0,0,0.65)"
+    glassHeader: "rgba(11,12,18,0.7)",
+    glassNav: "rgba(16,18,26,0.82)",
+    glassSheet: "rgba(18,20,30,0.94)",
+    glassBlur: "blur(12px)",
+    navShadow: "none",
+    shadowSm: "none",
+    shadowMd: "0 6px 18px -8px rgba(0,0,0,0.5)",
+    shadowLg: "0 12px 30px -12px rgba(0,0,0,0.6)"
   }
 }
 
 const vividLight = (p: Palette): Spec => {
   const [g1, g2, g3] = p.glow
-  const base = "#f4f1ff"
-  const bg = mix(base, g1, 0.06)
-  const surface = over("#ffffff", 0.74, bg)
+  const base = "#f4f5f7"
+  const bg = mix(base, g1, 0.03)
+  const surface = over("#ffffff", 0.85, bg)
   return {
     base,
-    backdrop: `radial-gradient(70% 38% at 10% -4%, ${rgba(g1, 0.3)} 0%, transparent 70%), radial-gradient(60% 34% at 104% 22%, ${rgba(g2, 0.26)} 0%, transparent 72%), radial-gradient(70% 40% at -8% 104%, ${rgba(g3, 0.26)} 0%, transparent 70%), linear-gradient(165deg, #f7f4ff, #fff2ea)`,
+    backdrop: `radial-gradient(70% 38% at 10% -4%, ${rgba(g1, 0.12)} 0%, transparent 70%), radial-gradient(60% 34% at 104% 22%, ${rgba(g2, 0.09)} 0%, transparent 72%), radial-gradient(70% 40% at -8% 104%, ${rgba(g3, 0.09)} 0%, transparent 70%), linear-gradient(165deg, #f7f7f9, #f4f5f7)`,
     surface,
     elevated: mix(surface, "#1e1e46", 0.05),
     overlay: mix(surface, "#1e1e46", 0.1),
     borderSubtle: "rgba(30,30,70,0.09)",
     borderDefault: "rgba(30,30,70,0.16)",
     borderStrong: "rgba(30,30,70,0.3)",
-    cardBorder: "rgba(255,255,255,0.95)",
-    cardShadow: `0 1px 0 rgba(255,255,255,0.9) inset, 0 14px 34px -14px ${rgba(g1, 0.38)}`,
+    cardBorder: "rgba(20,24,40,0.10)",
+    cardShadow: "none",
     text1: "#12141f",
     text2: "#43495c",
     text3: "#5f6679",
@@ -167,14 +167,14 @@ const vividLight = (p: Palette): Spec => {
     warning: "#a94a05",
     info: "#1f5fae",
     pillBg: "rgba(30,30,70,0.07)",
-    glassHeader: "rgba(247,244,255,0.6)",
-    glassNav: "rgba(255,255,255,0.72)",
-    glassSheet: "rgba(255,255,255,0.86)",
-    glassBlur: "blur(20px) saturate(140%)",
-    navShadow: "0 -10px 34px -10px rgba(30,30,70,0.25)",
-    shadowSm: "0 1px 2px rgba(30,30,70,0.08)",
-    shadowMd: `0 8px 24px -10px ${rgba(g1, 0.3)}`,
-    shadowLg: `0 16px 40px -14px ${rgba(g1, 0.38)}`
+    glassHeader: "rgba(244,245,247,0.75)",
+    glassNav: "rgba(255,255,255,0.85)",
+    glassSheet: "rgba(255,255,255,0.96)",
+    glassBlur: "blur(12px)",
+    navShadow: "none",
+    shadowSm: "none",
+    shadowMd: "0 6px 18px -8px rgba(20,24,40,0.2)",
+    shadowLg: "0 12px 30px -12px rgba(20,24,40,0.25)"
   }
 }
 
@@ -187,8 +187,8 @@ export function buildTheme(mode: ThemeMode, style: ThemeStyle, palette: Palette)
   // The gradient end only needs UI-level contrast (3:1), which keeps it bright
   const accentTo = fitToInk(palette.secondary, ink, 3)
   const accentText = readableOn(palette.primary, spec.surface, dark)
-  const accentGradient =
-    style === "flat" ? accent : `linear-gradient(135deg, ${accent}, ${accentTo})`
+  // Solid fill: no gradients on controls (kept as a token so it can be re-enabled in one place)
+  const accentGradient = accent
 
   const vars: ThemeVars = {
     "--bg-base": spec.base,
@@ -201,6 +201,8 @@ export function buildTheme(mode: ThemeMode, style: ThemeStyle, palette: Palette)
     "--border-strong": spec.borderStrong,
     "--card-border": spec.cardBorder,
     "--card-shadow": spec.cardShadow,
+    "--radius-card": "8px",
+    "--radius-control": "6px",
     "--text-1": spec.text1,
     "--text-2": spec.text2,
     "--text-3": spec.text3,
@@ -222,8 +224,9 @@ export function buildTheme(mode: ThemeMode, style: ThemeStyle, palette: Palette)
     "--accent-gradient": accentGradient,
     "--accent-contrast": ink,
     "--accent-text": accentText,
-    "--accent-soft": rgba(palette.primary, dark ? 0.22 : 0.14),
-    "--accent-glow": `0 8px 24px -8px ${rgba(palette.primary, 0.6)}`,
+    "--accent-soft": rgba(palette.primary, dark ? 0.16 : 0.1),
+    // Intentionally a no-op shadow (valid inside shadow lists): no glow effects
+    "--accent-glow": "0 0 0 0 transparent",
     "--secondary": palette.secondary,
     // Legacy names still used by older styles
     "--app-bg": spec.base,

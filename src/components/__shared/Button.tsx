@@ -79,7 +79,7 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
 `
 
 export const StyledButton = styled.button`
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   border: 2px solid transparent;
   padding: 0.6em 1.7em;
   font-size: 0.9rem;
@@ -105,10 +105,9 @@ export const PrimaryButton = styled.button`
   background: var(--accent-gradient);
   color: var(--accent-contrast);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   font-size: 1rem;
   font-weight: 600;
-  box-shadow: var(--accent-glow);
   transition:
     filter 0.2s,
     transform 0.1s;

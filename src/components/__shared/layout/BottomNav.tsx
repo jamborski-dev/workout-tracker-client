@@ -67,7 +67,6 @@ export const Root = styled.div`
   a.active .icon {
     background: var(--accent-gradient);
     color: var(--accent-contrast);
-    box-shadow: var(--accent-glow);
   }
 `
 
@@ -92,7 +91,7 @@ const IconWrap = styled.span`
   place-items: center;
   width: 2.6rem;
   height: 1.8rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-control);
   transition:
     background 0.2s,
     box-shadow 0.2s;

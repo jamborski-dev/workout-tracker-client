@@ -156,7 +156,7 @@ const StatusCell = styled.div`
 const Badge = styled.span<{ $tone: "private" | "pending" | "public" }>`
   font-size: 0.7rem;
   padding: 0.1rem 0.5rem;
-  border-radius: 1rem;
+  border-radius: 3px;
   background: ${({ $tone }) =>
     $tone === "public"
       ? "color-mix(in srgb, var(--success) 18%, transparent)"

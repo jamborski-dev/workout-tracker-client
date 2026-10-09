@@ -12,7 +12,7 @@ const MODES: { id: ThemeModePref; label: string }[] = [
 ]
 
 const STYLES: { id: ThemeStyle; label: string; hint: string }[] = [
-  { id: "vivid", label: "Vivid", hint: "Gradient glow and frosted glass" },
+  { id: "vivid", label: "Vivid", hint: "Soft backdrop, translucent surfaces" },
   { id: "flat", label: "Flat", hint: "Solid surfaces, no effects" }
 ]
 
@@ -90,7 +90,7 @@ const Section = styled.section`
   gap: 0.6rem;
   padding: 1.1rem;
   border: 1px solid var(--card-border);
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   background: var(--surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -118,14 +118,14 @@ const Segmented = styled.div`
   display: flex;
   gap: 0.35rem;
   padding: 0.25rem;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--pill-bg);
 
   button {
     flex: 1;
     padding: 0.5rem 0.25rem;
     border: none;
-    border-radius: 9px;
+    border-radius: 4px;
     background: transparent;
     color: var(--text-2);
     font-size: 0.9rem;
@@ -133,9 +133,8 @@ const Segmented = styled.div`
   }
 
   button[aria-pressed="true"] {
-    background: var(--accent-gradient);
+    background: var(--accent);
     color: var(--accent-contrast);
-    box-shadow: var(--accent-glow);
   }
 `
 
@@ -148,8 +147,7 @@ const Palettes = styled.div`
 const Swatch = styled.span`
   width: 100%;
   height: 2.6rem;
-  border-radius: 10px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 4px;
 `
 
 const PaletteButton = styled.button`
@@ -159,7 +157,7 @@ const PaletteButton = styled.button`
   gap: 0.2rem;
   padding: 0.6rem;
   border: 1px solid var(--border-default);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   background: transparent;
   color: var(--text-1);
   text-align: left;
@@ -172,6 +170,5 @@ const PaletteButton = styled.button`
 
   &[aria-pressed="true"] {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-soft);
   }
 `

@@ -51,11 +51,11 @@ export const PALETTES: Record<PaletteId, Palette> = {
 }
 
 export const PALETTE_IDS = Object.keys(PALETTES) as PaletteId[]
-export const DEFAULT_PALETTE: PaletteId = "pulse"
+export const DEFAULT_PALETTE: PaletteId = "volt"
 
 /** CSS gradient used for swatches in the picker */
 export const swatch = (palette: Palette) =>
-  `linear-gradient(135deg, ${palette.primary}, ${palette.secondary})`
+  `linear-gradient(90deg, ${palette.primary} 0 62%, ${palette.secondary} 62% 100%)`
 
 // Handy for deriving extra stops from a palette
 export const tint = (palette: Palette, deg: number) => mix(rotateHue(palette.primary, deg), "#ffffff", 0.2)

@@ -73,7 +73,7 @@ const baseConfig = {
     background: "var(--glass-sheet)",
     backdropFilter: "var(--glass-blur)",
     border: "1px solid var(--border-default)",
-    borderRadius: "14px",
+    borderRadius: "8px",
     boxShadow: "var(--shadow-lg)",
     overflow: "hidden"
   }),

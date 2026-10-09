@@ -43,12 +43,11 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
   padding-block: 1rem;
   padding-inline: 0.5rem 1rem;
   border: 1px solid ${({ $isExpanded }) => ($isExpanded ? "var(--accent)" : "var(--card-border)")};
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   background: var(--surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: ${({ $isExpanded }) =>
-    $isExpanded ? "var(--card-shadow), var(--accent-glow)" : "var(--card-shadow)"};
+  box-shadow: var(--card-shadow);
 
   user-select: none;
 

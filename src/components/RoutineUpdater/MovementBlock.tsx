@@ -309,7 +309,7 @@ const HeaderIconButton = styled.button<{ $isActive: boolean }>`
   color: ${({ $isActive }) => ($isActive ? "var(--warning)" : "var(--text-3)")};
   border: 0;
   background: transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   padding: 0;
   cursor: pointer;
 
@@ -361,13 +361,12 @@ const AddRowButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
 
-  background: var(--accent-gradient);
+  background: var(--accent);
   color: var(--accent-contrast);
-  box-shadow: var(--accent-glow);
   padding: 0.3rem 1rem;
 
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   cursor: pointer;
 
   display: flex;
