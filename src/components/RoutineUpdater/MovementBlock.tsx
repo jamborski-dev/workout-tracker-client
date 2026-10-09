@@ -265,7 +265,7 @@ export const MovementBlock: FC<{
             <SwitchToggle
               isOn={showActual}
               onChange={handleShowActual}
-              labels={{ on: "Planned", off: "Actual" }}
+              labels={{ on: "Logging: Planned", off: "Logging: Actual" }}
             />
           </ButtonGroup>
         </SetRepPanel>

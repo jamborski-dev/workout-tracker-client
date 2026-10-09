@@ -2,80 +2,28 @@ import type { MovementSet, MovementSummary } from "@root/types/data"
 export const buildSummary = (sets: MovementSet[]): MovementSummary => {
   if (!sets.length) return "-"
 
-  let summary = ""
-  let currentReps = sets[0].actualReps ?? 0
-  let currentWeight = sets[0].actualWeight ?? 0
-  let currentCount = 1
+  // Summarise what was logged; fall back to the plan when nothing has been logged yet
+  const hasActual = sets.some(set => (set.actualReps ?? 0) > 0)
+  const values = sets.map(set => ({
+    reps: (hasActual ? set.actualReps : set.plannedReps) ?? 0,
+    weight: (hasActual ? set.actualWeight : set.plannedWeight) ?? 0
+  }))
 
-  for (let i = 1; i < sets.length; i++) {
-    const set = sets[i]
-    const actualReps = set.actualReps ?? 0
-    const actualWeight = set.actualWeight ?? 0
-
-    if (actualReps === currentReps && actualWeight === currentWeight) {
-      currentCount++
+  // Group consecutive identical sets: "3x5 @ 100kg, 1x3 @ 110kg"
+  const groups: { count: number; reps: number; weight: number }[] = []
+  for (const value of values) {
+    const last = groups[groups.length - 1]
+    if (last && last.reps === value.reps && last.weight === value.weight) {
+      last.count++
     } else {
-      if (currentReps > 0) {
-        summary += `${currentCount}x${currentReps} @ ${currentWeight}kg, `
-      }
-      currentReps = actualReps
-      currentWeight = actualWeight
-      currentCount = 1
+      groups.push({ count: 1, ...value })
     }
   }
 
-  if (currentReps > 0) {
-    summary += `${currentCount}x${currentReps} @${currentWeight}kg`
-  }
+  const summary = groups
+    .filter(group => group.reps > 0)
+    .map(group => `${group.count}x${group.reps} @ ${group.weight}kg`)
+    .join(", ")
 
   return summary || "-"
 }
-
-export const mergePayload = (sets: MovementSet[], payload: MovementSet[]): MovementSet[] => {
-  // use first arg as the base and treat as stale data
-  // merge the payload with the base based on the sets.id === payload.id
-  return sets.map(set => {
-    const updatedSet = payload.find(p => p.id === set.id)
-    if (updatedSet) {
-      return { ...set, ...updatedSet }
-    }
-    return set
-  })
-}
-
-// const getTransformedPayloadObject = (
-//   setId: IDType,
-//   field: string,
-//   value: number,
-// ): MovementSet => {
-//   const transformedField = field.split(".")[2]
-
-//   // find if the set exists in the local state
-//   const set = updatePayload.find(set => set.id === setId)
-
-//   // if it exists, update the field
-//   if (set) {
-//     return updatePayload.map(set => {
-//       if (set.id === setId) {
-//         return {
-//           ...set,
-//           [transformedField]: value
-//         }
-//       }
-//       return set
-//     })
-//   }
-
-//   // get order variable from the set of id setId
-//   const order = movement.sets.find(set => set.id === setId)?.order || movement.sets.length
-
-//   // if not found, create a new set with the updated field
-//   return [
-//     ...updatePayload,
-//     {
-//       id: setId,
-//       order,
-//       [transformedField]: value
-//     }
-//   ]
-// }

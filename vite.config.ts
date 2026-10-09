@@ -21,7 +21,7 @@ const serverConfig =
           key: fs.readFileSync("certs/localhost+2-key.pem"),
           cert: fs.readFileSync("certs/localhost+2.pem")
         },
-        port: 5173,
+        port: Number(process.env.VITE_DEV_PORT) || 5173,
         strictPort: true,
         proxy: {
           "/api": {
