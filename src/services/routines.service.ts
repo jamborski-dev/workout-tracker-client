@@ -63,7 +63,7 @@ export const deleteRoutine = async (params: DeleteRoutineActionPayload) => {
   const { routineId } = params
   return await secureServiceCall<undefined, never>({
     method: "delete",
-    path: `//fit/routines/${routineId}`,
+    path: `/fit/routines/${routineId}`,
     errorMessage: "Error deleting routine"
   })
 }

@@ -1,11 +1,13 @@
 import { createSelector } from "@reduxjs/toolkit"
-import { IDType } from "@root/types/data"
+import type { IDType } from "@root/types/data"
 
-import { RootState } from "@store/store"
+import type { RootState } from "@store/store"
 
 const selectRoutinesState = (state: RootState) => state.routines
 
-export const selectList = createSelector(selectRoutinesState, state => state.list)
+export const selectList = createSelector(selectRoutinesState, state =>
+  [...state.list].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+)
 export const selectRoutinesLoading = createSelector(selectRoutinesState, state => state.isLoading)
 export const selectRoutinesError = createSelector(selectRoutinesState, state => state.error)
 export const selectRoutine = createSelector(selectRoutinesState, state => state.selected)

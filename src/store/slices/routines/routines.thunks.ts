@@ -127,13 +127,10 @@ export const addSetAction = createThunk<
 >("routines/thunk/addSet", addSet, [wrapSelector(selectRoutineId, "routineId")])
 
 export const removeSetAction = createThunk<
-  Pick<RemoveSetActionPayload, "setId">,
+  Pick<RemoveSetActionPayload, "setId" | "movementId">,
   { movementId: IDType; setId: IDType },
-  Pick<RemoveSetActionPayload, "routineId" | "movementId">
->("routines/thunk/removeSet", removeSet, [
-  wrapSelector(selectRoutineId, "routineId"),
-  wrapSelector(selectRoutineId, "movementId")
-])
+  Pick<RemoveSetActionPayload, "routineId">
+>("routines/thunk/removeSet", removeSet, [wrapSelector(selectRoutineId, "routineId")])
 
 // Not used
 export const updateSetAction = createThunk<

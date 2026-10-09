@@ -11,13 +11,16 @@ export const HeaderAction = styled.div<{ $isActive: boolean }>`
 
 export const Aside = styled.aside`
   grid-area: block_aside;
-  aspect-ratio: 1;
-  padding: 1rem;
-  display: grid;
+  /* aspect-ratio: 1; */
+  padding: 0rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-direction: column;
   padding-top: 0.4rem;
 `
 
 export const CountIndicator = styled.div`
+  aspect-ratio: 1/1;
   background: none;
   border: 1px solid #b5b5b5;
   border-radius: 1000px;
@@ -39,16 +42,23 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
   padding-block: 1rem;
   padding-inline: 0.5rem 1rem;
   border-top: 1px solid #f1f1f1;
+  background: var(--surface-movement-block);
+
+  user-select: none;
+
+  overflow: hidden;
 
   display: grid;
   grid-template-columns: min-content 1fr min-content;
   grid-template-rows: auto auto ${({ $isExpanded }) => ($isExpanded ? "1fr" : "0fr")};
   grid-template-areas:
     "block_aside block_header block_header_action"
-    "block_aside block_content block_header_action"
-    "block_aside_2 block_expandable block_header_action";
+    "block_aside block_content ."
+    "block_aside block_expandable block_expandable";
 
-  transition: border-left 0.3s, grid-template-rows 0.3s;
+  transition:
+    border-left 0.3s,
+    grid-template-rows 0.3s;
 
   & > * {
     padding-inline: 0.3rem;
@@ -59,6 +69,9 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
 
   header {
     grid-area: block_header;
+    position: relative;
+    cursor: ${({ $isExpanded }) => ($isExpanded ? "default" : "pointer")};
+
     span {
       font-size: 0.75rem;
       color: #191919;
@@ -86,12 +99,13 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
 
 export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
   font-size: 0.8rem;
-  padding-right: 1rem;
+  padding-block: 1rem;
   display: flex;
   flex-direction: column;
   grid-area: block_expandable;
   overflow: hidden;
   border-top: 0;
+  gap: 1rem;
 
   header {
     display: flex;
@@ -104,12 +118,11 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
     display: grid;
     gap: 0.5rem;
 
-    li {
+    .set-grid {
       display: grid;
-      grid-template-columns: repeat(2, 60px) 1fr;
+      grid-template-columns: repeat(3, 60px) min-content 1fr min-content;
       align-items: center;
       gap: 0.5rem;
-      /* transform: translateX(calc((32px + 0.5rem) * -1)); */
 
       span {
         font-size: 0.7rem;
@@ -118,6 +131,15 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
       .set-label {
         text-align: right;
         color: #818181;
+      }
+
+      .set-grip {
+        justify-self: end;
+        margin-left: auto;
+      }
+
+      .set-actions {
+        justify-self: end;
       }
     }
   }
@@ -151,25 +173,6 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
   }
 
   .weight-input {
-    width: 60px;
-    position: relative;
-
-    input {
-      width: 100%;
-      background-color: transparent;
-      z-index: 1;
-    }
-
-    span {
-      position: absolute;
-      right: 0.5rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.7rem;
-      color: #949494;
-      z-index: 0;
-      user-select: none;
-    }
   }
 
   .add-set {

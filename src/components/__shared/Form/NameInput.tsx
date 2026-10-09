@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react"
+import { type FC, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 import styled from "styled-components"
 
@@ -28,6 +28,7 @@ export const NameInput: FC<NameInputProps> = ({ id, defaultValue }) => {
 }
 
 const Input = styled.input`
+  width: 100%;
   font-size: 1.2rem;
   margin: 0;
   font-weight: 400;
@@ -35,12 +36,9 @@ const Input = styled.input`
   line-height: 1.6;
   padding: 0;
   border: none;
-  border-bottom: 1px solid lightgray;
-  max-width: 70%;
   background: none;
 
   &:focus {
     outline: none;
-    border-color: skyblue;
   }
 `

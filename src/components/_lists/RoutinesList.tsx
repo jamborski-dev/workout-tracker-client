@@ -1,10 +1,10 @@
 import { SectionHeading } from "@components/SectionHeading/SectionHeading"
 import { Table } from "@components/Table/Table"
-import { Routine } from "@root/types/data"
+import type { Routine } from "@root/types/data"
 import { formatDate } from "@root/utils/date"
 import { useAppDispatch } from "@store/hooks/store"
 import { deleteRoutineAction } from "@store/slices/routines/routines.thunks"
-import { FC, SyntheticEvent } from "react"
+import type { FC, SyntheticEvent } from "react"
 import { FaTrash } from "react-icons/fa6"
 import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
@@ -19,13 +19,20 @@ interface RoutinesListProps {
 export const RoutinesList: FC<RoutinesListProps> = ({ routines, isLoading }) => {
   const navigate = useNavigate()
 
-  const renderDate = (timestamp: string) => {
-    const { day, month, getOrdinalSuffix } = formatDate(timestamp)
+  const renderRoutineInfo = (routine: Routine) => {
+    const { weekday, day, month, getOrdinalSuffix } = formatDate(routine.date)
+    const routineTypeLabel =
+      typeof routine.routineType === "string" ? routine.routineType : routine.routineType?.name
+    const titleLabel = routineTypeLabel || "Uncategorized"
+
     return (
-      <>
-        {day}
-        <sup>{getOrdinalSuffix}</sup> {month}
-      </>
+      <RoutineInfo>
+        <DateText>
+          {weekday}, {day}
+          <sup>{getOrdinalSuffix}</sup> {month}
+        </DateText>
+        <RoutineTitle>{titleLabel}</RoutineTitle>
+      </RoutineInfo>
     )
   }
 
@@ -60,13 +67,9 @@ export const RoutinesList: FC<RoutinesListProps> = ({ routines, isLoading }) => 
         config={{
           columns: [
             {
-              name: "Date",
-              accessor: "date",
-              render: renderDate
-            },
-            {
-              name: "Name",
-              accessor: "name"
+              name: "Routine",
+              accessor: "custom",
+              render: (routine: Routine) => renderRoutineInfo(routine)
             },
             {
               name: "Actions",
@@ -96,14 +99,36 @@ const RoutineActions: FC<RoutinesActionsProps> = ({ routine }) => {
   }
 
   return (
-    <>
+    <RoutineActionsRoot>
       <IconButton onClick={handleDelete} $size="sm">
         <FaTrash />
       </IconButton>
-    </>
+    </RoutineActionsRoot>
   )
 }
 
 const Root = styled.div`
   padding: 2rem;
+`
+
+const RoutineActionsRoot = styled.div`
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
+`
+
+const DateText = styled.span`
+  font-size: 0.8rem;
+  color: #555;
+`
+
+const RoutineInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+`
+
+const RoutineTitle = styled.span`
+  font-size: 1rem;
+  color: #3f3f3f;
 `

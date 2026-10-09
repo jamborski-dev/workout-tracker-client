@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react"
+import { type FC, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 import styled from "styled-components"
 
@@ -7,11 +7,34 @@ interface DateInputProps {
   defaultValue?: string
 }
 
+const toInputDateValue = (rawDate?: string): string => {
+  if (!rawDate) {
+    return ""
+  }
+
+  // Keep API date strings stable for <input type="date">.
+  const isoDateMatch = rawDate.match(/^\d{4}-\d{2}-\d{2}/)
+  if (isoDateMatch) {
+    return isoDateMatch[0]
+  }
+
+  const parsedDate = new Date(rawDate)
+  if (Number.isNaN(parsedDate.getTime())) {
+    return ""
+  }
+
+  const year = parsedDate.getFullYear()
+  const month = `${parsedDate.getMonth() + 1}`.padStart(2, "0")
+  const day = `${parsedDate.getDate()}`.padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
 export const DateInput: FC<DateInputProps> = ({ id, defaultValue }) => {
   const { register, setValue } = useFormContext()
 
   useEffect(() => {
-    setValue(id, defaultValue)
+    setValue(id, toInputDateValue(defaultValue))
     if (!id) return
 
     const input = document.querySelector(`#${id}`) as HTMLInputElement
@@ -24,6 +47,7 @@ export const DateInput: FC<DateInputProps> = ({ id, defaultValue }) => {
     <Input
       id={id}
       type="date"
+      defaultValue={toInputDateValue(defaultValue)}
       {...register(id, { required: true, setValueAs: (value: string) => new Date(value) })}
     />
     // TODO add error as absolute positioned element under the form to not mess with the layout need some padding

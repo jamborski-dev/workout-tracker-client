@@ -2,7 +2,7 @@ import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { API } from "@root/services/axios"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { logout } from "@root/store/slices/auth/auth.slice"
-import { RootState } from "@root/store/store"
+import type { RootState } from "@root/store/store"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -22,6 +22,7 @@ export const Logout = () => {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we only want to run this effect when the user changes, not on every render
   useEffect(() => {
     if (user) {
       handleLogout()

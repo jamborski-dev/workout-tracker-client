@@ -108,6 +108,28 @@ const routinesSlice = createSlice({
       const { movementId, direction } = action.payload
       state.selected!.movements = reorderItems(state.selected!.movements, movementId, direction)
     },
+    setMovementsOrder: (state, action) => {
+      const selected = state.selected
+      if (!selected) {
+        return
+      }
+
+      const nextOrderById = new Map<IDType, number>()
+      action.payload.forEach((id: IDType, index: number) => {
+        nextOrderById.set(id, index)
+      })
+
+      selected.movements = [...selected.movements]
+        .sort((a, b) => {
+          const left = nextOrderById.get(a.id) ?? a.order
+          const right = nextOrderById.get(b.id) ?? b.order
+          return left - right
+        })
+        .map((movement, index) => ({
+          ...movement,
+          order: index
+        }))
+    },
     updateSet: (state, action) => {
       const { movementId, setId, field, value } = action.payload
       const movement = state.selected?.movements.find(m => m.id === movementId)
@@ -139,6 +161,32 @@ const routinesSlice = createSlice({
           movements
         }
       }
+    },
+    setSetsOrder: (state, action) => {
+      const { movementId, setIds } = action.payload as {
+        movementId: IDType
+        setIds: IDType[]
+      }
+      const movement = state.selected?.movements.find(m => m.id === movementId)
+      if (!movement) {
+        return
+      }
+
+      const nextOrderById = new Map<IDType, number>()
+      setIds.forEach((id, index) => {
+        nextOrderById.set(id, index)
+      })
+
+      movement.sets = [...movement.sets]
+        .sort((a, b) => {
+          const left = nextOrderById.get(a.id) ?? a.order
+          const right = nextOrderById.get(b.id) ?? b.order
+          return left - right
+        })
+        .map((set, index) => ({
+          ...set,
+          order: index
+        }))
     }
   },
   extraReducers: builder => {
@@ -262,6 +310,7 @@ const routinesSlice = createSlice({
       })
       .addCase(addSetAction.fulfilled, (state, action) => {
         state.isUpdating = false
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
         state
           .selected!.movements.find(m => m.id === action.meta.arg.movementId)!
           .sets.push(action.payload)
@@ -278,13 +327,22 @@ const routinesSlice = createSlice({
       })
       .addCase(removeSetAction.fulfilled, (state, action) => {
         state.isUpdating = false
+        // biome-ignore lint/style/noNonNullAssertion: we check for existence in the reducer, and if it doesn't exist we want it to throw an error
         state.selected!.movements.find(m => m.id === action.payload.movementId)!.sets = state
           .selected!.movements.find(m => m.id === action.payload.movementId)!
           .sets.filter(s => s.id !== action.payload.setId)
           .map((s, index) => ({ ...s, order: index })) // reindex
       })
       .addCase(removeSetAction.rejected, (state, action) => {
-        state.error = action.payload as string
+        // Set didn't exist on the server — remove it from local state anyway
+        const { movementId, setId } = action.meta.arg
+        const movement = state.selected?.movements.find(m => m.id === movementId)
+        if (movement) {
+          movement.sets = movement.sets
+            .filter(s => s.id !== setId)
+            .map((s, index) => ({ ...s, order: index }))
+        }
+        state.error = null
         state.isUpdating = false
       })
 
@@ -334,7 +392,9 @@ export const {
   updateMovementSummary,
   updateSet,
   reorderMovements,
+  setMovementsOrder,
   reorderSets,
+  setSetsOrder,
   editMovement,
   closeMovement
 } = routinesSlice.actions
@@ -345,7 +405,13 @@ export default routinesSlice.reducer
 // Singleton instance of the debounced function
 
 startAppListening({
-  matcher: isAnyOf(updateSet, addSetAction.fulfilled, removeSetAction.fulfilled, reorderSets),
+  matcher: isAnyOf(
+    updateSet,
+    addSetAction.fulfilled,
+    removeSetAction.fulfilled,
+    reorderSets,
+    setSetsOrder
+  ),
   effect: async (action, { dispatch }) => {
     const { movementId } = action.payload as { movementId: number }
     dispatch(updateMovementSummary(movementId))
@@ -369,11 +435,13 @@ startAppListening({
     updateSetAction.fulfilled,
     updateManySetsAction.fulfilled,
     reorderSets,
+    setSetsOrder,
     addMovementAction.fulfilled,
     deleteMovementAction.fulfilled,
     updateMovementAction.fulfilled,
     saveMovementAction.fulfilled,
     reorderMovements,
+    setMovementsOrder,
     updateMovementOrderAction.fulfilled
   ),
   effect: async (_, { getState }) => {
@@ -382,7 +450,7 @@ startAppListening({
 })
 
 startAppListening({
-  matcher: isAnyOf(reorderMovements),
+  matcher: isAnyOf(reorderMovements, setMovementsOrder),
   effect: async (_, { getState, dispatch }) => {
     const movements = getState().routines.selected!.movements
     if (!movements.length) return
@@ -390,5 +458,31 @@ startAppListening({
     dispatch(
       updateMovementOrderAction({ routineId: movements[0].routineId!, payload: reorderPayload })
     )
+  }
+})
+
+startAppListening({
+  actionCreator: setSetsOrder,
+  effect: async (action, { cancelActiveListeners, delay, dispatch, getState }) => {
+    cancelActiveListeners()
+    await delay(600)
+
+    const movementId = action.payload.movementId as IDType
+    const exists = getState().routines.selected?.movements.some(m => m.id === movementId)
+    if (exists) {
+      dispatch(saveMovementAction(movementId))
+    }
+  }
+})
+
+startAppListening({
+  matcher: isAnyOf(updateMovementAction.rejected, saveMovementAction.rejected),
+  effect: async (action, { dispatch, getState }) => {
+    const payload = action.payload as string
+    if (!payload?.toLowerCase().includes("not found")) return
+    const routineId = getState().routines.selected?.id
+    if (routineId) {
+      dispatch(getRoutineByIdAction({ routineId }))
+    }
   }
 })

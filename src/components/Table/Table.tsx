@@ -1,5 +1,7 @@
-import { FixMeLater } from "@root/types/FixMeLater"
-import { FC, Fragment } from "react"
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: no need  */
+import type { FixMeLater } from "@root/types/FixMeLater"
+import type { FC } from "react"
+import { Fragment } from "react"
 import styled from "styled-components"
 
 interface TableProps {
@@ -56,8 +58,8 @@ export const Table: FC<TableProps> = ({ config }) => {
                   accessor === "custom" && render
                     ? render(row)
                     : render
-                    ? render(row[accessor], row.id)
-                    : row[accessor]
+                      ? render(row[accessor], row.id)
+                      : row[accessor]
 
                 return cellContent !== undefined ? (
                   <TableCell key={i}>{cellContent}</TableCell>
@@ -72,7 +74,7 @@ export const Table: FC<TableProps> = ({ config }) => {
 }
 
 export const TableRoot = styled.table`
-  font-family: "PT Sans Narrow", sans-serif;
+  /* font-family: "PT Sans Narrow", sans-serif; */
 
   width: 100%;
   border-collapse: collapse;
@@ -80,12 +82,12 @@ export const TableRoot = styled.table`
   background-color: #fff;
   color: rgb(124, 124, 124);
   border-radius: var(--border-radius);
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
   border-radius: 0.5em;
 
   thead {
     color: rgb(80, 80, 80);
-    font-weight: 900;
+    font-weight: 600;
   }
 
   td {
@@ -110,13 +112,6 @@ export const TableRoot = styled.table`
   tr:not(thead tr):hover {
     background-color: rgba(0, 0, 0, 0.1);
     cursor: pointer;
-  }
-
-  .transaction-type--expense {
-    color: rgb(199, 56, 20);
-  }
-  .transaction-type--income {
-    color: rgb(131, 204, 13);
   }
 
   .transaction-sign {

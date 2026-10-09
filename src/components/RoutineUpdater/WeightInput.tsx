@@ -1,6 +1,8 @@
-import { FC, SyntheticEvent, KeyboardEvent, FocusEvent } from "react"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import type { FC, SyntheticEvent, KeyboardEvent, FocusEvent } from "react"
 import { NumberInput } from "./NumberInput"
-import { useForm } from "react-hook-form"
+import type { useForm } from "react-hook-form"
+import styled from "styled-components"
 
 export const WeightInput: FC<{
   fieldId: string
@@ -10,7 +12,7 @@ export const WeightInput: FC<{
   handleFocus: (event: FocusEvent<HTMLInputElement>) => void
 }> = ({ fieldId, register, handleKeyDown, handleChange, handleFocus }) => {
   return (
-    <div className="weight-input">
+    <WeightInputContainer>
       <NumberInput
         fieldId={fieldId}
         register={register}
@@ -21,6 +23,28 @@ export const WeightInput: FC<{
         max={999}
       />
       <span>kg</span>
-    </div>
+    </WeightInputContainer>
   )
 }
+
+const WeightInputContainer = styled.div`
+  width: 60px;
+  position: relative;
+
+  input {
+    width: 100%;
+    background-color: #fff;
+    z-index: 1;
+  }
+
+  span {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: #949494;
+    z-index: 0;
+    user-select: none;
+  }
+`

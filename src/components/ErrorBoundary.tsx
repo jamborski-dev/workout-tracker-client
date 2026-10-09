@@ -32,7 +32,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
         <div id="error-boundary">
           <h1>Oops! Something went wrong.</h1>
           <p>{errorMessage || "An unexpected error occurred."}</p>
-          <button onClick={this.handleRefresh}>Refresh Page</button>
+          <button type="button" onClick={this.handleRefresh}>
+            Refresh Page
+          </button>
         </div>
       )
     }

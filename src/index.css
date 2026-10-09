@@ -17,6 +17,16 @@
   --app-bg: #fff;
   --app-accent: #19a59a;
   --app-accent-hover: #0ac7b8;
+  --surface-movement-block: #ffffff;
+
+  --layer-base: 0;
+  --layer-content: 10;
+  --layer-select-control: 40;
+  --layer-select-menu: 90;
+  --layer-dragging: 100;
+  --layer-popup: 1000;
+  --layer-overlay: 1100;
+  --layer-modal: 1200;
 }
 
 *,
@@ -124,7 +134,7 @@ button {
   color: inherit;
   font-family: inherit;
   cursor: pointer;
-  font-weight: 300;
+  font-weight: 500;
   transition: all 0.25s linear;
   border: 1px solid grey;
   font-size: 1.2rem;

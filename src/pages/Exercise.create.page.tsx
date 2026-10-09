@@ -8,10 +8,27 @@ import {
   createExerciseAction,
   getAllExercisesAction
 } from "@root/store/slices/exercises/exercises.thunks"
-import { Exercise } from "@root/types/data"
-import { useEffect, useState, ChangeEvent } from "react"
-import { FieldValues, FormProvider, useForm } from "react-hook-form"
+import type { Exercise } from "@root/types/data"
+import { useEffect, useState } from "react"
+import type { ChangeEvent } from "react"
+import { FormProvider, useForm } from "react-hook-form"
+import type { FieldValues } from "react-hook-form"
 import styled from "styled-components"
+
+const CATEGORY_OPTIONS = ["push", "pull", "legs", "core"]
+const COMPLEXITY_OPTIONS = ["compound", "isolation"]
+const EQUIPMENT_OPTIONS = ["barbell", "dumbbell", "cable", "machine", "bodyweight"]
+
+const normalizeExercisePayload = (payload: Omit<Exercise, "id">): Omit<Exercise, "id"> => ({
+  ...payload,
+  name: payload.name?.trim(),
+  description: payload.description?.trim(),
+  muscleGroup: payload.muscleGroup?.trim(),
+  category: payload.category || null,
+  complexity: payload.complexity || null,
+  equipment: payload.equipment || null,
+  favourite: payload.favourite ?? false
+})
 
 const CreateExercisePage = () => {
   const dispatch = useAppDispatch()
@@ -43,8 +60,20 @@ const CreateExercisePage = () => {
 
   const onSubmit = async (data: FieldValues) => {
     try {
-      await dispatch(createExerciseAction({ ...(data as Omit<Exercise, "id">) })).unwrap()
+      await dispatch(
+        createExerciseAction(normalizeExercisePayload(data as Omit<Exercise, "id">))
+      ).unwrap()
       dispatch(getAllExercisesAction())
+      methods.reset({
+        name: "",
+        description: "",
+        muscleGroup: "",
+        category: "",
+        complexity: "",
+        equipment: "",
+        favourite: false
+      })
+      setFiltered([])
     } catch (error) {
       console.error(error)
     }
@@ -52,7 +81,7 @@ const CreateExercisePage = () => {
 
   useEffect(() => {
     dispatch(getAllExercisesAction())
-  }, [])
+  }, [dispatch])
 
   if (isLoading && exercises.length === 0) {
     return <FullPageLoader />
@@ -69,7 +98,6 @@ const CreateExercisePage = () => {
                 {...register("name", {
                   onChange: filterList,
                   validate: value => {
-                    console.log(value)
                     if (allNames.has(value.toLocaleLowerCase())) {
                       return "Name must be unique"
                     }
@@ -89,6 +117,43 @@ const CreateExercisePage = () => {
               <Label htmlFor="muscleGroup">Muscle Groups</Label>
               <TextInput {...register("muscleGroup")} />
             </FormGroup>
+            <FormGroup>
+              <Label htmlFor="category">Category</Label>
+              <SelectInput {...register("category")} defaultValue="">
+                <option value="">None</option>
+                {CATEGORY_OPTIONS.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </SelectInput>
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="complexity">Complexity</Label>
+              <SelectInput {...register("complexity")} defaultValue="">
+                <option value="">None</option>
+                {COMPLEXITY_OPTIONS.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </SelectInput>
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="equipment">Equipment</Label>
+              <SelectInput {...register("equipment")} defaultValue="">
+                <option value="">None</option>
+                {EQUIPMENT_OPTIONS.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </SelectInput>
+            </FormGroup>
+            <CheckboxRow>
+              <CheckboxInput type="checkbox" {...register("favourite")} />
+              <CheckboxLabel>Pin as favourite</CheckboxLabel>
+            </CheckboxRow>
             <Button type="submit" label="Save" loadingText="Saving..." isLoading={isUpdating} />
           </Form>
         </FormProvider>
@@ -142,4 +207,34 @@ const TextInput = styled.input.attrs({ type: "text" })`
     outline: none;
     border-color: #399fff;
   }
+`
+
+const SelectInput = styled.select`
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: none;
+  border-bottom: 1px solid #d1d1d1;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #399fff;
+  }
+`
+
+const CheckboxRow = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #4f4f4f;
+`
+
+const CheckboxInput = styled.input`
+  margin: 0;
+`
+
+const CheckboxLabel = styled.span`
+  font-size: 0.9rem;
 `

@@ -10,39 +10,59 @@ import {
   deleteMovementAction,
   saveMovementAction
 } from "@root/store/slices/routines/routines.thunks"
-import { closeMovement, editMovement } from "@root/store/slices/routines/routines.slice"
-import { useCallback, useEffect } from "react"
+import {
+  closeMovement,
+  editMovement,
+  setMovementsOrder
+} from "@root/store/slices/routines/routines.slice"
+import { useCallback, useEffect, useRef } from "react"
 import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
+import { MdAdd } from "react-icons/md"
+import { Reorder } from "motion/react"
 
 export const RoutineUpdater = () => {
   const dispatch = useAppDispatch()
   const routine = useAppSelector(selectRoutine)
   const movements = useAppSelector(state => state.routines.selected?.movements)
   const panelId = useAppSelector(selectOpenMovementId)
+  const autoBootstrapDoneByRoutineId = useRef<Record<string, boolean>>({})
+  const autoBootstrapRequestedByRoutineId = useRef<Record<string, boolean>>({})
   const methods = useForm()
 
-  const handleEditClick = (id: IDType | null) => {
+  const flushOpenMovement = () => {
     if (panelId) {
       dispatch(saveMovementAction(panelId))
+    }
+  }
+
+  const handleOpenMovement = (id: IDType | null) => {
+    flushOpenMovement()
+
+    if (id) {
+      dispatch(saveMovementAction(id))
     }
 
     dispatch(editMovement(id))
   }
 
   const handleCloseMovement = () => {
-    if (panelId) {
-      dispatch(saveMovementAction(panelId))
-    }
+    flushOpenMovement()
 
     dispatch(closeMovement())
   }
 
   const handleAddMovement = () => {
+    flushOpenMovement()
     dispatch(addMovementAction({ order: movements?.length || 0 }))
   }
 
   const handleRemoveMovement = (id: IDType) => {
+    flushOpenMovement()
     dispatch(deleteMovementAction({ movementId: id }))
+  }
+
+  const handleReorderMovements = (movementIds: IDType[]) => {
+    dispatch(setMovementsOrder(movementIds))
   }
 
   const getExercises = useCallback(async () => {
@@ -53,6 +73,30 @@ export const RoutineUpdater = () => {
     getExercises()
   }, [getExercises])
 
+  useEffect(() => {
+    if (!routine || !movements) {
+      return
+    }
+
+    const routineId = `${routine.id}`
+    if (autoBootstrapDoneByRoutineId.current[routineId]) {
+      return
+    }
+
+    if (movements.length === 0) {
+      if (autoBootstrapRequestedByRoutineId.current[routineId]) {
+        return
+      }
+      autoBootstrapRequestedByRoutineId.current[routineId] = true
+      dispatch(addMovementAction({ order: 0 }))
+      return
+    }
+
+    dispatch(editMovement(movements[0].id))
+    autoBootstrapDoneByRoutineId.current[routineId] = true
+    autoBootstrapRequestedByRoutineId.current[routineId] = false
+  }, [dispatch, movements, routine])
+
   if (!routine)
     return (
       <div>
@@ -62,34 +106,52 @@ export const RoutineUpdater = () => {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(() => console.log("Submit"))}>
+      <StyledForm onSubmit={methods.handleSubmit(() => console.log("Submit"))}>
         {!movements?.length ? (
           <Text>Add movements to start your routine...</Text>
         ) : (
-          movements.map((movement: Movement, index: number) => (
-            <MovementBlock
-              key={movement.id}
-              movement={movement}
-              count={index + 1}
-              isExpanded={panelId === movement.id}
-              onEditClick={handleEditClick}
-              onCloseClick={handleCloseMovement}
-              onDelete={handleRemoveMovement}
-            />
-          ))
+          <Reorder.Group
+            axis="y"
+            values={movements.map(movement => movement.id)}
+            onReorder={handleReorderMovements}
+            style={{
+              padding: 0,
+              margin: 0,
+              overscrollBehaviorY: "contain"
+            }}
+          >
+            {movements.map((movement: Movement, index: number) => (
+              <MovementBlock
+                key={movement.id}
+                movement={movement}
+                count={index + 1}
+                isExpanded={panelId === movement.id}
+                onOpenClick={handleOpenMovement}
+                onCloseClick={handleCloseMovement}
+                onDelete={handleRemoveMovement}
+              />
+            ))}
+          </Reorder.Group>
         )}
         <Footer>
-          <AddMovement onClick={handleAddMovement}>
+          <AddMovement type="button" onClick={handleAddMovement}>
             <div>
-              <span>+</span>
+              <MdAdd />
             </div>
             <div>Add Movement</div>
           </AddMovement>
         </Footer>
-      </form>
+      </StyledForm>
     </FormProvider>
   )
 }
+
+const StyledForm = styled.form`
+  > ul {
+    padding: 0;
+    margin: 0;
+  }
+`
 
 const Footer = styled.footer`
   display: flex;
@@ -116,9 +178,9 @@ const AddMovement = styled.button`
     color: #616161;
     position: relative;
 
-    span {
+    svg {
       position: absolute;
-      top: 42%;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 1.4rem;

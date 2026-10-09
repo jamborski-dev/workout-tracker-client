@@ -44,6 +44,8 @@ export const Root = styled.div`
   }
 
   > header {
+    /* background-color: #d9d9d9; */
+
     h4 {
       font-size: 1.2rem;
       margin: 0;
@@ -51,8 +53,8 @@ export const Root = styled.div`
       text-align: center;
     }
 
-    div {
-      font-size: 0.8rem;
+    > div {
+      font-size: 1.2rem;
       /* text-align: center; */
       color: #22222299;
 

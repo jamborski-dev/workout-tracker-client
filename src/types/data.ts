@@ -24,11 +24,26 @@ export type Routine = {
   date: string
   userId: IDType
   name: string
+  routineTypeId?: IDType
+  routineType?: string | RoutineType
   notes?: string
   movements: Movement[]
 }
 
 export type DBRoutine = MetaData & Routine
+
+export type RoutineType = {
+  id: IDType
+  name: string
+}
+
+export type CreateRoutineTypeDto = {
+  name: string
+}
+
+export type UpdateRoutineTypeDto = {
+  name?: string
+}
 
 export type GetRoutineByIdPayload = { routineId: IDType }
 
@@ -51,6 +66,7 @@ export interface MovementSet {
   actualWeight?: number
   plannedReps?: number
   plannedWeight?: number
+  isWU?: boolean
 }
 
 export interface Movement {
@@ -69,6 +85,10 @@ export type Exercise = {
   name: string
   description: string
   muscleGroup: string
+  category?: string | null
+  complexity?: string | null
+  equipment?: string | null
+  favourite?: boolean
 }
 
 export type DBExercise = MetaData & Exercise

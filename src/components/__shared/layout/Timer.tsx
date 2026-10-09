@@ -2,7 +2,7 @@ import styled from "styled-components"
 import { FC, useEffect, useState } from "react"
 import { useAppSelector } from "@root/store/hooks/store"
 import { selectTimer } from "@root/store/slices/app/app.slice"
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 
 export const Timer: FC = () => {
   const timer = useAppSelector(selectTimer)

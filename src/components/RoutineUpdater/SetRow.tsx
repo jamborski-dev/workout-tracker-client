@@ -1,17 +1,18 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { removeSetAction } from "@root/store/slices/routines/routines.thunks"
-import { IDType, MovementSet } from "@root/types/data"
-import { FC, SyntheticEvent, KeyboardEvent, FocusEvent, useEffect, useCallback } from "react"
+import type { IDType, MovementSet } from "@root/types/data"
+import { useEffect, useCallback } from "react"
+import type { FC, SyntheticEvent, KeyboardEvent, FocusEvent, PointerEvent } from "react"
 import { useForm } from "react-hook-form"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { FaTrash } from "react-icons/fa6"
 import { NumberInput } from "./NumberInput"
 import { WeightInput } from "./WeightInput"
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io"
-import { RootState } from "@root/store/store"
-import { reorderSets } from "@root/store/slices/routines/routines.slice"
+import type { RootState } from "@root/store/store"
+import styled from "styled-components"
+import { Reorder, useDragControls } from "motion/react"
+import { LuGripVertical } from "react-icons/lu"
 
-const allowReorder = false // FIXME there is an issue with re-rendering when this is true, state updates but UI not, need to investigate later
 interface SetRowProps {
   set: MovementSet
   movementId: IDType
@@ -28,36 +29,36 @@ export const SetRow: FC<SetRowProps> = ({
   onDelete
 }) => {
   const dispatch = useAppDispatch()
+  const dragControls = useDragControls()
   const _set = useAppSelector((state: RootState) =>
     state.routines.selected?.movements
       .find(m => m.id === movementId)
       ?.sets.find(s => s.id === set.id)
-  )!
+  )
+  const resolvedSet = _set ?? set
 
-  const { id, actualWeight, plannedWeight, actualReps, plannedReps, order } = _set
+  const { id, actualWeight, plannedWeight, actualReps, plannedReps } = resolvedSet
 
-  const canMoveUp = order > 0
-  const canMoveDown = useAppSelector((state: RootState) => {
-    const movement = state.routines.selected?.movements.find(m => m.id === movementId)
-    return movement ? order < movement.sets.length - 1 : false
-  })
-
-  const actualRepsFieldId = `set.${_set.id}.actualReps`
-  const actualWeightFieldId = `set.${_set.id}.actualWeight`
-  const plannedRepsFieldId = `set.${_set.id}.plannedReps`
-  const plannedWeightFieldId = `set.${_set.id}.plannedWeight`
+  const actualRepsFieldId = `set.${resolvedSet.id}.actualReps`
+  const actualWeightFieldId = `set.${resolvedSet.id}.actualWeight`
+  const plannedRepsFieldId = `set.${resolvedSet.id}.plannedReps`
+  const plannedWeightFieldId = `set.${resolvedSet.id}.plannedWeight`
+  const setsFieldId = `set.${resolvedSet.id}.sets`
+  const isWUFieldId = `set.${resolvedSet.id}.isWU`
 
   const { register, setValue } = useForm({
     defaultValues: {
       [actualRepsFieldId]: actualReps || 0,
       [actualWeightFieldId]: actualWeight || 0,
       [plannedRepsFieldId]: plannedReps || 0,
-      [plannedWeightFieldId]: plannedWeight || 0
+      [plannedWeightFieldId]: plannedWeight || 0,
+      [isWUFieldId]: resolvedSet.isWU || false,
+      [setsFieldId]: 1
     }
   })
 
   const handleRemoveSet = () => {
-    dispatch(removeSetAction({ setId: id! }))
+    dispatch(removeSetAction({ setId: id, movementId }))
     onDelete()
   }
 
@@ -67,7 +68,7 @@ export const SetRow: FC<SetRowProps> = ({
       const field = target.name.split(".")[2]
       const value = parseFloat(target.value)
 
-      onFieldChange({ setId: id!, field, value })
+      onFieldChange({ setId: id, field, value })
     },
     [id, onFieldChange]
   )
@@ -108,14 +109,13 @@ export const SetRow: FC<SetRowProps> = ({
     event.target.select() // Select the entire input value on focus
   }
 
-  const handleReorderUp = () => {
-    dispatch(reorderSets({ movementId, setId: id as number, direction: "up" }))
+  const handleGripPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    dragControls.start(event)
   }
 
-  const handleReorderDown = () => {
-    dispatch(reorderSets({ movementId, setId: id as number, direction: "down" }))
-  }
-
+  // biome-ignore lint/correctness/useExhaustiveDependencies: updates should run only when showActual toggles
   useEffect(() => {
     if (showActual) {
       setValue(actualRepsFieldId, actualReps || 0)
@@ -128,7 +128,26 @@ export const SetRow: FC<SetRowProps> = ({
   }, [showActual])
 
   return (
-    <li>
+    <Reorder.Item
+      value={set.id}
+      layout="position"
+      dragControls={dragControls}
+      dragListener={false}
+      whileDrag={{ zIndex: "var(--layer-dragging)" }}
+      className="set-grid set-row"
+      style={{
+        listStyle: "none",
+        zIndex: "var(--layer-content)",
+        position: "relative"
+      }}
+    >
+      <NumberInput
+        fieldId={setsFieldId}
+        register={register}
+        handleKeyDown={handleInputKeyDown}
+        handleChange={handleSetOnChange}
+        handleFocus={handleInputFocus}
+      />
       {showActual ? (
         <>
           <NumberInput
@@ -164,21 +183,44 @@ export const SetRow: FC<SetRowProps> = ({
           />
         </>
       )}
-      <ButtonGroup>
+      {/* Is WU checkbox - Is Warm Up? */}
+      <StyledCheckbox type="checkbox" {...register(isWUFieldId)} />
+      <ButtonGroup className="set-actions">
         <IconButton $size="sm" onClick={handleRemoveSet} $fontSize=".7rem">
           <FaTrash />
         </IconButton>
-        {allowReorder && (
-          <>
-            <IconButton $size="sm" onClick={handleReorderUp} disabled={!canMoveUp}>
-              <IoIosArrowUp />
-            </IconButton>
-            <IconButton $size="sm" onClick={handleReorderDown} disabled={!canMoveDown}>
-              <IoIosArrowDown />
-            </IconButton>
-          </>
-        )}
       </ButtonGroup>
-    </li>
+      <SetGripTarget className="set-grip" onPointerDown={handleGripPointerDown}>
+        <LuGripVertical />
+      </SetGripTarget>
+    </Reorder.Item>
   )
 }
+
+const StyledCheckbox = styled.input`
+  margin: 0;
+  height: 60%;
+  width: 1.4rem;
+`
+
+const SetGripTarget = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: #a7a7a7;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+`

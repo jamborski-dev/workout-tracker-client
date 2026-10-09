@@ -7,6 +7,7 @@ export const formatDate = (timestamp: string) => {
   return {
     getString: `${day}${formatOrdinal(day)} ${month}`,
     getOrdinalSuffix: formatOrdinal(day),
+    weekday: getWeekDay(date.getDay()),
     day: day,
     dayWithOrdinal: `${day}${formatOrdinal(day)}`,
     month: month,
