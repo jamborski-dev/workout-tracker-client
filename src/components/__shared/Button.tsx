@@ -29,7 +29,7 @@ const Spinner = styled(LoaderSVG)`
   height: var(--size);
 
   path {
-    fill: white;
+    fill: var(--accent-contrast);
   }
 `
 
@@ -49,7 +49,7 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
   height: var(--size);
   background-color: transparent;
   border: none;
-  color: #aeaeae;
+  color: var(--text-3);
   cursor: pointer;
   border-radius: 1000px;
   position: relative;
@@ -69,7 +69,7 @@ export const IconButton = styled.button.attrs({ type: "button" })<{
   }
 
   &:not(:disabled):hover {
-    background-color: #f1f1f1;
+    background-color: var(--surface-elevated);
   }
 
   &:disabled {
@@ -85,14 +85,14 @@ export const StyledButton = styled.button`
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--color-primary);
+  background: var(--accent-gradient);
   white-space: nowrap;
-  color: white;
+  color: var(--accent-contrast);
   cursor: pointer;
   transition: border-color 0.25s;
 
   &:hover {
-    border-color: #646cff;
+    border-color: var(--accent-text);
   }
   &:focus,
   &:focus-visible {
@@ -102,12 +102,16 @@ export const StyledButton = styled.button`
 
 export const PrimaryButton = styled.button`
   padding: 0.75rem;
-  background-color: var(--app-accent);
-  color: #ffffff;
+  background: var(--accent-gradient);
+  color: var(--accent-contrast);
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1rem;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  box-shadow: var(--accent-glow);
+  transition:
+    filter 0.2s,
+    transform 0.1s;
 
   display: flex;
   gap: 0.5rem;
@@ -121,7 +125,7 @@ export const PrimaryButton = styled.button`
 
   &:not(:disabled):hover {
     cursor: pointer;
-    background-color: var(--app-accent-hover);
+    filter: brightness(1.1);
   }
 `
 

@@ -43,10 +43,10 @@ const ToggleRoot = styled.div<SwitchToggleRootProps>`
   width: calc(var(--size) * 1.8);
   height: var(--size);
   border-radius: 10rem;
-  background: ${({ $isOn }) => ($isOn ? "#dadada" : "#adeded")};
+  background: ${({ $isOn }) => ($isOn ? "var(--pill-bg)" : "var(--accent-soft)")};
   position: relative;
 
-  box-shadow: inset 0 0 5px 1px ${({ $isOn }) => ($isOn ? "#37373734" : "#2ab0d99a")};
+  box-shadow: inset 0 0 5px 1px ${({ $isOn }) => ($isOn ? "var(--border-subtle)" : "var(--accent)")};
   transition: background 0.3s, box-shadow 0.3s;
 
   cursor: pointer;
@@ -57,7 +57,7 @@ const Toggle = styled.span<SwitchToggleRootProps>`
   aspect-ratio: 1 / 1;
   border-radius: 10rem;
   display: inline-block;
-  background: white;
+  background: var(--surface);
   position: absolute;
   top: 50%;
   left: 10%;
@@ -68,6 +68,6 @@ const Toggle = styled.span<SwitchToggleRootProps>`
 
 const Label = styled.span`
   font-size: 0.8rem;
-  color: #616161;
+  color: var(--text-2);
   user-select: none;
 `

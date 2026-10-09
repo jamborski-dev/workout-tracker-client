@@ -149,7 +149,7 @@ const StatusCell = styled.div`
   align-items: flex-start;
 
   small {
-    color: var(--color-text-muted, #888);
+    color: var(--text-3);
   }
 `
 
@@ -158,8 +158,13 @@ const Badge = styled.span<{ $tone: "private" | "pending" | "public" }>`
   padding: 0.1rem 0.5rem;
   border-radius: 1rem;
   background: ${({ $tone }) =>
-    $tone === "public" ? "#d9f2e6" : $tone === "pending" ? "#fdeccf" : "#e8e8ee"};
-  color: #333;
+    $tone === "public"
+      ? "color-mix(in srgb, var(--success) 18%, transparent)"
+      : $tone === "pending"
+        ? "color-mix(in srgb, var(--warning) 20%, transparent)"
+        : "var(--pill-bg)"};
+  color: ${({ $tone }) =>
+    $tone === "public" ? "var(--success)" : $tone === "pending" ? "var(--warning)" : "var(--text-2)"};
 `
 
 const Actions = styled.div`

@@ -33,7 +33,7 @@ const WeightInputContainer = styled.div`
 
   input {
     width: 100%;
-    background-color: #fff;
+    background-color: var(--surface);
     z-index: 1;
   }
 
@@ -43,7 +43,7 @@ const WeightInputContainer = styled.div`
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.7rem;
-    color: #949494;
+    color: var(--text-3);
     z-index: 0;
     user-select: none;
   }

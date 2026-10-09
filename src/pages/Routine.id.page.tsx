@@ -248,7 +248,7 @@ const InlineField = styled.div<{
   margin: 0 auto;
   width: min(520px, 94%);
   min-height: ${({ $variant }) => ($variant === "date" ? "2.2rem" : "2.6rem")};
-  border-bottom: ${({ $isEditing }) => ($isEditing ? "1px solid #d8d8d8" : "none")};
+  border-bottom: ${({ $isEditing }) => ($isEditing ? "1px solid var(--border-default)" : "none")};
   padding-inline: 0.3rem;
   gap: 0.25rem;
 `
@@ -271,7 +271,7 @@ const BackButton = styled.button`
   height: 2.4rem;
   border: 0;
   background: transparent;
-  color: #274057;
+  color: var(--text-1);
   cursor: pointer;
   padding: 0;
 
@@ -297,7 +297,7 @@ const DisplayValue = styled.div`
   flex: 1;
   text-align: left;
   font-size: 0.8rem;
-  color: #22222299;
+  color: var(--text-2);
 `
 
 const TypeSelectWrap = styled.div`

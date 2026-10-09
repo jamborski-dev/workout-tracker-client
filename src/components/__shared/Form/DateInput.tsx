@@ -66,7 +66,7 @@ const Input = styled.input`
   margin-right: 1rem;
 
   font-size: 0.8rem;
-  color: #22222299;
+  color: var(--text-2);
 
   &:focus {
     outline: none;

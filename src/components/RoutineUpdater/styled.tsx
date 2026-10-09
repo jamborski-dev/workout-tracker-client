@@ -22,7 +22,7 @@ export const Aside = styled.aside`
 export const CountIndicator = styled.div`
   aspect-ratio: 1/1;
   background: none;
-  border: 1px solid #b5b5b5;
+  border: 1px solid var(--border-default);
   border-radius: 1000px;
   width: 1.4rem;
   height: 1.4rem;
@@ -34,15 +34,21 @@ export const CountIndicator = styled.div`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #656565;
+    color: var(--text-2);
   }
 `
 
 export const Section = styled.section<{ $isExpanded: boolean }>`
+  margin: 0.6rem 0.75rem;
   padding-block: 1rem;
   padding-inline: 0.5rem 1rem;
-  border-top: 1px solid #f1f1f1;
-  background: var(--surface-movement-block);
+  border: 1px solid ${({ $isExpanded }) => ($isExpanded ? "var(--accent)" : "var(--card-border)")};
+  border-radius: 18px;
+  background: var(--surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: ${({ $isExpanded }) =>
+    $isExpanded ? "var(--card-shadow), var(--accent-glow)" : "var(--card-shadow)"};
 
   user-select: none;
 
@@ -57,15 +63,13 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
     "block_aside block_expandable block_expandable";
 
   transition:
-    border-left 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s,
     grid-template-rows 0.3s;
 
   & > * {
     padding-inline: 0.3rem;
   }
-
-  border-left: ${({ $isExpanded }) =>
-    $isExpanded ? "7px solid var(--app-accent)" : "0px solid transparent"};
 
   header {
     grid-area: block_header;
@@ -74,7 +78,7 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
 
     span {
       font-size: 0.75rem;
-      color: #191919;
+      color: var(--text-1);
       transition: color 0.6s;
       opacity: ${({ $isExpanded }) => ($isExpanded ? 1 : 0.5)};
     }
@@ -84,7 +88,7 @@ export const Section = styled.section<{ $isExpanded: boolean }>`
     // shared with select
     margin: 0;
     font-weight: 400;
-    color: #616161;
+    color: var(--text-2);
 
     display: flex;
     align-items: center;
@@ -130,7 +134,7 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
 
       .set-label {
         text-align: right;
-        color: #818181;
+        color: var(--text-3);
       }
 
       .set-grip {
@@ -153,10 +157,10 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
   input {
     padding: 0.35rem 0.5rem;
     border-radius: 0.3rem;
-    border: 1px solid #c9c9c9;
+    border: 1px solid var(--border-default);
 
     &:hover {
-      border-color: #399fff;
+      border-color: var(--accent);
     }
 
     /* Hide the spinner in Chrome, Safari, Edge, and Opera */
@@ -178,7 +182,7 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
   .add-set {
     background: none;
     border: none;
-    color: #4391f1;
+    color: var(--accent-text);
     cursor: pointer;
     width: max-content;
     display: flex;
@@ -186,7 +190,7 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
     gap: 0.2rem;
 
     &:hover {
-      color: #0558a6;
+      color: var(--accent);
     }
   }
 `

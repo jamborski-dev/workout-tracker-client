@@ -210,7 +210,7 @@ const SetGripTarget = styled.div`
   margin-left: auto;
   width: 1.4rem;
   height: 1.4rem;
-  color: #a7a7a7;
+  color: var(--text-3);
   cursor: grab;
   touch-action: none;
   -webkit-user-select: none;

@@ -157,7 +157,7 @@ const Footer = styled.footer`
   display: flex;
   justify-content: center;
   padding-block: 1rem;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--border-subtle);
 `
 
 const AddMovement = styled.button`
@@ -170,12 +170,12 @@ const AddMovement = styled.button`
   cursor: pointer;
 
   div:first-child {
-    background: #f1f1f1;
+    background: var(--surface-elevated);
     border: none;
     border-radius: 1000px;
     width: 1.7rem;
     height: 1.7rem;
-    color: #616161;
+    color: var(--text-2);
     position: relative;
 
     svg {
@@ -187,7 +187,7 @@ const AddMovement = styled.button`
     }
 
     &:hover {
-      background: #e6e6e6;
+      background: var(--surface-overlay);
     }
   }
   div:last-child {

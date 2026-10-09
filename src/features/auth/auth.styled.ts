@@ -27,7 +27,7 @@ export const FormLabel = styled.label`
 
 export const FormInput = styled.input`
   padding: 0.75rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   font-size: 1rem;
   &:focus {
@@ -36,12 +36,12 @@ export const FormInput = styled.input`
 `
 
 export const ErrorMessage = styled.span`
-  color: #d9534f;
+  color: var(--danger);
   font-size: 0.875rem;
 `
 
 export const InfoMessage = styled.span`
-  color: #2f7d6d;
+  color: var(--success);
   font-size: 0.875rem;
 `
 
@@ -50,20 +50,20 @@ export const Divider = styled.div`
   align-items: center;
   gap: 0.75rem;
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-3);
 
   &::before,
   &::after {
     content: "";
     flex: 1;
     height: 1px;
-    background: #ddd;
+    background: var(--surface-overlay);
   }
 `
 
 export const SecondaryButton = styled.button.attrs({ type: "button" })`
   padding: 0.7rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   background: transparent;
   font-size: 0.95rem;

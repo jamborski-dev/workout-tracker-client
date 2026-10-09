@@ -32,8 +32,14 @@ const Root = styled.div<{ $size: Size }>`
   > svg {
     font-size: calc(2rem * var(--size-multiplier));
     transform: translate(18%, -2%);
+    color: var(--accent-text);
+    filter: drop-shadow(0 0 8px var(--accent-soft));
   }
   > span {
     font-size: calc(1.5rem * var(--size-multiplier));
+    background: linear-gradient(135deg, var(--accent-text), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 `

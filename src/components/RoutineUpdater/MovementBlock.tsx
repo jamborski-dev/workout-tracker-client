@@ -278,7 +278,7 @@ const ExerciseHeader = styled.h2`
   /* // shared with select
   margin: 0;
   font-weight: 400;
-  color: #616161;
+  color: var(--text-2);
 
   display: flex;
   align-items: center;
@@ -292,7 +292,7 @@ const ExerciseHeader = styled.h2`
 
 const SummaryText = styled.span`
   font-size: 0.8rem !important;
-  color: #22222299;
+  color: var(--text-2);
 `
 
 const HeaderContent = styled.div`
@@ -306,7 +306,7 @@ const HeaderIconButton = styled.button<{ $isActive: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: ${({ $isActive }) => ($isActive ? "#d6a11d" : "#bfbfbf")};
+  color: ${({ $isActive }) => ($isActive ? "var(--warning)" : "var(--text-3)")};
   border: 0;
   background: transparent;
   border-radius: 999px;
@@ -314,7 +314,7 @@ const HeaderIconButton = styled.button<{ $isActive: boolean }>`
   cursor: pointer;
 
   &:hover {
-    background-color: #f1f1f1;
+    background-color: var(--surface-elevated);
   }
 
   svg {
@@ -328,7 +328,7 @@ const GripTarget = styled.div`
   justify-content: center;
   width: 1.7rem;
   height: 1.7rem;
-  color: #a7a7a7;
+  color: var(--text-3);
   cursor: grab;
   margin-left: -0.1rem;
   flex: 1;
@@ -353,7 +353,7 @@ const Title = styled.span`
   > span:first-child {
     font-size: 1.4rem;
     font-weight: 400;
-    color: #616161;
+    color: var(--text-2);
   }    */
 `
 
@@ -361,22 +361,23 @@ const AddRowButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
 
-  background: #19a59a;
-  color: #ffffff;
+  background: var(--accent-gradient);
+  color: var(--accent-contrast);
+  box-shadow: var(--accent-glow);
   padding: 0.3rem 1rem;
 
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
 
   display: flex;
   align-items: center;
   gap: 0.2rem;
 
-  transition: background-color 0.2s;
+  transition: filter 0.2s;
 
   &:hover,
   &:active {
-    background: #19a59acc;
+    filter: brightness(1.1);
   }
 `

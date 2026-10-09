@@ -15,7 +15,7 @@ export const OverlayWrapper = styled(motion.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff;
+  background: var(--surface);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -31,10 +31,10 @@ export const PositionedContainer = styled.div`
 const StyledInput = styled.input`
   padding: 0.35rem 0.5rem;
   border-radius: 0.3rem;
-  border: 1px solid #c9c9c9;
+  border: 1px solid var(--border-default);
 
   &:hover {
-    border-color: #399fff;
+    border-color: var(--accent);
   }
 
   /* Hide the spinner in Chrome, Safari, Edge, and Opera */
@@ -56,7 +56,7 @@ const NumberColumn = styled(motion.div)`
   align-items: center;
   width: 100%;
   margin-top: 1rem;
-  color: #333;
+  color: var(--text-2);
   cursor: grab;
 `
 

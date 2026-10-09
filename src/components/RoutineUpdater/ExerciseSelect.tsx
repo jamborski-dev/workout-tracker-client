@@ -97,14 +97,14 @@ const CustomOption: FC<
         lineHeight: "1.2",
         cursor: "pointer",
         fontWeight: isSelected ? "bold" : "normal",
-        backgroundColor: isFocused ? "#e6f7ff" : "transparent",
-        color: isFocused ? "#333" : "#616161"
+        backgroundColor: isFocused ? "var(--accent-soft)" : "transparent",
+        color: isFocused ? "var(--text-1)" : "var(--text-2)"
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
         <span style={{ fontSize: "0.8rem" }}>{data.name}</span>
         {exerciseMeta ? (
-          <span style={{ fontSize: "0.6rem", color: "#888" }}>{exerciseMeta}</span>
+          <span style={{ fontSize: "0.6rem", color: "var(--text-3)" }}>{exerciseMeta}</span>
         ) : null}
       </div>
       <FavouriteButton
@@ -260,10 +260,9 @@ const GroupToggleRow = styled.div`
 `
 
 const GroupToggleButton = styled.button<{ $active: boolean }>`
-  border: 1px solid ${({ $active }) => ($active ? "#399fff" : "rgba(57, 159, 255, 0.25)")};
-  background: ${({ $active }) =>
-    $active ? "rgba(57, 159, 255, 0.12)" : "rgba(255, 255, 255, 0.9)"};
-  color: #4f4f4f;
+  border: 1px solid ${({ $active }) => ($active ? "var(--accent)" : "var(--border-default)")};
+  background: ${({ $active }) => ($active ? "var(--accent-soft)" : "transparent")};
+  color: var(--text-2);
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   font-size: 0.68rem;
@@ -284,7 +283,7 @@ const GroupLabel = styled.div`
 const FavouriteButton = styled.button<{ $isActive: boolean }>`
   border: 0;
   background: transparent;
-  color: ${({ $isActive }) => ($isActive ? "#d48806" : "#bfbfbf")};
+  color: ${({ $isActive }) => ($isActive ? "var(--warning)" : "var(--text-3)")};
   line-height: 1;
   padding: 0.1rem;
   cursor: pointer;

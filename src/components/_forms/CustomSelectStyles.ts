@@ -18,8 +18,8 @@ const baseConfig = {
   }),
   option: (provided: object, state: { isFocused: boolean }) => ({
     ...(provided as object),
-    backgroundColor: state.isFocused ? "#e6f7ff" : "transparent", // Blue highlight on hover
-    color: state.isFocused ? "#333" : "#616161", // Adjust color to maintain readability
+    backgroundColor: state.isFocused ? "var(--accent-soft)" : "transparent",
+    color: state.isFocused ? "var(--text-1)" : "var(--text-2)",
     cursor: "pointer",
     fontSize: "0.8rem"
   }),
@@ -33,7 +33,7 @@ const baseConfig = {
     ...(provided as object),
     fontSize: "1.4rem",
     fontWeight: 400,
-    color: "#616161",
+    color: "var(--text-2)",
     margin: 0,
     gridArea: "1 / 1 / 2 / 2"
   }),
@@ -41,7 +41,7 @@ const baseConfig = {
     ...(provided as object),
     fontSize: "1.4rem",
     fontWeight: 400,
-    color: "#616161",
+    color: "var(--text-2)",
     margin: 0,
     gridArea: "1 / 1 / 2 / 2"
   }),
@@ -49,7 +49,7 @@ const baseConfig = {
     ...(provided as object),
     fontSize: "1.4rem",
     fontWeight: 400,
-    color: "#616161",
+    color: "var(--text-2)",
     margin: 0,
     padding: 0,
     gridArea: "1 / 1 / 2 / 2"
@@ -69,7 +69,13 @@ const baseConfig = {
     minWidth: "min(360px, calc(100vw - 4rem))",
     maxWidth: "calc(100vw - 4rem)",
     boxSizing: "border-box",
-    fontSize: "1rem"
+    fontSize: "1rem",
+    background: "var(--glass-sheet)",
+    backdropFilter: "var(--glass-blur)",
+    border: "1px solid var(--border-default)",
+    borderRadius: "14px",
+    boxShadow: "var(--shadow-lg)",
+    overflow: "hidden"
   }),
   menuList: (provided: object) => ({
     ...(provided as object),

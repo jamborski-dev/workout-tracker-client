@@ -79,14 +79,18 @@ export const TableRoot = styled.table`
   width: 100%;
   border-collapse: collapse;
   overflow: scroll;
-  background-color: #fff;
-  color: rgb(124, 124, 124);
+  background-color: var(--surface);
+  color: var(--text-2);
   border-radius: var(--border-radius);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-  border-radius: 0.5em;
+  box-shadow: 0 0 0 1px var(--border-subtle);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
 
   thead {
-    color: rgb(80, 80, 80);
+    color: var(--text-2);
     font-weight: 600;
   }
 
@@ -97,7 +101,7 @@ export const TableRoot = styled.table`
   }
 
   tr:not(:first-child) {
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--border-subtle);
   }
 
   td:first-child {
@@ -106,11 +110,11 @@ export const TableRoot = styled.table`
   }
 
   tr:nth-child(odd):not(thead tr) {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: transparent;
   }
 
   tr:not(thead tr):hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--accent-soft);
     cursor: pointer;
   }
 

@@ -10,6 +10,9 @@ import { store } from "@store/store"
 import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import ErrorBoundary from "@components/ErrorBoundary.tsx"
+import { initTheme } from "./theme/themeStore"
+
+initTheme()
 
 const requiredEnvVars = ["VITE_SERVER_URL"]
 

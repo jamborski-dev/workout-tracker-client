@@ -3,6 +3,7 @@ import { Login } from "@root/features/auth/Login"
 import { ForgotPassword } from "@root/features/auth/ForgotPassword"
 import { ResetPassword } from "@root/features/auth/ResetPassword"
 import AdminPage from "./Admin"
+import SettingsPage from "./Settings.page"
 import { MainTemplate } from "@root/templates/MainTemplate"
 import {
   LAST_APP_LOCATION_STORAGE_KEY,
@@ -130,6 +131,14 @@ function App() {
             }
           />
 
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

@@ -45,9 +45,10 @@ const Main = styled.main`
   position: relative;
   overflow: hidden;
 
-  background-color: var(--app-bg);
+  background-color: transparent;
 
-  box-shadow: 0 0 10px rgb(0, 0, 0, 0.1);
+  /* thin edge so the column reads against the backdrop on desktop */
+  box-shadow: 0 0 0 1px var(--border-subtle);
   max-width: 500px;
 `
 
@@ -67,4 +68,5 @@ const Overlay = styled.div`
   height: 100%;
   z-index: 9;
   background-color: rgb(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
 `

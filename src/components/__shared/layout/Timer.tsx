@@ -45,7 +45,7 @@ export const Timer: FC = () => {
 
 const StyledTimerBar = styled(motion.div)`
   height: 4px;
-  background-color: #5db9b8;
+  background: var(--accent-gradient);
   border-radius: 5px;
   /* border-top-right-radius: 5px; */
   /* border-bottom-right-radius: 5px; */

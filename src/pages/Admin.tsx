@@ -275,7 +275,7 @@ const Root = styled.div`
 
   p {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-2);
   }
 `
 
@@ -288,7 +288,7 @@ const AddForm = styled.form`
   input[type="text"],
   select {
     padding: 0.6rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-default);
     border-radius: 6px;
     font-size: 1rem;
   }
@@ -314,7 +314,7 @@ const Item = styled.li`
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-subtle);
 
   > div:first-child {
     display: flex;
@@ -323,7 +323,7 @@ const Item = styled.li`
     word-break: break-all;
   }
   small {
-    color: #888;
+    color: var(--text-3);
   }
 `
 
@@ -334,15 +334,15 @@ const Tabs = styled.div`
   button {
     flex: 1;
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-default);
     border-radius: 6px;
     background: transparent;
     cursor: pointer;
   }
   button[aria-pressed="true"] {
-    background: var(--app-accent, #3f9a8d);
-    border-color: var(--app-accent, #3f9a8d);
-    color: white;
+    background: var(--accent-gradient);
+    border-color: transparent;
+    color: var(--accent-contrast);
   }
 `
 
@@ -351,10 +351,10 @@ const ReviewItem = styled.li`
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-subtle);
 
   small {
-    color: #888;
+    color: var(--text-3);
   }
 `
 
@@ -369,14 +369,14 @@ const Similar = styled.div`
     background: none;
     border: none;
     padding: 0;
-    color: var(--app-accent, #3f9a8d);
+    color: var(--accent-text);
     cursor: pointer;
     text-align: left;
   }
 `
 
 const ErrorText = styled.span`
-  color: #d9534f;
+  color: var(--danger);
   font-size: 0.875rem;
 `
 

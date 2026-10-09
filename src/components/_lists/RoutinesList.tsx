@@ -119,7 +119,7 @@ const RoutineActionsRoot = styled.div`
 
 const DateText = styled.span`
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-2);
 `
 
 const RoutineInfo = styled.div`
@@ -130,5 +130,5 @@ const RoutineInfo = styled.div`
 
 const RoutineTitle = styled.span`
   font-size: 1rem;
-  color: #3f3f3f;
+  color: var(--text-2);
 `

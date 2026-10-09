@@ -40,11 +40,22 @@ export const Root = styled.div`
 
   > footer {
     text-align: center;
-    border-top: 1px solid #e6e6e6;
+    background: var(--glass-nav);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: var(--nav-shadow);
+    position: relative;
+    z-index: var(--layer-content);
   }
 
   > header {
-    /* background-color: #d9d9d9; */
+    background: var(--glass-header);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+    z-index: var(--layer-content);
 
     h4 {
       font-size: 1.2rem;
@@ -56,7 +67,7 @@ export const Root = styled.div`
     > div {
       font-size: 1.2rem;
       /* text-align: center; */
-      color: #22222299;
+      color: var(--text-2);
 
       sup {
         font-size: 0.5rem;

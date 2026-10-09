@@ -222,12 +222,12 @@ const TextInput = styled.input.attrs({ type: "text" })`
   padding: 0.5rem;
   font-size: 1rem;
   border: none;
-  border-bottom: 1px solid #d1d1d1;
+  border-bottom: 1px solid var(--border-default);
   transition: border-color 0.2s;
 
   &:focus {
     outline: none;
-    border-color: #399fff;
+    border-color: var(--accent);
   }
 `
 
@@ -236,12 +236,12 @@ const SelectInput = styled.select`
   padding: 0.5rem;
   font-size: 1rem;
   border: none;
-  border-bottom: 1px solid #d1d1d1;
-  background: white;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface);
 
   &:focus {
     outline: none;
-    border-color: #399fff;
+    border-color: var(--accent);
   }
 `
 
@@ -250,7 +250,7 @@ const CheckboxRow = styled.label`
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  color: #4f4f4f;
+  color: var(--text-2);
 `
 
 const CheckboxInput = styled.input`
