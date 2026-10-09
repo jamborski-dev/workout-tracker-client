@@ -1,0 +1,57 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    env:
+      IMAGE_NAME: ghcr.io/jamborski-dev/axis-client
+      CONTAINER_NAME: axis-client
+      HOMESERVER_IP: 192.168.0.51
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u jamborski-dev --password-stdin
+
+      - name: Build and push image
+        run: |
+          docker build \
+            --build-arg VITE_SERVER_URL=https://axis.robskydigital.com \
+            -t ${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
+          docker push ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOMESERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ env.HOMESERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to homeserver
+        run: |
+          ssh -i ~/.ssh/id_ed25519 root@${{ env.HOMESERVER_IP }} "
+            echo '${{ secrets.GHCR_TOKEN }}' | docker login ghcr.io -u jamborski-dev --password-stdin &&
+            docker pull ${{ env.IMAGE_NAME }}:latest &&
+            docker stop ${{ env.CONTAINER_NAME }} || true &&
+            docker rm ${{ env.CONTAINER_NAME }} || true &&
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              --network homeserver_homeserver \
+              -p 3002:80 \
+              --restart always \
+              ${{ env.IMAGE_NAME }}:latest
+          "
+
+      - name: Clean up SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519
