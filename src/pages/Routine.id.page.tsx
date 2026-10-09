@@ -147,12 +147,9 @@ const RoutineById = () => {
       return
     }
 
-    if (`${routine?.id}` === `${id}`) {
-      return
-    }
-
+    // Always refresh from the server; a locally persisted copy is only shown while this loads
     dispatch(getRoutineByIdAction({ routineId: id }))
-  }, [dispatch, id, routine?.id, userId])
+  }, [dispatch, id, userId])
 
   useEffect(() => {
     if (!userId) {
@@ -162,7 +159,7 @@ const RoutineById = () => {
     dispatch(getAllRoutineTypesAction())
   }, [dispatch, userId])
 
-  if (isLoading) {
+  if (isLoading && `${routine?.id}` !== `${id}`) {
     return <FullPageLoader />
   }
 

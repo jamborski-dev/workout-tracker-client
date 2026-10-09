@@ -16,6 +16,8 @@ import {
 } from "./routines.thunks"
 import type { RoutinesState } from "./routines.types"
 import type { IDType, Movement, Routine } from "@root/types/data"
+import { loadSessionAction, loginUserAction } from "@root/store/slices/auth/auth.thunks"
+import { logout } from "@root/store/slices/auth/auth.slice"
 import { startAppListening } from "@root/store/middleware/listenerMiddleware"
 import { buildSummary } from "@root/components/RoutineUpdater/utils"
 import { reorderItems, trimObjectsArray } from "@root/utils/array"
@@ -45,12 +47,13 @@ const getEmptyMovement = ({
 
 type PersistedRoutinesState = Pick<
   RoutinesState,
-  "list" | "selected" | "openMovementId" | "showActualReps"
+  "list" | "selected" | "openMovementId" | "showActualReps" | "dirtyMovementIds" | "ownerUserId"
 >
 
 const defaultState: RoutinesState = {
   list: [],
   showActualReps: true,
+  dirtyMovementIds: [],
   isLoading: false,
   isUpdating: false,
   error: null
@@ -70,8 +73,16 @@ const persistRoutinesState = (state: RoutinesState): void => {
     list: state.list,
     selected: state.selected,
     openMovementId: state.openMovementId,
-    showActualReps: state.showActualReps
+    showActualReps: state.showActualReps,
+    dirtyMovementIds: state.dirtyMovementIds,
+    ownerUserId: state.ownerUserId
   })
+}
+
+const markDirty = (state: RoutinesState, movementId: IDType) => {
+  if (!state.dirtyMovementIds.includes(movementId)) {
+    state.dirtyMovementIds.push(movementId)
+  }
 }
 
 const initialState: RoutinesState = getInitialState()
@@ -82,6 +93,17 @@ const routinesSlice = createSlice({
   reducers: {
     loadRoutine: (state, action) => {
       state.selected = action.payload
+    },
+    // Drops the locally persisted copy (logout / different user signed in)
+    resetRoutinesState: state => {
+      state.list = []
+      state.selected = undefined
+      state.openMovementId = undefined
+      state.dirtyMovementIds = []
+      state.ownerUserId = undefined
+    },
+    setRoutinesOwner: (state, action) => {
+      state.ownerUserId = action.payload
     },
     initRoutine: state => {
       // const newRoutine = getInitRoutine(action.payload)
@@ -138,6 +160,7 @@ const routinesSlice = createSlice({
         if (set) {
           // @ts-expect-error - this is a dynamic field
           set[field] = value
+          markDirty(state, movementId)
         }
       }
     },
@@ -160,6 +183,7 @@ const routinesSlice = createSlice({
           ...selected,
           movements
         }
+        markDirty(state, movementId)
       }
     },
     setSetsOrder: (state, action) => {
@@ -171,6 +195,7 @@ const routinesSlice = createSlice({
       if (!movement) {
         return
       }
+      markDirty(state, movementId)
 
       const nextOrderById = new Map<IDType, number>()
       setIds.forEach((id, index) => {
@@ -210,11 +235,25 @@ const routinesSlice = createSlice({
         state.error = null
       })
       .addCase(getRoutineByIdAction.fulfilled, (state, action) => {
-        state.selected = action.payload
-        if (!action.payload.movements?.length) {
-          state.selected.movements = []
-        }
+        const previous = state.selected
+        const server = action.payload
+        const sameRoutine = Boolean(previous) && `${previous?.id}` === `${server.id}`
+        const serverMovements = server.movements ?? []
+
+        // Server is the source of truth, except movements with local edits not yet saved
+        const dirty = sameRoutine ? state.dirtyMovementIds : []
+        const movements = serverMovements.map(movement =>
+          dirty.includes(movement.id as IDType)
+            ? (previous?.movements.find(local => local.id === movement.id) ?? movement)
+            : movement
+        )
+
+        state.selected = { ...server, movements }
+        state.dirtyMovementIds = dirty.filter(id => serverMovements.some(m => m.id === id))
         state.isLoading = false
+      })
+      .addCase(saveMovementAction.fulfilled, (state, action) => {
+        state.dirtyMovementIds = state.dirtyMovementIds.filter(id => id !== action.meta.arg)
       })
       .addCase(getRoutineByIdAction.rejected, (state, action) => {
         state.isLoading = false
@@ -387,6 +426,8 @@ const routinesSlice = createSlice({
 
 export const {
   loadRoutine,
+  resetRoutinesState,
+  setRoutinesOwner,
   initRoutine,
   togglePlannedActual,
   updateMovementSummary,
@@ -421,6 +462,8 @@ startAppListening({
 startAppListening({
   matcher: isAnyOf(
     loadRoutine,
+    resetRoutinesState,
+    setRoutinesOwner,
     initRoutine,
     editMovement,
     closeMovement,
@@ -484,5 +527,24 @@ startAppListening({
     if (routineId) {
       dispatch(getRoutineByIdAction({ routineId }))
     }
+  }
+})
+
+// Never show one user's locally persisted routines to another
+startAppListening({
+  matcher: isAnyOf(loginUserAction.fulfilled, loadSessionAction.fulfilled),
+  effect: async (action, { dispatch, getState }) => {
+    const userId = (action.payload as { user: { id: string } }).user.id
+    if (getState().routines.ownerUserId !== userId) {
+      dispatch(resetRoutinesState())
+      dispatch(setRoutinesOwner(userId))
+    }
+  }
+})
+
+startAppListening({
+  actionCreator: logout,
+  effect: async (_, { dispatch }) => {
+    dispatch(resetRoutinesState())
   }
 })
