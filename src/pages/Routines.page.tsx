@@ -3,10 +3,7 @@ import { RoutinesList } from "@root/components/_lists/RoutinesList"
 import { useAppDispatch, useAppSelector } from "@store/hooks/store"
 import { Page } from "@root/components/__shared/layout/Page"
 import { selectList, selectRoutinesLoading } from "@root/store/slices/routines/routines.selectors"
-import {
-  getAllRoutinesAction,
-  initRoutineAction
-} from "@root/store/slices/routines/routines.thunks"
+import { getAllRoutinesAction } from "@root/store/slices/routines/routines.thunks"
 import { selectUserId } from "@root/store/slices/user/user.selectors"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
@@ -16,13 +13,8 @@ const RoutinesPage = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const handlePageAction = async () => {
-    try {
-      const { id } = await dispatch(initRoutineAction()).unwrap()
-      navigate(`/routines/${id}`)
-    } catch (err) {
-      console.error(err)
-    }
+  const handlePageAction = () => {
+    navigate("/routines/new")
   }
 
   const userId = useAppSelector(selectUserId)
@@ -43,9 +35,7 @@ const RoutinesPage = () => {
           action={{
             callback: handlePageAction,
             label: "New Routine",
-            icon: <IoCreateOutline />,
-            isLoading,
-            loadingText: "Creating..."
+            icon: <IoCreateOutline />
           }}
         />
       }

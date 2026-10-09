@@ -2,6 +2,7 @@ import {
   GetRoutineByIdPayload,
   Routine,
   InitRoutineServiceReturn,
+  InitRoutinePayload,
   AddMovementActionPayload,
   UpdateMovementServicePayload,
   UpdateMovementActionPayload,
@@ -41,8 +42,9 @@ export const getRoutineById = async (payload: GetRoutineByIdPayload) => {
   })
 }
 
-export const initRoutine = async () => {
-  return await secureServiceCall<undefined, InitRoutineServiceReturn>({
+export const initRoutine = async (payload: InitRoutinePayload = {}) => {
+  return await secureServiceCall<InitRoutinePayload, InitRoutineServiceReturn>({
+    params: payload,
     method: "post",
     path: `/fit/routines/init`,
     errorMessage: "Error fetching routines"

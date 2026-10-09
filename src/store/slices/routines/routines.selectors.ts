@@ -26,3 +26,17 @@ export const selectMovementById = (state: RootState, id: IDType) => {
   const movement = state.routines.selected?.movements.find(m => m.id === id)
   return movement
 }
+
+const NO_CATEGORIES: string[] = []
+
+// Exercise categories that suit the open routine's workout type, most relevant first
+export const selectPreferredCategories = (state: RootState): string[] => {
+  const routine = state.routines.selected
+  if (!routine) return NO_CATEGORIES
+
+  const typeId = routine.routineTypeId
+  const fromList = state.routineTypes.list.find(type => `${type.id}` === `${typeId}`)
+  const inline = typeof routine.routineType === "object" ? routine.routineType : undefined
+
+  return fromList?.categories ?? inline?.categories ?? NO_CATEGORIES
+}

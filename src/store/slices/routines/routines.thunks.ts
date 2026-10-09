@@ -21,6 +21,7 @@ import {
   DeleteRoutineActionPayload,
   GetRoutineByIdPayload,
   IDType,
+  InitRoutinePayload,
   InitRoutineServiceReturn,
   Movement,
   MovementSet,
@@ -50,7 +51,7 @@ export const getRoutineByIdAction = createThunk<Pick<GetRoutineByIdPayload, "rou
   getRoutineById
 )
 
-export const initRoutineAction = createThunk<undefined, InitRoutineServiceReturn>(
+export const initRoutineAction = createThunk<InitRoutinePayload, InitRoutineServiceReturn>(
   "routines/thunk/init",
   initRoutine
 )

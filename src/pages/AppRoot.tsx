@@ -18,6 +18,7 @@ import ExerciseCreatePage from "./Exercise.create.page"
 import ExercisesPage from "./Exercises.page"
 import RoutineByIdPage from "./Routine.id.page"
 import RoutinesPage from "./Routines.page"
+import RoutineNewPage from "./RoutineNew.page"
 // import { Register } from "@root/features/auth/Register"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { Logout } from "@root/features/auth/Logout"
@@ -153,6 +154,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RoutinesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/routines/new"
+            element={
+              <ProtectedRoute>
+                <RoutineNewPage />
               </ProtectedRoute>
             }
           />

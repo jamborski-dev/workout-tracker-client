@@ -35,6 +35,8 @@ export type DBRoutine = MetaData & Routine
 export type RoutineType = {
   id: IDType
   name: string
+  // Exercise categories that suit this workout, most relevant first
+  categories?: string[]
 }
 
 export type CreateRoutineTypeDto = {
@@ -54,6 +56,13 @@ export type UpdateRoutineActionPayload = {
 export type UpdateRoutineServicePayload = Partial<Omit<DBRoutine, MetaDataKeys>>
 
 export type InitRoutineServiceReturn = { id: IDType }
+
+// Everything optional: the server falls back to defaults
+export type InitRoutinePayload = {
+  name?: string
+  date?: string
+  routineTypeId?: IDType
+}
 
 export type DeleteRoutineActionPayload = { routineId: IDType }
 

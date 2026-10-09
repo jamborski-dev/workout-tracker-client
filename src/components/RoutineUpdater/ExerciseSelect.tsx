@@ -7,6 +7,7 @@ import { Controller, useFormContext } from "react-hook-form"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { toggleFavouriteLocal } from "@root/store/slices/exercises/exercises.slice"
 import { updateExerciseAction } from "@root/store/slices/exercises/exercises.thunks"
+import { selectPreferredCategories } from "@root/store/slices/routines/routines.selectors"
 import { exerciseSelectStyles } from "../_forms/CustomSelectStyles"
 import styled from "styled-components"
 import { IoStar, IoStarOutline } from "react-icons/io5"
@@ -42,11 +43,22 @@ const getExerciseMeta = (exercise: Exercise) => {
     .join(" • ")
 }
 
+// How relevant a category is for today's workout: lower = show first, unknown/other = last
+const categoryRank = (category: string | null | undefined, preferred: string[]) => {
+  const index = preferred.indexOf((category ?? "").toLowerCase())
+  return index === -1 ? preferred.length : index
+}
+
 const buildExerciseOptions = (
   exercises: Exercise[],
-  groupBy: ExerciseGroupBy
+  groupBy: ExerciseGroupBy,
+  preferred: string[] = []
 ): Array<Exercise | GroupBase<Exercise>> => {
   const sortedExercises = [...exercises].sort((left, right) => {
+    // Exercises that suit this workout come first (e.g. push exercises on a push day)
+    const rankDiff = categoryRank(left.category, preferred) - categoryRank(right.category, preferred)
+    if (rankDiff !== 0) return rankDiff
+
     if (Boolean(left.favourite) !== Boolean(right.favourite)) {
       return left.favourite ? -1 : 1
     }
@@ -71,8 +83,20 @@ const buildExerciseOptions = (
     groupedExercises.set(groupLabel, existingGroup)
   }
 
+  // Uncategorised exercises ("Other") always go last
+  const groupRank = (options: Exercise[]) =>
+    groupBy !== "category"
+      ? 0
+      : options[0]?.category
+        ? categoryRank(options[0].category, preferred)
+        : preferred.length + 1
+
   return Array.from(groupedExercises.entries())
-    .sort(([left], [right]) => left.localeCompare(right))
+    .sort(
+      ([leftLabel, leftOptions], [rightLabel, rightOptions]) =>
+        groupRank(leftOptions) - groupRank(rightOptions) ||
+        leftLabel.localeCompare(rightLabel)
+    )
     .map(([label, options]) => ({ label, options }))
 }
 
@@ -143,7 +167,8 @@ export const ExerciseSelect: FC<ExerciseSelectProps> = ({ movementId, exerciseId
   const isTouchDevice =
     typeof window !== "undefined" &&
     (window.matchMedia?.("(pointer: coarse)")?.matches || "ontouchstart" in window)
-  const selectOptions = buildExerciseOptions(exerciseList, groupBy)
+  const preferredCategories = useAppSelector(selectPreferredCategories)
+  const selectOptions = buildExerciseOptions(exerciseList, groupBy, preferredCategories)
 
   const handleOnChange = (selected: SingleValue<Exercise>) => {
     if (!selected) return
@@ -199,7 +224,13 @@ export const ExerciseSelect: FC<ExerciseSelectProps> = ({ movementId, exerciseId
                 getOptionValue={option => option.id.toString()}
                 formatGroupLabel={group => (
                   <GroupLabel>
-                    <span>{group.label}</span>
+                    <span>
+                      {group.label}
+                      {groupBy === "category" &&
+                        preferredCategories.includes((group.label ?? "").toLowerCase()) && (
+                          <SuggestedTag>for this workout</SuggestedTag>
+                        )}
+                    </span>
                     <span>{group.options.length}</span>
                   </GroupLabel>
                 )}
@@ -267,6 +298,14 @@ const GroupToggleButton = styled.button<{ $active: boolean }>`
   padding: 0.2rem 0.55rem;
   font-size: 0.68rem;
   cursor: pointer;
+`
+
+const SuggestedTag = styled.small`
+  margin-left: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent-text);
 `
 
 const GroupLabel = styled.div`
