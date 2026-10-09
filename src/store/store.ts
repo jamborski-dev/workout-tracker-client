@@ -9,6 +9,7 @@ import "@store/middleware/toastMiddleware"
 import appReducer from "@store/slices/app/app.slice"
 import authReducer from "@store/slices/auth/auth.slice"
 import routineTypesReducer from "@store/slices/routineTypes/routineTypes.slice"
+import templatesReducer from "@store/slices/templates/templates.slice"
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     toast: toastReducer,
     routines: routinesReducer,
     exercises: exercisesReducer,
-    routineTypes: routineTypesReducer
+    routineTypes: routineTypesReducer,
+    templates: templatesReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(listenerMiddleware.middleware)
 })

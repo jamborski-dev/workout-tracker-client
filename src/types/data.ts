@@ -39,6 +39,34 @@ export type RoutineType = {
   categories?: string[]
 }
 
+// Reusable plan for a workout type: planned movements with planned sets
+export type TemplateSet = {
+  id: IDType
+  order: number
+  reps?: number | null
+  weight?: number | null
+  restTime?: number | null
+}
+
+export type TemplateMovement = {
+  id: IDType
+  order: number
+  exerciseId: number
+  exercise?: { id: number; name: string }
+  notes?: string | null
+  sets: TemplateSet[]
+}
+
+export type RoutineTemplate = {
+  id: IDType
+  name: string
+  routineTypeId: IDType
+  routineType?: RoutineType
+  movements: TemplateMovement[]
+  createdAt: string
+  updatedAt: string
+}
+
 export type CreateRoutineTypeDto = {
   name: string
 }
@@ -62,6 +90,8 @@ export type InitRoutinePayload = {
   name?: string
   date?: string
   routineTypeId?: IDType
+  // Copy this template's planned movements and sets into the new routine
+  templateId?: IDType
 }
 
 export type DeleteRoutineActionPayload = { routineId: IDType }

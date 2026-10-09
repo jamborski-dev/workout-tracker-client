@@ -3,6 +3,7 @@ import { DateInput } from "@root/components/__shared/Form/DateInput"
 import { FullPageLoader } from "@root/components/__shared/FullPageLoader"
 import { Page } from "@root/components/__shared/layout/Page"
 import { RoutineUpdater } from "@root/components/RoutineUpdater/RoutineUpdater"
+import { SaveTemplate } from "@root/components/SaveTemplate/SaveTemplate"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import {
   selectRoutinesLoading,
@@ -222,6 +223,11 @@ const RoutineById = () => {
                   styles={baseSelectStyles as never}
                 />
               </TypeSelectWrap>
+              <SaveTemplate
+                routineId={routine.id}
+                defaultName={routine.name || routineTypeName || "Template"}
+                disabled={!routine.movements.some(movement => movement.exerciseId)}
+              />
             </TypeRow>
           </Form>
         </FormProvider>
@@ -256,6 +262,7 @@ const InlineField = styled.div<{
 const TypeRow = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
   width: min(520px, 94%);
   margin: 0 auto;
@@ -301,7 +308,8 @@ const DisplayValue = styled.div`
 `
 
 const TypeSelectWrap = styled.div`
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 
   > div {
     width: 100%;

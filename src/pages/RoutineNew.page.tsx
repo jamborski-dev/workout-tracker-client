@@ -9,7 +9,12 @@ import {
 } from "@root/store/slices/routines/routines.thunks"
 import { selectRoutineTypes } from "@root/store/slices/routineTypes/routineTypes.selectors"
 import { getAllRoutineTypesAction } from "@root/store/slices/routineTypes/routineTypes.thunks"
-import type { IDType, Routine, RoutineType } from "@root/types/data"
+import { selectTemplates } from "@root/store/slices/templates/templates.selectors"
+import {
+  deleteTemplateAction,
+  getAllTemplatesAction
+} from "@root/store/slices/templates/templates.thunks"
+import type { IDType, Routine, RoutineTemplate, RoutineType } from "@root/types/data"
 import { format } from "date-fns"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -37,8 +42,11 @@ const RoutineNewPage = () => {
   const navigate = useNavigate()
   const types = useAppSelector(selectRoutineTypes)
   const routines = useAppSelector(selectList)
+  const templates = useAppSelector(selectTemplates)
 
   const [typeId, setTypeId] = useState<IDType | null>(null)
+  const [templateId, setTemplateId] = useState<IDType | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<IDType | null>(null)
   const [title, setTitle] = useState("")
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [saving, setSaving] = useState(false)
@@ -47,6 +55,7 @@ const RoutineNewPage = () => {
   useEffect(() => {
     dispatch(getAllRoutineTypesAction())
     dispatch(getAllRoutinesAction())
+    dispatch(getAllTemplatesAction())
   }, [dispatch])
 
   const suggested = useMemo(() => suggestNextType(types, routines), [types, routines])
@@ -57,6 +66,31 @@ const RoutineNewPage = () => {
   }, [suggested])
 
   const selectedType = types.find(type => type.id === typeId)
+  const typeTemplates = templates.filter(template => template.routineTypeId === typeId)
+  const selectedTemplate = typeTemplates.find(template => template.id === templateId)
+
+  const pickType = (id: IDType) => {
+    userChoseType.current = true
+    setTypeId(id)
+    // A template belongs to one workout type
+    if (templates.find(template => template.id === templateId)?.routineTypeId !== id) setTemplateId(null)
+  }
+
+  const pickTemplate = (template: RoutineTemplate) => {
+    userChoseType.current = true
+    setTypeId(template.routineTypeId)
+    setTemplateId(template.id)
+  }
+
+  const removeTemplate = async (id: IDType) => {
+    try {
+      await dispatch(deleteTemplateAction({ templateId: id })).unwrap()
+      if (templateId === id) setTemplateId(null)
+    } catch {
+      // the global toast already reports the failure
+    }
+    setConfirmDeleteId(null)
+  }
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -67,6 +101,7 @@ const RoutineNewPage = () => {
       const { id } = await dispatch(
         initRoutineAction({
           routineTypeId: selectedType.id,
+          ...(selectedTemplate && { templateId: selectedTemplate.id }),
           name: title.trim() || selectedType.name,
           // Noon local time keeps the calendar day stable across timezones
           date: new Date(`${date}T12:00:00`).toISOString()
@@ -91,10 +126,7 @@ const RoutineNewPage = () => {
                 key={type.id}
                 type="button"
                 aria-pressed={type.id === typeId}
-                onClick={() => {
-                  userChoseType.current = true
-                  setTypeId(type.id)
-                }}
+                onClick={() => pickType(type.id)}
               >
                 <strong>{type.name}</strong>
                 <small>
@@ -128,7 +160,60 @@ const RoutineNewPage = () => {
           />
         </Field>
 
-        {/* Template picker goes here once routine templates exist */}
+        <Field>
+          <Label>Template</Label>
+          <Hint>
+            {typeTemplates.length
+              ? "Start from a saved plan; its exercises and planned sets are copied into the new routine."
+              : `No templates for ${selectedType?.name ?? "this workout"} yet. Open a finished routine and use "Save as template".`}
+          </Hint>
+          {typeTemplates.length > 0 && (
+            <Templates>
+              <TemplateTile
+                type="button"
+                aria-pressed={!selectedTemplate}
+                onClick={() => setTemplateId(null)}
+              >
+                <strong>Start empty</strong>
+                <small>Add exercises as you go</small>
+              </TemplateTile>
+              {typeTemplates.map(template => {
+                const sets = template.movements.reduce((sum, movement) => sum + movement.sets.length, 0)
+                return (
+                  <TemplateRow key={template.id}>
+                    <TemplateTile
+                      type="button"
+                      aria-pressed={template.id === templateId}
+                      onClick={() => pickTemplate(template)}
+                    >
+                      <strong>{template.name}</strong>
+                      <small>
+                        {template.movements.length} exercise{template.movements.length === 1 ? "" : "s"} ·{" "}
+                        {sets} set{sets === 1 ? "" : "s"}
+                      </small>
+                      <small>
+                        {template.movements.map(movement => movement.exercise?.name).filter(Boolean).join(", ")}
+                      </small>
+                    </TemplateTile>
+                    {confirmDeleteId === template.id ? (
+                      <Remove type="button" $danger onClick={() => removeTemplate(template.id)}>
+                        Confirm
+                      </Remove>
+                    ) : (
+                      <Remove
+                        type="button"
+                        aria-label={`Delete template ${template.name}`}
+                        onClick={() => setConfirmDeleteId(template.id)}
+                      >
+                        Delete
+                      </Remove>
+                    )}
+                  </TemplateRow>
+                )
+              })}
+            </Templates>
+          )}
+        </Field>
 
         <Button
           type="submit"
@@ -205,6 +290,44 @@ const TypeButton = styled.button`
   &[aria-pressed="true"] small {
     color: var(--accent-text);
   }
+`
+
+const Templates = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const TemplateRow = styled.div`
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+
+  > button:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+`
+
+const TemplateTile = styled(TypeButton)`
+  width: 100%;
+
+  small {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`
+
+const Remove = styled.button<{ $danger?: boolean }>`
+  padding: 0 0.8rem;
+  border: 1px solid ${({ $danger }) => ($danger ? "var(--danger)" : "var(--border-default)")};
+  border-radius: var(--radius-card);
+  background: transparent;
+  color: ${({ $danger }) => ($danger ? "var(--danger)" : "var(--text-3)")};
+  font-size: 0.8rem;
+  cursor: pointer;
 `
 
 const Cancel = styled.button`
