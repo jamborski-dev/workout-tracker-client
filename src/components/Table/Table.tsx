@@ -78,18 +78,28 @@ export const TableRoot = styled.table`
 
   width: 100%;
   border-collapse: collapse;
-  overflow: scroll;
   background-color: var(--surface);
   color: var(--text-2);
   backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-card);
-  overflow: hidden;
+  /* clip (not hidden) keeps the rounded corners without making the table a scroll container, so the header can stick */
+  overflow: clip;
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
 
   thead {
     color: var(--text-2);
     font-weight: 600;
+  }
+
+  thead td {
+    position: sticky;
+    top: 0;
+    z-index: var(--layer-content);
+    background: var(--surface-elevated);
+    /* covers the sliver of scrolling rows above the stuck header */
+    box-shadow: 0 -8px 0 var(--surface-elevated);
+    border-bottom: 1px solid var(--border-default);
   }
 
   td {
