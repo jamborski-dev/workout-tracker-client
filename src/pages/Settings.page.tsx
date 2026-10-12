@@ -171,6 +171,9 @@ const SettingsPage = () => {
 export default SettingsPage
 
 const Root = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: calc(1rem * var(--density, 1));
   padding: 1rem 1.25rem 2rem;
 `
 
