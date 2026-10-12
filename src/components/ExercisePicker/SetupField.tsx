@@ -1,17 +1,21 @@
 import type { FC } from "react"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
 
 // Short machine setting / configuration for an exercise ("H64", "30°", "rope"). Kept short on purpose.
-export const SetupField: FC<{ value?: string | null; onChange: (value: string) => void }> = ({ value, onChange }) => (
+export const SetupField: FC<{ value?: string | null; onChange: (value: string) => void }> = ({ value, onChange }) => {
+  const { t } = useTranslation()
+  return (
   <Input
     type="text"
     maxLength={60}
-    placeholder="Setup (e.g. seat 4, 30°, rope)"
-    aria-label="Exercise setup"
+    placeholder={t("setup.placeholder")}
+    aria-label={t("setup.label")}
     value={value ?? ""}
     onChange={event => onChange(event.target.value)}
   />
-)
+  )
+}
 
 const Input = styled.input`
   width: 100%;

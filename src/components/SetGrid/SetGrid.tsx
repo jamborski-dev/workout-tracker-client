@@ -8,6 +8,7 @@ import styled from "styled-components"
 import { PairInput } from "./PairInput"
 import { QUICK_BAR_SPACE, QuickEditBar } from "./QuickEditBar"
 import type { ActiveCell, CellKind, CellSide, GridChange, GridSet } from "./types"
+import { useTranslation } from "react-i18next"
 
 interface SetGridProps {
   // routine: plan + actual halves, Done column. template: plan only.
@@ -28,6 +29,7 @@ interface SetGridProps {
 const fieldName = (side: CellSide, kind: CellKind) => `${side}${kind}`
 
 export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelete, onReorder, onToggleDone, showLegend = true, weightPerSide = false }) => {
+  const { t } = useTranslation()
   const isRoutine = mode === "routine"
   const [active, setActive] = useState<ActiveCell | null>(null)
 
@@ -94,7 +96,7 @@ export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelet
 
   return (
     <Grid data-mode={mode}>
-      {isRoutine && showLegend && <Legend>Left: plan · Right: actual</Legend>}
+      {isRoutine && showLegend && <Legend>{t("grid.legend")}</Legend>}
       <Reorder.Group
         axis="y"
         as="ul"
@@ -105,10 +107,10 @@ export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelet
         <li className="set-grid set-header-row">
           <span />
           <span>#</span>
-          <span>Reps</span>
-          <span>{weightPerSide ? "kg per side" : "Weight (kg)"}</span>
-          <span>WU</span>
-          {isRoutine && <span>Done</span>}
+          <span>{t("grid.reps")}</span>
+          <span>{weightPerSide ? t("grid.perSide") : t("grid.weight")}</span>
+          <span>{t("grid.wu")}</span>
+          {isRoutine && <span>{t("grid.done")}</span>}
           <span />
           <span />
         </li>
@@ -133,7 +135,7 @@ export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelet
         <>
           <div style={{ height: QUICK_BAR_SPACE }} />
           <QuickEditBar
-            title={`${title} · Set ${activeIndex + 1} · ${active.kind}${isRoutine ? ` (${active.side === "planned" ? "plan" : "actual"})` : ""}`}
+            title={`${title} · ${t("grid.setN", { n: activeIndex + 1 })} · ${t(active.kind === "Reps" ? "grid.repsKind" : "grid.weightKind")}${isRoutine ? ` (${t(active.side === "planned" ? "grid.plan" : "grid.actual")})` : ""}`}
             kind={active.kind}
             value={(activeSet[fieldName(active.side, active.kind) as keyof GridSet] as number | null | undefined) ?? null}
             planValue={activeSet[fieldName("planned", active.kind) as keyof GridSet] as number | null | undefined}
@@ -168,6 +170,7 @@ const Row: FC<{
   onDelete: (setId: IDType) => void
   onToggleDone?: (setId: IDType) => void
 }> = ({ set, index, isRoutine, isCurrent, active, anyActive, onFocusCell, onChange, onDelete, onToggleDone }) => {
+  const { t } = useTranslation()
   const dragControls = useDragControls()
   const completed = Boolean(set.completed)
 
@@ -206,21 +209,21 @@ const Row: FC<{
       ))}
       <input
         type="checkbox"
-        aria-label="Warm-up set"
+        aria-label={t("grid.warmup")}
         checked={Boolean(set.isWarmup)}
         onChange={event => onChange(set.id, "isWarmup", event.target.checked)}
       />
       {isRoutine && (
         <DoneButton
           type="button"
-          aria-label={completed ? "Mark set not done" : "Mark set done"}
+          aria-label={completed ? t("grid.markUndone") : t("grid.markDone")}
           aria-pressed={completed}
           onClick={() => onToggleDone?.(set.id)}
         >
           <MdCheck />
         </DoneButton>
       )}
-      <button type="button" className="icon-btn" aria-label={`Remove set ${index + 1}`} onClick={() => onDelete(set.id)}>
+      <button type="button" className="icon-btn" aria-label={t("grid.removeSet", { n: index + 1 })} onClick={() => onDelete(set.id)}>
         <FaTrash />
       </button>
       <div className="grip" onPointerDown={handleGripPointerDown}>

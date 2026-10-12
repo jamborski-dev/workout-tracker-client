@@ -19,15 +19,12 @@ import {
   StyledForm,
   StyledFormContainer
 } from "./auth.styled"
+import { useTranslation } from "react-i18next"
 
-const OAUTH_ERRORS: Record<string, string> = {
-  access_denied: "Sign-in was cancelled.",
-  signup_disabled: "This email has not been invited yet.",
-  unable_to_create_user: "This email has not been invited yet.",
-  INVALID_TOKEN: "That sign-in link is invalid or has expired. Request a new one."
-}
+const OAUTH_ERRORS = ["access_denied", "signup_disabled", "unable_to_create_user", "INVALID_TOKEN"]
 
 export const Login = () => {
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,
@@ -48,7 +45,7 @@ export const Login = () => {
   const navigate = useNavigate()
 
   const urlError = params.get("error")
-  const urlErrorText = urlError ? (OAUTH_ERRORS[urlError] ?? "Sign-in failed. Please try again.") : null
+  const urlErrorText = urlError ? t(OAUTH_ERRORS.includes(urlError) ? `auth.oauth.${urlError}` : "auth.oauth.fallback") : null
 
   const onSubmit = async (data: LoginPayload) => {
     setNotice(null)
@@ -65,7 +62,7 @@ export const Login = () => {
     setNotice(null)
     setLocalError(null)
     const { error } = await authClient.signIn.social({ provider: "google", callbackURL: "/" })
-    if (error) setLocalError(error.message || "Google sign-in is not available")
+    if (error) setLocalError(error.message || t("auth.googleUnavailable"))
   }
 
   const onMagicLink = async () => {
@@ -79,11 +76,11 @@ export const Login = () => {
     })
     setBusy(false)
     if (error) {
-      setLocalError(error.message || "Could not send the link")
+      setLocalError(error.message || t("auth.linkFailed"))
       return
     }
     // Same message whether or not the address is invited (no account enumeration)
-    setNotice("If this email is invited, a sign-in link is on its way.")
+    setNotice(t("auth.linkSent"))
   }
 
   if (user && isAuthChecked) {
@@ -95,15 +92,15 @@ export const Login = () => {
     <NoAuthPage>
       <StyledFormContainer>
         <StyledForm onSubmit={handleSubmit(onSubmit)}>
-          <SecondaryButton onClick={onGoogle}>Continue with Google</SecondaryButton>
-          <Divider>or</Divider>
+          <SecondaryButton onClick={onGoogle}>{t("auth.continueGoogle")}</SecondaryButton>
+          <Divider>{t("auth.or")}</Divider>
 
           <FormGroup>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel htmlFor="email">{t("auth.email")}</FormLabel>
             <FormInput
               type="email"
               autoComplete="email"
-              {...register("email", { required: "Email is required" })}
+              {...register("email", { required: t("auth.emailRequired") })}
             />
             {errors.email && typeof errors.email.message === "string" && (
               <ErrorMessage>{errors.email.message}</ErrorMessage>
@@ -111,11 +108,11 @@ export const Login = () => {
           </FormGroup>
 
           <FormGroup>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password">{t("auth.password")}</FormLabel>
             <FormInput
               type="password"
               autoComplete="current-password"
-              {...register("password", { required: "Password is required" })}
+              {...register("password", { required: t("auth.passwordRequired") })}
             />
             {errors.password && typeof errors.password.message === "string" && (
               <ErrorMessage>{errors.password.message}</ErrorMessage>
@@ -124,14 +121,14 @@ export const Login = () => {
 
           <Button
             type="submit"
-            label="Login"
-            loadingText="Authenticating..."
+            label={t("auth.login")}
+            loadingText={t("auth.authenticating")}
             isLoading={isLoading}
           />
           <SecondaryButton onClick={onMagicLink} disabled={busy}>
-            {busy ? "Sending..." : "Email me a sign-in link"}
+            {busy ? t("auth.sending") : t("auth.emailLink")}
           </SecondaryButton>
-          <Link to="/auth/forgot">Forgot or need to set a password?</Link>
+          <Link to="/auth/forgot">{t("auth.forgot")}</Link>
 
           {notice && <InfoMessage>{notice}</InfoMessage>}
           {(apiError || localError || urlErrorText) && (

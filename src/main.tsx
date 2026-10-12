@@ -11,6 +11,7 @@ import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import ErrorBoundary from "@components/ErrorBoundary.tsx"
 import { initTheme } from "./theme/themeStore"
+import "./i18n"
 
 initTheme()
 

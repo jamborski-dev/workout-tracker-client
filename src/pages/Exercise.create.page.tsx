@@ -14,6 +14,8 @@ import type { ChangeEvent } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import type { FieldValues } from "react-hook-form"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
+import { enumLabel } from "@root/i18n"
 
 const CATEGORY_OPTIONS = ["push", "pull", "legs", "core"]
 const COMPLEXITY_OPTIONS = ["compound", "isolation"]
@@ -33,6 +35,7 @@ const normalizeExercisePayload = (payload: Omit<Exercise, "id">): Omit<Exercise,
 type ExerciseFormValues = Omit<Exercise, "id"> & { requestPublic?: boolean; base?: boolean }
 
 const CreateExercisePage = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const exercises = useAppSelector(state => state.exercises.list)
   const isAdmin = useAppSelector(state => state.auth.user?.role === "ADMIN")
@@ -97,18 +100,18 @@ const CreateExercisePage = () => {
   }
 
   return (
-    <Page headerComponent={<PageHeader title={"Create new exercise"} />}>
+    <Page headerComponent={<PageHeader title={t("exercises.createTitle")} />}>
       <Container>
         <FormProvider {...methods}>
           <Form onSubmit={handleSubmit(onSubmit)}>
             <FormGroup>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("exercises.name")}</Label>
               <TextInput
                 {...register("name", {
                   onChange: filterList,
                   validate: value => {
                     if (allNames.has(value.toLocaleLowerCase())) {
-                      return "Name must be unique"
+                      return t("exercises.nameUnique")
                     }
 
                     return true
@@ -118,65 +121,64 @@ const CreateExercisePage = () => {
               {errors.name && <InputError>{errors.name.message}</InputError>}
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("exercises.description")}</Label>
               <TextInput {...register("description", { minLength: 10, maxLength: 150 })} />
               {errors.description && <InputError>{errors.description.message}</InputError>}
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="muscleGroup">Muscle Groups</Label>
+              <Label htmlFor="muscleGroup">{t("exercises.muscleGroups")}</Label>
               <TextInput {...register("muscleGroup")} />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">{t("exercises.category")}</Label>
               <SelectInput {...register("category")} defaultValue="">
-                <option value="">None</option>
+                <option value="">{t("exercises.none")}</option>
                 {CATEGORY_OPTIONS.map(option => (
                   <option key={option} value={option}>
-                    {option}
+                    {enumLabel("category", option)}
                   </option>
                 ))}
               </SelectInput>
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="complexity">Complexity</Label>
+              <Label htmlFor="complexity">{t("exercises.complexity")}</Label>
               <SelectInput {...register("complexity")} defaultValue="">
-                <option value="">None</option>
+                <option value="">{t("exercises.none")}</option>
                 {COMPLEXITY_OPTIONS.map(option => (
                   <option key={option} value={option}>
-                    {option}
+                    {enumLabel("complexity", option)}
                   </option>
                 ))}
               </SelectInput>
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="equipment">Equipment</Label>
+              <Label htmlFor="equipment">{t("exercises.equipment")}</Label>
               <SelectInput {...register("equipment")} defaultValue="">
-                <option value="">None</option>
+                <option value="">{t("exercises.none")}</option>
                 {EQUIPMENT_OPTIONS.map(option => (
                   <option key={option} value={option}>
-                    {option}
+                    {enumLabel("equipment", option)}
                   </option>
                 ))}
               </SelectInput>
             </FormGroup>
             <CheckboxRow>
               <CheckboxInput type="checkbox" {...register("favourite")} />
-              <CheckboxLabel>Pin as favourite</CheckboxLabel>
+              <CheckboxLabel>{t("exercises.pin")}</CheckboxLabel>
             </CheckboxRow>
             <CheckboxRow>
               <CheckboxInput type="checkbox" {...register("requestPublic")} />
               <CheckboxLabel>
-                Share with everyone. An admin reviews it first; until then it stays private and you
-                can use it right away.
+                {t("exercises.share")}
               </CheckboxLabel>
             </CheckboxRow>
             {isAdmin && (
               <CheckboxRow>
                 <CheckboxInput type="checkbox" {...register("base")} />
-                <CheckboxLabel>Add straight to the base library (admin)</CheckboxLabel>
+                <CheckboxLabel>{t("exercises.addBase")}</CheckboxLabel>
               </CheckboxRow>
             )}
-            <Button type="submit" label="Save" loadingText="Saving..." isLoading={isUpdating} />
+            <Button type="submit" label={t("exercises.save")} loadingText={t("exercises.saving")} isLoading={isUpdating} />
           </Form>
         </FormProvider>
         <ExerciseList items={filtered.length ? filtered : exercises} />

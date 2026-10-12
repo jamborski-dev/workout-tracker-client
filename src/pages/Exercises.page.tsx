@@ -11,8 +11,10 @@ import {
   selectExercisesLoading
 } from "@root/store/slices/exercises/exercises.selectors"
 import { ExerciseList } from "@root/components/_lists/ExerciseList"
+import { useTranslation } from "react-i18next"
 
 const ExercisesPage = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
@@ -31,10 +33,10 @@ const ExercisesPage = () => {
     <Page
       headerComponent={
         <PageHeader
-          title="Exercises"
+          title={t("exercises.title")}
           action={{
             callback: handlePageAction,
-            label: "New Exercise",
+            label: t("exercises.new"),
             icon: <IoCreateOutline />
           }}
         />

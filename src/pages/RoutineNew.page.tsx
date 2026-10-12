@@ -19,6 +19,7 @@ import { format } from "date-fns"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
 
 // "PPL: Push" belongs to the "PPL" family; the next workout in a rotation is the next type in it
 const family = (name: string) => name.split(":")[0].trim()
@@ -38,6 +39,7 @@ const suggestNextType = (types: RoutineType[], routines: Routine[]): RoutineType
 }
 
 const RoutineNewPage = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const types = useAppSelector(selectRoutineTypes)
@@ -115,11 +117,11 @@ const RoutineNewPage = () => {
   }
 
   return (
-    <Page headerComponent={<PageHeader title="New routine" />}>
+    <Page headerComponent={<PageHeader title={t("new.title")} />}>
       <Form onSubmit={onSubmit}>
         <Field>
-          <Label>Workout type</Label>
-          <Hint>Orders the exercise list so the exercises for today come first.</Hint>
+          <Label>{t("new.workoutType")}</Label>
+          <Hint>{t("new.typeHint")}</Hint>
           <Types>
             {types.map(type => (
               <TypeButton
@@ -130,7 +132,7 @@ const RoutineNewPage = () => {
               >
                 <strong>{type.name}</strong>
                 <small>
-                  {type.id === suggested?.id ? "Next in your rotation" : (type.categories ?? []).join(", ")}
+                  {type.id === suggested?.id ? t("new.nextInRotation") : (type.categories ?? []).join(", ")}
                 </small>
               </TypeButton>
             ))}
@@ -138,19 +140,19 @@ const RoutineNewPage = () => {
         </Field>
 
         <Field>
-          <Label htmlFor="title">Title</Label>
+          <Label htmlFor="title">{t("new.titleLabel")}</Label>
           <input
             id="title"
             type="text"
             maxLength={100}
-            placeholder={selectedType?.name ?? "Routine title"}
+            placeholder={selectedType?.name ?? t("new.titlePlaceholder")}
             value={title}
             onChange={event => setTitle(event.target.value)}
           />
         </Field>
 
         <Field>
-          <Label htmlFor="date">Date</Label>
+          <Label htmlFor="date">{t("new.date")}</Label>
           <input
             id="date"
             type="date"
@@ -161,11 +163,11 @@ const RoutineNewPage = () => {
         </Field>
 
         <Field>
-          <Label>Template</Label>
+          <Label>{t("new.template")}</Label>
           <Hint>
             {typeTemplates.length
-              ? "Start from a saved plan; its exercises and planned sets are copied into the new routine."
-              : `No templates for ${selectedType?.name ?? "this workout"} yet. Create one here, or open a routine and use "Save as template".`}
+              ? t("new.templateHint")
+              : t("new.noTemplates", { type: selectedType?.name ?? t("new.thisWorkout") })}
           </Hint>
           {typeTemplates.length > 0 && (
             <Templates>
@@ -174,8 +176,8 @@ const RoutineNewPage = () => {
                 aria-pressed={!selectedTemplate}
                 onClick={() => setTemplateId(null)}
               >
-                <strong>Start empty</strong>
-                <small>Add exercises as you go</small>
+                <strong>{t("new.startEmpty")}</strong>
+                <small>{t("new.addAsYouGo")}</small>
               </TemplateTile>
               {typeTemplates.map(template => {
                 const sets = template.movements.reduce((sum, movement) => sum + movement.sets.length, 0)
@@ -188,8 +190,7 @@ const RoutineNewPage = () => {
                     >
                       <strong>{template.name}</strong>
                       <small>
-                        {template.movements.length} exercise{template.movements.length === 1 ? "" : "s"} ·{" "}
-                        {sets} set{sets === 1 ? "" : "s"}
+                        {t("plan.exercises", { count: template.movements.length })} · {t("plan.sets", { count: sets })}
                       </small>
                       <small>
                         {template.movements.map(movement => movement.exercise?.name).filter(Boolean).join(", ")}
@@ -197,22 +198,22 @@ const RoutineNewPage = () => {
                     </TemplateTile>
                     <Remove
                       type="button"
-                      aria-label={`Edit template ${template.name}`}
+                      aria-label={t("new.editTemplate", { name: template.name })}
                       onClick={() => navigate(`/templates/${template.id}`)}
                     >
-                      Edit
+                      {t("new.edit")}
                     </Remove>
                     {confirmDeleteId === template.id ? (
                       <Remove type="button" $danger onClick={() => removeTemplate(template.id)}>
-                        Confirm
+                        {t("new.confirm")}
                       </Remove>
                     ) : (
                       <Remove
                         type="button"
-                        aria-label={`Delete template ${template.name}`}
+                        aria-label={t("new.deleteTemplate", { name: template.name })}
                         onClick={() => setConfirmDeleteId(template.id)}
                       >
-                        Delete
+                        {t("new.delete")}
                       </Remove>
                     )}
                   </TemplateRow>
@@ -221,14 +222,14 @@ const RoutineNewPage = () => {
             </Templates>
           )}
           <NewTemplate type="button" onClick={() => navigate(`/templates/new?type=${typeId ?? ""}`)}>
-            + New template
+            {t("new.newTemplate")}
           </NewTemplate>
         </Field>
 
         <Button
           type="submit"
-          label="Start routine"
-          loadingText="Creating..."
+          label={t("new.start")}
+          loadingText={t("new.creating")}
           isLoading={saving}
           disabled={!selectedType || saving}
         />

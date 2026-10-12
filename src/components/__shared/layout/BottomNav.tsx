@@ -4,22 +4,24 @@ import { useAppSelector } from "@root/store/hooks/store"
 import { IoFitness } from "react-icons/io5"
 import { NavLink } from "react-router-dom"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
 
 const menuItems = [
-  { label: "Routines", path: "/routines", icon: IoFitness },
-  { label: "Exercises", path: "/exercises ", icon: IoIosFitness },
-  { label: "Settings", path: "/settings", icon: IoColorPaletteOutline },
-  { label: "Logout", path: "/auth/logout", icon: IoIosLogOut }
+  { label: "nav.routines", path: "/routines", icon: IoFitness },
+  { label: "nav.exercises", path: "/exercises ", icon: IoIosFitness },
+  { label: "nav.settings", path: "/settings", icon: IoColorPaletteOutline },
+  { label: "nav.logout", path: "/auth/logout", icon: IoIosLogOut }
   // { label: "Settings", path: "/settings" },
   // { label: "Profile", path: "/profile" },
 ]
 
 export const BottomNav = () => {
+  const { t } = useTranslation()
   const isAdmin = useAppSelector(state => state.auth.user?.role === "ADMIN")
   const items = isAdmin
     ? [
         ...menuItems.slice(0, -2),
-        { label: "Admin", path: "/admin", icon: IoShieldCheckmarkOutline },
+        { label: "nav.admin", path: "/admin", icon: IoShieldCheckmarkOutline },
         ...menuItems.slice(-2)
       ]
     : menuItems
@@ -33,7 +35,7 @@ export const BottomNav = () => {
               <IconWrap className="icon">
                 <Icon />
               </IconWrap>
-              <span>{item.label}</span>
+              <span>{t(item.label)}</span>
             </NavItem>
           </NavLink>
         )

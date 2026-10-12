@@ -2,29 +2,23 @@ import type { Routine } from "@root/types/data"
 import { type FC, useMemo, useState } from "react"
 import { MdChevronLeft, MdChevronRight } from "react-icons/md"
 import { useNavigate } from "react-router-dom"
+import i18n from "@root/i18n"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-]
+// Intl gives localised names; 2024-01-01 is a Monday
+const weekdayNames = (locale: string) =>
+  Array.from({ length: 7 }, (_, index) =>
+    new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(2024, 0, 1 + index))
+  )
+const monthName = (locale: string, month: number) =>
+  new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(2024, month, 1))
 
 const dayKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 
 const typeName = (routine: Routine) =>
-  (typeof routine.routineType === "string" ? routine.routineType : routine.routineType?.name) || "Uncategorized"
+  (typeof routine.routineType === "string" ? routine.routineType : routine.routineType?.name) || i18n.t("routines.uncategorized")
 
 interface RoutinesCalendarProps {
   routines: Routine[]
@@ -32,6 +26,7 @@ interface RoutinesCalendarProps {
 
 // Month grid marking the days with a logged routine. Neutral by design: no streaks or "missed" days.
 export const RoutinesCalendar: FC<RoutinesCalendarProps> = ({ routines }) => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const today = new Date()
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
@@ -71,24 +66,22 @@ export const RoutinesCalendar: FC<RoutinesCalendarProps> = ({ routines }) => {
   return (
     <Root>
       <Head>
-        <NavButton type="button" aria-label="Previous month" onClick={() => shift(-1)}>
+        <NavButton type="button" aria-label={t("calendar.prev")} onClick={() => shift(-1)}>
           <MdChevronLeft />
         </NavButton>
         <div>
           <strong>
-            {MONTHS[month]} {year}
+            {monthName(i18n.language, month)} {year}
           </strong>
-          <small>
-            {monthCount} {monthCount === 1 ? "day" : "days"} trained
-          </small>
+          <small>{t("calendar.trained", { count: monthCount })}</small>
         </div>
-        <NavButton type="button" aria-label="Next month" onClick={() => shift(1)}>
+        <NavButton type="button" aria-label={t("calendar.next")} onClick={() => shift(1)}>
           <MdChevronRight />
         </NavButton>
       </Head>
 
       <Grid>
-        {WEEKDAYS.map(day => (
+        {weekdayNames(i18n.language).map(day => (
           <span key={day} className="weekday">
             {day}
           </span>
@@ -105,7 +98,7 @@ export const RoutinesCalendar: FC<RoutinesCalendarProps> = ({ routines }) => {
               data-trained={Boolean(items)}
               data-today={key === todayKey}
               data-selected={key === selected}
-              aria-label={items ? `${day} ${MONTHS[month]}: ${items.map(typeName).join(", ")}` : `${day} ${MONTHS[month]}`}
+              aria-label={items ? `${day} ${monthName(i18n.language, month)}: ${items.map(typeName).join(", ")}` : `${day} ${monthName(i18n.language, month)}`}
               onClick={() => openDay(key)}
             >
               {day}

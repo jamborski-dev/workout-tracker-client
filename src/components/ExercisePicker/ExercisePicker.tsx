@@ -7,10 +7,16 @@ import { type FC, useMemo, useRef, useState } from "react"
 import { IoStar, IoStarOutline } from "react-icons/io5"
 import { MdAdd, MdChevronRight, MdKeyboardArrowDown, MdArrowBack } from "react-icons/md"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
+import i18n, { enumLabel, muscleLabel } from "@root/i18n"
 
 type GroupBy = "category" | "muscle" | "equipment"
 
-const GROUP_LABELS: Record<GroupBy, string> = { category: "Type", muscle: "Muscle", equipment: "Equipment" }
+const GROUP_LABELS: Record<GroupBy, string> = {
+  category: "picker.groupType",
+  muscle: "picker.groupMuscle",
+  equipment: "picker.groupEquipment"
+}
 
 const MUSCLES: Record<string, string> = {
   Chest: "push",
@@ -35,6 +41,14 @@ const title = (value?: string | null) =>
         .join(" ")
     : ""
 
+// Group keys stay English (they match library data); only the displayed label is localised
+const groupLabel = (label: string, by: GroupBy) => {
+  if (label === "Other") return i18n.t("picker.other")
+  if (by === "category") return enumLabel("category", label)
+  if (by === "equipment") return enumLabel("equipment", label)
+  return muscleLabel(label)
+}
+
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
 
 const groupKey = (exercise: Exercise, by: GroupBy) => {
@@ -44,7 +58,7 @@ const groupKey = (exercise: Exercise, by: GroupBy) => {
 }
 
 const meta = (exercise: Exercise) =>
-  [title(exercise.equipment), exercise.muscleGroup].filter(Boolean).join(" • ")
+  [enumLabel("equipment", exercise.equipment), muscleLabel(exercise.muscleGroup)].filter(Boolean).join(" • ")
 
 // Name and aliases, forgiving about case, punctuation and word order
 const score = (exercise: Exercise, query: string) => {
@@ -71,8 +85,9 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
   exerciseId,
   preferredCategories = [],
   onSelect,
-  placeholder = "Choose an exercise"
+  placeholder
 }) => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const exercises = useAppSelector(state => state.exercises.list)
   const selected = exercises.find(exercise => exercise.id === exerciseId)
@@ -179,7 +194,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
       </span>
       <Star
         role="button"
-        aria-label={exercise.favourite ? "Remove from favourites" : "Add to favourites"}
+        aria-label={exercise.favourite ? t("picker.removeFavourite") : t("picker.addFavourite")}
         data-on={Boolean(exercise.favourite)}
         onClick={event => {
           event.stopPropagation()
@@ -202,7 +217,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
           requestAnimationFrame(() => inputRef.current?.focus())
         }}
       >
-        <span data-empty={!selected}>{selected?.name ?? placeholder}</span>
+        <span data-empty={!selected}>{selected?.name ?? placeholder ?? t("picker.choose")}</span>
         <MdKeyboardArrowDown />
       </Trigger>
     )
@@ -214,7 +229,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
         {(group || adding) && !normalizedQuery ? (
           <Back
             type="button"
-            aria-label="Back"
+            aria-label={t("picker.back")}
             onClick={() => {
               if (adding) setAdding(false)
               else setGroup(null)
@@ -228,7 +243,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
           autoFocus
           type="text"
           inputMode="search"
-          placeholder="Search exercises"
+          placeholder={t("picker.search")}
           value={query}
           onChange={event => {
             setQuery(event.target.value)
@@ -237,7 +252,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
           onKeyDown={event => event.key === "Escape" && close()}
         />
         <Cancel type="button" onClick={close}>
-          Cancel
+          {t("picker.cancel")}
         </Cancel>
       </SearchRow>
 
@@ -253,31 +268,33 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
             {view === "add" && (
               <AddForm>
                 <label>
-                  Name
+                  {t("picker.name")}
                   <input value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} maxLength={80} />
                 </label>
                 <label>
-                  Muscle group
+                  {t("picker.muscle")}
                   <select value={draft.muscle} onChange={event => setDraft({ ...draft, muscle: event.target.value })}>
                     {Object.keys(MUSCLES).map(muscle => (
-                      <option key={muscle}>{muscle}</option>
+                      <option key={muscle} value={muscle}>
+                        {muscleLabel(muscle)}
+                      </option>
                     ))}
                   </select>
                 </label>
                 <label>
-                  Equipment
+                  {t("picker.equipment")}
                   <select value={draft.equipment} onChange={event => setDraft({ ...draft, equipment: event.target.value })}>
                     {EQUIPMENT.map(item => (
                       <option key={item} value={item}>
-                        {title(item)}
+                        {enumLabel("equipment", item)}
                       </option>
                     ))}
                   </select>
                 </label>
                 <Primary type="button" disabled={!draft.name.trim() || saving} onClick={createExercise}>
-                  {saving ? "Adding..." : "Add exercise"}
+                  {saving ? t("picker.adding") : t("picker.addExercise")}
                 </Primary>
-                <Hint>Only you can see it until you ask to share it.</Hint>
+                <Hint>{t("picker.privateHint")}</Hint>
               </AddForm>
             )}
 
@@ -288,9 +305,9 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
                   <Row type="button" onClick={startAdding}>
                     <span className="text">
                       <span className="name accent">
-                        <MdAdd /> Add &ldquo;{query.trim()}&rdquo;
+                        <MdAdd /> {t("picker.add", { name: query.trim() })}
                       </span>
-                      <span className="meta">{results.length ? "Not what you're looking for?" : "No match in the library"}</span>
+                      <span className="meta">{results.length ? t("picker.notFound") : t("picker.noMatch")}</span>
                     </span>
                   </Row>
                 )}
@@ -302,14 +319,14 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
                 <Chips>
                   {(Object.keys(GROUP_LABELS) as GroupBy[]).map(option => (
                     <Chip key={option} type="button" data-on={groupBy === option} onClick={() => setGroupBy(option)}>
-                      {GROUP_LABELS[option]}
+                      {t(GROUP_LABELS[option])}
                     </Chip>
                   ))}
                 </Chips>
                 {favourites.length > 0 && (
                   <Row type="button" onClick={() => setGroup("__favourites")}>
                     <span className="text">
-                      <span className="name">Favourites</span>
+                      <span className="name">{t("picker.favourites")}</span>
                     </span>
                     <Count>
                       {favourites.length} <MdChevronRight />
@@ -320,9 +337,9 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
                   <Row key={item.label} type="button" onClick={() => setGroup(item.label)}>
                     <span className="text">
                       <span className="name">
-                        {item.label}
+                        {groupLabel(item.label, groupBy)}
                         {groupBy === "category" && preferredCategories.includes(item.label.toLowerCase()) && (
-                          <Tag>for this workout</Tag>
+                          <Tag>{t("picker.forWorkout")}</Tag>
                         )}
                       </span>
                     </span>
@@ -333,7 +350,7 @@ export const ExercisePicker: FC<ExercisePickerProps> = ({
                 ))}
                 <Row type="button" onClick={() => setGroup("__all")}>
                   <span className="text">
-                    <span className="name">All exercises</span>
+                    <span className="name">{t("picker.all")}</span>
                   </span>
                   <Count>
                     {exercises.length} <MdChevronRight />

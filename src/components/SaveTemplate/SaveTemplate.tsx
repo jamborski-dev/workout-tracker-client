@@ -5,6 +5,7 @@ import { showToast } from "@store/slices/toast/toast.slice"
 import { useState } from "react"
 import { MdBookmarkAdd } from "react-icons/md"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
 
 // "Save this routine as a template": asks for a name inline, then copies the plan on the server
 export const SaveTemplate = ({
@@ -16,6 +17,7 @@ export const SaveTemplate = ({
   defaultName: string
   disabled?: boolean
 }) => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
@@ -32,7 +34,7 @@ export const SaveTemplate = ({
       await dispatch(
         createTemplateAction({ fromRoutineId: routineId, name: name.trim() || defaultName })
       ).unwrap()
-      dispatch(showToast({ message: "Saved as template", type: "success" }))
+      dispatch(showToast({ message: t("template.savedToast"), type: "success" }))
       close()
     } catch {
       // the global toast already reports the failure
@@ -43,8 +45,8 @@ export const SaveTemplate = ({
   if (!open) {
     return (
       <IconButton
-        aria-label="Save as template"
-        title="Save as template"
+        aria-label={t("template.saveAs")}
+        title={t("template.saveAs")}
         disabled={disabled}
         onClick={() => {
           setName(defaultName)
@@ -59,7 +61,7 @@ export const SaveTemplate = ({
   return (
     <Row>
       <input
-        aria-label="Template name"
+        aria-label={t("template.nameLabel")}
         type="text"
         maxLength={100}
         autoFocus
@@ -74,7 +76,7 @@ export const SaveTemplate = ({
         }}
       />
       <Action type="button" onClick={save} disabled={saving} $primary>
-        {saving ? "Saving..." : "Save template"}
+        {saving ? t("template.saving") : t("template.save")}
       </Action>
       <Action type="button" onClick={close}>
         Cancel

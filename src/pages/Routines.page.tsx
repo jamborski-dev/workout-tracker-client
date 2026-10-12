@@ -11,6 +11,7 @@ import { MdCalendarMonth, MdViewList } from "react-icons/md"
 import { RoutinesCalendar } from "@root/components/_lists/RoutinesCalendar"
 import { useNavigate } from "react-router-dom"
 import { IoCreateOutline } from "react-icons/io5"
+import { useTranslation } from "react-i18next"
 
 type View = "list" | "calendar"
 const VIEW_KEY = "axis:routines-view"
@@ -24,6 +25,7 @@ const readView = (): View => {
 }
 
 const RoutinesPage = () => {
+  const { t } = useTranslation()
   const [view, setView] = useState<View>(readView)
   const chooseView = (next: View) => {
     setView(next)
@@ -55,22 +57,22 @@ const RoutinesPage = () => {
     <Page
       headerComponent={
         <PageHeader
-          title="Routines"
+          title={t("routines.title")}
           action={{
             callback: handlePageAction,
-            label: "New Routine",
+            label: t("routines.new"),
             icon: <IoCreateOutline />
           }}
         />
       }
     >
-      <Toggle role="group" aria-label="Routines view">
-        <button type="button" aria-label="List view" aria-pressed={view === "list"} onClick={() => chooseView("list")}>
+      <Toggle role="group" aria-label={t("routines.viewGroup")}>
+        <button type="button" aria-label={t("routines.listView")} aria-pressed={view === "list"} onClick={() => chooseView("list")}>
           <MdViewList />
         </button>
         <button
           type="button"
-          aria-label="Calendar view"
+          aria-label={t("routines.calendarView")}
           aria-pressed={view === "calendar"}
           onClick={() => chooseView("calendar")}
         >

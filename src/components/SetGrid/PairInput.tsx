@@ -1,6 +1,7 @@
 import { type FC, type FocusEvent, useEffect, useState } from "react"
 import styled from "styled-components"
 import type { CellKind, CellSide } from "./types"
+import { useTranslation } from "react-i18next"
 
 const format = (value?: number | null) => (value === null || value === undefined ? "" : String(value))
 
@@ -85,7 +86,10 @@ export const PairInput: FC<PairInputProps> = ({
   showActual,
   onFocusSide,
   onChange
-}) => (
+}) => {
+  const { t } = useTranslation()
+  const kindLabel = t(kind === "Reps" ? "grid.repsKind" : "grid.weightKind")
+  return (
   <Pair data-active={activeSide !== null} data-single={!showActual}>
     <Half
       value={planned}
@@ -94,7 +98,7 @@ export const PairInput: FC<PairInputProps> = ({
       cellId={`${setId}:${kind}:planned`}
       // Both values stay visible; whatever is not being edited is ghosted
       ghost={anyActive && activeSide !== "planned"}
-      label={`${kind} (plan)`}
+      label={t("grid.planHalf", { kind: kindLabel })}
       onFocus={() => onFocusSide("planned")}
       onChange={value => onChange("planned", value)}
     />
@@ -105,13 +109,14 @@ export const PairInput: FC<PairInputProps> = ({
         side="actual"
         cellId={`${setId}:${kind}:actual`}
         ghost={anyActive && activeSide !== "actual"}
-        label={`${kind} (actual)`}
+        label={t("grid.actualHalf", { kind: kindLabel })}
         onFocus={() => onFocusSide("actual")}
         onChange={value => onChange("actual", value)}
       />
     )}
   </Pair>
-)
+  )
+}
 
 const Pair = styled.div`
   position: relative;

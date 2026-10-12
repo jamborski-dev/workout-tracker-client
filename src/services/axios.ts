@@ -1,4 +1,5 @@
 import axios from "axios"
+import i18n from "@root/i18n"
 
 // const serverUrl = import.meta.env.VITE_SERVER_URL
 
@@ -15,4 +16,10 @@ export const API = axios.create({
     "Content-Type": "application/json"
   },
   withCredentials: true
+})
+
+// The server localises library content (exercise names) from the user's language
+API.interceptors.request.use(config => {
+  config.headers.set("Accept-Language", i18n.language)
+  return config
 })

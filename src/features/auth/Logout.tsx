@@ -5,8 +5,10 @@ import { logout } from "@root/store/slices/auth/auth.slice"
 import type { RootState } from "@root/store/store"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 export const Logout = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const user = useAppSelector((state: RootState) => state.auth.user)
@@ -32,5 +34,5 @@ export const Logout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
-  return <FullPageLoader text="Logging out..." />
+  return <FullPageLoader text={t("auth.loggingOut")} />
 }

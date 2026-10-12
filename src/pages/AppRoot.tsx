@@ -27,10 +27,12 @@ import { ProtectedRoute } from "@root/features/auth/Protected"
 import { loadSessionAction } from "@root/store/slices/auth/auth.thunks"
 import { useEffect, useRef } from "react"
 import { HttpErrorPage } from "./HttpError.page"
+import { useTranslation } from "react-i18next"
 
 const AUTH_ROUTES = ["/auth"]
 
 function App() {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const location = useLocation()
   const navigate = useNavigate()
@@ -81,7 +83,7 @@ function App() {
 
   if (!isAuthChecked) {
     // Render a loading spinner while authentication is being checked
-    return <FullPageLoader text={"Retrieving session..."} />
+    return <FullPageLoader text={t("app.retrieving")} />
   }
 
   return (
@@ -100,10 +102,10 @@ function App() {
             element={
               <HttpErrorPage
                 code={404}
-                status="Not Found"
-                text="Sorry, the page you are looking for does not exist."
+                status={t("app.notFound")}
+                text={t("app.notFoundText")}
                 action={{
-                  label: "Go Back",
+                  label: t("app.goBack"),
                   to: "/"
                 }}
               />
@@ -114,10 +116,10 @@ function App() {
             element={
               <HttpErrorPage
                 code={401}
-                status="Not Authorized"
-                text="Sorry, you do not have access to this content."
+                status={t("app.notAuthorized")}
+                text={t("app.notAuthorizedText")}
                 action={{
-                  label: "Login",
+                  label: t("app.login"),
                   to: "/auth/login"
                 }}
               />

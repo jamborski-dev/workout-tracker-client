@@ -12,8 +12,10 @@ import {
   StyledForm,
   StyledFormContainer
 } from "./auth.styled"
+import { useTranslation } from "react-i18next"
 
 export const ForgotPassword = () => {
+  const { t } = useTranslation()
   const [email, setEmail] = useState("")
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
@@ -29,10 +31,10 @@ export const ForgotPassword = () => {
     })
     setBusy(false)
     if (error) {
-      setError(error.message || "Could not send the email")
+      setError(error.message || t("auth.emailFailed"))
       return
     }
-    setNotice("If an account exists for this email, a link to set a password is on its way.")
+    setNotice(t("auth.resetSent"))
   }
 
   return (
@@ -40,7 +42,7 @@ export const ForgotPassword = () => {
       <StyledFormContainer>
         <StyledForm onSubmit={onSubmit}>
           <FormGroup>
-            <FormLabel htmlFor="email">Email</FormLabel>
+            <FormLabel htmlFor="email">{t("auth.email")}</FormLabel>
             <FormInput
               id="email"
               type="email"
@@ -49,8 +51,8 @@ export const ForgotPassword = () => {
               onChange={e => setEmail(e.target.value)}
             />
           </FormGroup>
-          <Button type="submit" label="Send link" loadingText="Sending..." isLoading={busy} />
-          <Link to="/auth/login">Back to login</Link>
+          <Button type="submit" label={t("auth.sendLink")} loadingText={t("auth.sending")} isLoading={busy} />
+          <Link to="/auth/login">{t("auth.backToLogin")}</Link>
           {notice && <InfoMessage>{notice}</InfoMessage>}
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </StyledForm>

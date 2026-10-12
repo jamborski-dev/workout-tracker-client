@@ -11,15 +11,17 @@ import {
   StyledForm,
   StyledFormContainer
 } from "./auth.styled"
+import { useTranslation } from "react-i18next"
 
 export const ResetPassword = () => {
+  const { t } = useTranslation()
   const [params] = useSearchParams()
   const token = params.get("token")
   const navigate = useNavigate()
   const [password, setPassword] = useState("")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(
-    params.get("error") ? "That link is invalid or has expired. Request a new one." : null
+    params.get("error") ? t("auth.linkInvalid") : null
   )
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,7 @@ export const ResetPassword = () => {
     const { error } = await authClient.resetPassword({ newPassword: password, token })
     setBusy(false)
     if (error) {
-      setError(error.message || "Could not set the password")
+      setError(error.message || t("auth.setPasswordFailed"))
       return
     }
     navigate("/auth/login")
@@ -42,13 +44,13 @@ export const ResetPassword = () => {
         <StyledForm onSubmit={onSubmit}>
           {!token ? (
             <>
-              <ErrorMessage>{error || "Missing reset token."}</ErrorMessage>
-              <Link to="/auth/forgot">Request a new link</Link>
+              <ErrorMessage>{error || t("auth.missingToken")}</ErrorMessage>
+              <Link to="/auth/forgot">{t("auth.requestNewLink")}</Link>
             </>
           ) : (
             <>
               <FormGroup>
-                <FormLabel htmlFor="password">New password (min. 10 characters)</FormLabel>
+                <FormLabel htmlFor="password">{t("auth.newPassword")}</FormLabel>
                 <FormInput
                   id="password"
                   type="password"
@@ -59,7 +61,7 @@ export const ResetPassword = () => {
                   onChange={e => setPassword(e.target.value)}
                 />
               </FormGroup>
-              <Button type="submit" label="Set password" loadingText="Saving..." isLoading={busy} />
+              <Button type="submit" label={t("auth.setPassword")} loadingText={t("auth.saving")} isLoading={busy} />
               {error && <ErrorMessage>{error}</ErrorMessage>}
             </>
           )}

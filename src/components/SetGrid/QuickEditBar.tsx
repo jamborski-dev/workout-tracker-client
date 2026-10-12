@@ -3,6 +3,7 @@ import { createPortal } from "react-dom"
 import { MdBackspace, MdCheck, MdChevronLeft, MdChevronRight, MdClose, MdKeyboard, MdRemove, MdAdd } from "react-icons/md"
 import styled from "styled-components"
 import type { CellKind } from "./types"
+import { useTranslation } from "react-i18next"
 
 const STEP: Record<CellKind, number> = { Reps: 1, Weight: 2.5 }
 const MAX: Record<CellKind, number> = { Reps: 999, Weight: 999 }
@@ -41,6 +42,7 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
   onDone,
   onClose
 }) => {
+  const { t } = useTranslation()
   const [keypad, setKeypad] = useState(false)
   // First key after selecting a cell replaces the value instead of appending
   const fresh = useRef(true)
@@ -102,10 +104,10 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
   const keep = (event: PointerEvent) => event.preventDefault()
 
   return createPortal(
-    <Bar data-quick-bar role="group" aria-label="Quick edit" onPointerDown={keep}>
+    <Bar data-quick-bar role="group" aria-label={t("bar.quickEdit")} onPointerDown={keep}>
       <Top>
         <strong>{title}</strong>
-        <IconBtn type="button" aria-label="Close" onClick={onClose}>
+        <IconBtn type="button" aria-label={t("bar.close")} onClick={onClose}>
           <MdClose />
         </IconBtn>
       </Top>
@@ -113,7 +115,7 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
       <Stepper>
         <Big
           type="button"
-          aria-label="Decrease"
+          aria-label={t("bar.decrease")}
           onPointerDown={startHold(-1)}
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
@@ -123,11 +125,11 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
         </Big>
         <Readout>
           {value === null ? "–" : value}
-          <small>{kind === "Weight" ? "kg" : "reps"}</small>
+          <small>{kind === "Weight" ? "kg" : t("bar.repsUnit")}</small>
         </Readout>
         <Big
           type="button"
-          aria-label="Increase"
+          aria-label={t("bar.increase")}
           onPointerDown={startHold(1)}
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
@@ -140,12 +142,12 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
       <Chips>
         {isActual && planValue !== null && planValue !== undefined && (
           <Chip type="button" onClick={() => onChange(planValue)}>
-            = plan {planValue}
+            {t("bar.eqPlan", { value: planValue })}
           </Chip>
         )}
         {prevValue !== null && prevValue !== undefined && (
           <Chip type="button" onClick={() => onChange(prevValue)}>
-            = prev set {prevValue}
+            {t("bar.eqPrev", { value: prevValue })}
           </Chip>
         )}
         {kind === "Weight" && (
@@ -159,7 +161,7 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
           </>
         )}
         <Chip type="button" onClick={() => onChange(null)}>
-          Clear
+          {t("bar.clear")}
         </Chip>
       </Chips>
 
@@ -170,26 +172,26 @@ export const QuickEditBar: FC<QuickEditBarProps> = ({
               {key}
             </Key>
           ))}
-          <Key type="button" aria-label="Backspace" onClick={backspace}>
+          <Key type="button" aria-label={t("bar.backspace")} onClick={backspace}>
             <MdBackspace />
           </Key>
         </Keypad>
       )}
 
       <Nav>
-        <IconBtn type="button" aria-label="Previous cell" onClick={onPrev}>
+        <IconBtn type="button" aria-label={t("bar.prevCell")} onClick={onPrev}>
           <MdChevronLeft />
         </IconBtn>
-        <IconBtn type="button" aria-label="Next cell" onClick={onNext}>
+        <IconBtn type="button" aria-label={t("bar.nextCell")} onClick={onNext}>
           <MdChevronRight />
         </IconBtn>
-        <IconBtn type="button" aria-label="Number pad" aria-pressed={keypad} onClick={() => setKeypad(open => !open)}>
+        <IconBtn type="button" aria-label={t("bar.numberPad")} aria-pressed={keypad} onClick={() => setKeypad(open => !open)}>
           <MdKeyboard />
         </IconBtn>
         <span style={{ flex: 1 }} />
         {canDone && (
           <DoneBtn type="button" onClick={onDone}>
-            <MdCheck /> Done
+            <MdCheck /> {t("bar.done")}
           </DoneBtn>
         )}
       </Nav>

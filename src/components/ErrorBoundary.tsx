@@ -1,4 +1,5 @@
 import React, { Component, ReactNode } from "react"
+import i18n from "@root/i18n"
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -30,10 +31,10 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
     if (hasError) {
       return (
         <div id="error-boundary">
-          <h1>Oops! Something went wrong.</h1>
-          <p>{errorMessage || "An unexpected error occurred."}</p>
+          <h1>{i18n.t("error.oops")}</h1>
+          <p>{errorMessage || i18n.t("error.unexpected")}</p>
           <button type="button" onClick={this.handleRefresh}>
-            Refresh Page
+            {i18n.t("error.refresh")}
           </button>
         </div>
       )

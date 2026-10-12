@@ -19,6 +19,8 @@ import { GridButton, SetGrid } from "@root/components/SetGrid/SetGrid"
 import type { GridSet } from "@root/components/SetGrid/types"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
+import i18n from "@root/i18n"
 
 // Draft rows keep a client key so reordering/removing doesn't mix up inputs
 type DraftSet = { key: number; reps: number | null; weight: number | null; isWarmup: boolean }
@@ -42,12 +44,13 @@ const toGridSet = (set: DraftSet): GridSet => ({
 
 // /templates/new?type=<id> builds a template from scratch; /templates/:id edits one
 const statusLabel = (status: string, dirty: boolean, canSave: boolean) => {
-  if (status === "saving") return "Saving..."
-  if (dirty) return canSave ? "Unsaved changes" : "Add a name, type and exercise to save"
-  return status === "saved" ? "Saved" : undefined
+  if (status === "saving") return i18n.t("tpl.saving")
+  if (dirty) return canSave ? i18n.t("tpl.unsaved") : i18n.t("tpl.needMore")
+  return status === "saved" ? i18n.t("tpl.saved") : undefined
 }
 
 const TemplateEditPage = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { id } = useParams()
@@ -166,19 +169,19 @@ const TemplateEditPage = () => {
   }, [name, typeId, movements, dirty, loaded])
 
   return (
-    <Page headerComponent={<PageHeader title={isNew ? "New template" : "Edit template"} brew={statusLabel(status, dirty, canSave)} />}>
+    <Page headerComponent={<PageHeader title={isNew ? t("tpl.newTitle") : t("tpl.editTitle")} brew={statusLabel(status, dirty, canSave)} />}>
       <Form onSubmit={event => event.preventDefault()}>
         {!loaded ? (
-          <Hint>Loading template...</Hint>
+          <Hint>{t("tpl.loading")}</Hint>
         ) : (
           <>
             <Field>
-              <Label htmlFor="template-name">Name</Label>
+              <Label htmlFor="template-name">{t("tpl.name")}</Label>
               <input
                 id="template-name"
                 type="text"
                 maxLength={100}
-                placeholder="e.g. Heavy pull"
+                placeholder={t("tpl.namePlaceholder")}
                 value={name}
                 onChange={event => {
                   setDirty(true)
@@ -188,12 +191,12 @@ const TemplateEditPage = () => {
             </Field>
 
             <Field>
-              <Label htmlFor="template-type">Workout type</Label>
+              <Label htmlFor="template-type">{t("tpl.type")}</Label>
               <Select id="template-type" value={typeId ?? ""} onChange={event => {
                   setDirty(true)
                   setTypeId(event.target.value || null)
                 }}>
-                <option value="">Choose a type</option>
+                <option value="">{t("tpl.chooseType")}</option>
                 {types.map(type => (
                   <option key={type.id} value={type.id}>
                     {type.name}
@@ -203,7 +206,7 @@ const TemplateEditPage = () => {
             </Field>
 
             <Field>
-              <Label>Exercises</Label>
+              <Label>{t("tpl.exercises")}</Label>
               {movements.map((movement, index) => (
                 <Card key={movement.key}>
                   <CardHeader>
@@ -212,12 +215,12 @@ const TemplateEditPage = () => {
                       preferredCategories={selectedType?.categories ?? []}
                       onSelect={exerciseId => patchMovement(movement.key, { exerciseId: `${exerciseId}` })}
                     />
-                    <Icon type="button" aria-label="Move up" disabled={index === 0} onClick={() => moveMovement(index, -1)}>
+                    <Icon type="button" aria-label={t("tpl.moveUp")} disabled={index === 0} onClick={() => moveMovement(index, -1)}>
                       <MdKeyboardArrowUp />
                     </Icon>
                     <Icon
                       type="button"
-                      aria-label="Move down"
+                      aria-label={t("tpl.moveDown")}
                       disabled={index === movements.length - 1}
                       onClick={() => moveMovement(index, 1)}
                     >
@@ -225,7 +228,7 @@ const TemplateEditPage = () => {
                     </Icon>
                     <Icon
                       type="button"
-                      aria-label="Remove exercise"
+                      aria-label={t("tpl.removeExercise")}
                       onClick={() => {
                         setDirty(true)
                         setMovements(list => list.filter(item => item.key !== movement.key))
@@ -240,7 +243,7 @@ const TemplateEditPage = () => {
                     <SetGrid
                       mode="template"
                       weightPerSide={Boolean(exercises.find(item => `${item.id}` === movement.exerciseId)?.weightPerSide)}
-                      title={exercises.find(item => `${item.id}` === movement.exerciseId)?.name ?? `Exercise ${index + 1}`}
+                      title={exercises.find(item => `${item.id}` === movement.exerciseId)?.name ?? t("tpl.exerciseN", { n: index + 1 })}
                       sets={movement.sets.map(toGridSet)}
                       onChange={(setId, field, value) =>
                         patchSet(movement.key, Number(setId), {
@@ -268,17 +271,17 @@ const TemplateEditPage = () => {
                       patchMovement(movement.key, { sets: [...movement.sets, newSet(last?.reps, last?.weight)] })
                     }}
                   >
-                    <MdAdd /> Add set
+                    <MdAdd /> {t("tpl.addSet")}
                   </GridButton>
                 </Card>
               ))}
               <TextButton type="button" onClick={() => setMovements(list => [...list, newMovement()])}>
-                <MdAdd /> Add exercise
+                <MdAdd /> {t("tpl.addExercise")}
               </TextButton>
             </Field>
 
             <Cancel type="button" onClick={() => navigate("/routines/new")}>
-              Done
+              {t("tpl.done")}
             </Cancel>
           </>
         )}

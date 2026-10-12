@@ -24,6 +24,7 @@ import Select, { type SingleValue } from "react-select"
 import { useNavigate, useParams } from "react-router-dom"
 import styled from "styled-components"
 import { baseSelectStyles } from "@root/components/_forms/CustomSelectStyles"
+import { useTranslation } from "react-i18next"
 
 type RoutineTypeOption = {
   label: string
@@ -32,6 +33,7 @@ type RoutineTypeOption = {
 }
 
 const RoutineById = () => {
+  const { t } = useTranslation()
   const [editDate, setEditDate] = useState(false)
   const [selectedRoutineTypeOption, setSelectedRoutineTypeOption] =
     useState<RoutineTypeOption | null>(null)
@@ -131,14 +133,14 @@ const RoutineById = () => {
       if (action.type === "updateRoutineAction/rejected") {
         setError("date", {
           type: "manual",
-          message: "Failed to update routine"
+          message: t("routine.updateFailed")
         })
       }
     } catch (error) {
       console.error("Failed to update routine", error)
       setError("date", {
         type: "manual",
-        message: "Failed to update routine"
+        message: t("routine.updateFailed")
       })
     }
   }
@@ -165,7 +167,7 @@ const RoutineById = () => {
   }
 
   if (!routine) {
-    return <p>No routine found</p>
+    return <p>{t("routine.notFound")}</p>
   }
 
   const date = formatDate(routine.date)
@@ -207,7 +209,7 @@ const RoutineById = () => {
               </InlineField>
             )}
             <TypeRow>
-              <BackButton type="button" onClick={handleBack} aria-label="Go back">
+              <BackButton type="button" onClick={handleBack} aria-label={t("routine.goBack")}>
                 <MdChevronLeft />
               </BackButton>
               <TypeSelectWrap>
@@ -216,7 +218,7 @@ const RoutineById = () => {
                   options={routineTypeOptions}
                   value={selectedRoutineType}
                   onChange={handleRoutineTypeChange}
-                  placeholder="Select routine type"
+                  placeholder={t("routine.selectType")}
                   isSearchable
                   menuPortalTarget={selectMenuPortalTarget}
                   menuPosition="fixed"
@@ -225,7 +227,7 @@ const RoutineById = () => {
               </TypeSelectWrap>
               <SaveTemplate
                 routineId={routine.id}
-                defaultName={routine.name || routineTypeName || "Template"}
+                defaultName={routine.name || routineTypeName || t("routine.templateDefault")}
                 disabled={!routine.movements.some(movement => movement.exerciseId)}
               />
             </TypeRow>

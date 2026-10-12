@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import { Text } from "../__shared/Typography"
 import { IconButton } from "../__shared/Button"
+import { useTranslation } from "react-i18next"
 
 interface RoutinesListProps {
   isLoading?: boolean
@@ -17,13 +18,14 @@ interface RoutinesListProps {
 }
 
 export const RoutinesList: FC<RoutinesListProps> = ({ routines, isLoading }) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const renderRoutineInfo = (routine: Routine) => {
     const { weekday, day, month, getOrdinalSuffix } = formatDate(routine.date)
     const routineTypeLabel =
       typeof routine.routineType === "string" ? routine.routineType : routine.routineType?.name
-    const titleLabel = routineTypeLabel || "Uncategorized"
+    const titleLabel = routineTypeLabel || t("routines.uncategorized")
 
     return (
       <RoutineInfo>
@@ -43,9 +45,9 @@ export const RoutinesList: FC<RoutinesListProps> = ({ routines, isLoading }) => 
   if (isLoading) {
     return (
       <Root>
-        <SectionHeading loading={isLoading} title={"Routines List"} />
+        <SectionHeading loading={isLoading} title={t("routines.list")} />
 
-        <Text>Loading...</Text>
+        <Text>{t("routines.loading")}</Text>
       </Root>
     )
   }
@@ -53,26 +55,26 @@ export const RoutinesList: FC<RoutinesListProps> = ({ routines, isLoading }) => 
   if (!routines.length) {
     return (
       <Root>
-        <SectionHeading loading={isLoading} title={"Routines List"} />
+        <SectionHeading loading={isLoading} title={t("routines.list")} />
 
-        <Text>No previous routines. Start new first.</Text>
+        <Text>{t("routines.empty")}</Text>
       </Root>
     )
   }
 
   return (
     <Root>
-      <SectionHeading loading={isLoading} title={"Routines List"} />
+      <SectionHeading loading={isLoading} title={t("routines.list")} />
       <Table
         config={{
           columns: [
             {
-              name: "Routine",
+              name: t("routines.colRoutine"),
               accessor: "custom",
               render: (routine: Routine) => renderRoutineInfo(routine)
             },
             {
-              name: "Actions",
+              name: t("routines.colActions"),
               accessor: "custom",
               render: (routine: Routine) => <RoutineActions routine={routine} />
             }

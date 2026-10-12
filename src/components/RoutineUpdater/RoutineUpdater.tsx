@@ -19,8 +19,10 @@ import { useCallback, useEffect, useRef } from "react"
 import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
 import { MdAdd } from "react-icons/md"
 import { Reorder } from "motion/react"
+import { useTranslation } from "react-i18next"
 
 export const RoutineUpdater = () => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const routine = useAppSelector(selectRoutine)
   const movements = useAppSelector(state => state.routines.selected?.movements)
@@ -100,7 +102,7 @@ export const RoutineUpdater = () => {
   if (!routine)
     return (
       <div>
-        <Text>No routine found</Text>
+        <Text>{t("updater.notFound")}</Text>
       </div>
     )
 
@@ -108,7 +110,7 @@ export const RoutineUpdater = () => {
     <FormProvider {...methods}>
       <StyledForm onSubmit={methods.handleSubmit(() => console.log("Submit"))}>
         {!movements?.length ? (
-          <Text>Add movements to start your routine...</Text>
+          <Text>{t("updater.empty")}</Text>
         ) : (
           <Reorder.Group
             axis="y"
@@ -138,7 +140,7 @@ export const RoutineUpdater = () => {
             <div>
               <MdAdd />
             </div>
-            <div>Add Movement</div>
+            <div>{t("updater.addMovement")}</div>
           </AddMovement>
         </Footer>
       </StyledForm>

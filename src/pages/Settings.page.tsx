@@ -4,28 +4,34 @@ import { PALETTES, PALETTE_IDS, swatch, type PaletteId } from "@root/theme/palet
 import { setThemePrefs, useThemePrefs, type ThemeModePref } from "@root/theme/themeStore"
 import type { ThemeStyle } from "@root/theme/buildTheme"
 import styled from "styled-components"
+import { useTranslation } from "react-i18next"
+import { LANGUAGES, setLanguage } from "@root/i18n"
+import { useAppDispatch } from "@root/store/hooks/store"
+import { getAllExercisesAction } from "@root/store/slices/exercises/exercises.thunks"
 
 const MODES: { id: ThemeModePref; label: string }[] = [
-  { id: "system", label: "System" },
-  { id: "light", label: "Light" },
-  { id: "dark", label: "Dark" }
+  { id: "system", label: "settings.system" },
+  { id: "light", label: "settings.light" },
+  { id: "dark", label: "settings.dark" }
 ]
 
 const STYLES: { id: ThemeStyle; label: string; hint: string }[] = [
-  { id: "vivid", label: "Vivid", hint: "Soft backdrop, translucent surfaces" },
-  { id: "flat", label: "Flat", hint: "Solid surfaces, no effects" }
+  { id: "vivid", label: "settings.vivid", hint: "settings.vividHint" },
+  { id: "flat", label: "settings.flat", hint: "settings.flatHint" }
 ]
 
 const SettingsPage = () => {
+  const { t, i18n } = useTranslation()
+  const dispatch = useAppDispatch()
   const prefs = useThemePrefs()
 
   return (
-    <Page headerComponent={<PageHeader title="Settings" />}>
+    <Page headerComponent={<PageHeader title={t("settings.title")} />}>
       <Root>
         <Section>
-          <h3>Appearance</h3>
+          <h3>{t("settings.appearance")}</h3>
 
-          <Label>Mode</Label>
+          <Label>{t("settings.mode")}</Label>
           <Segmented>
             {MODES.map(mode => (
               <button
@@ -34,12 +40,12 @@ const SettingsPage = () => {
                 aria-pressed={prefs.mode === mode.id}
                 onClick={() => setThemePrefs({ mode: mode.id })}
               >
-                {mode.label}
+                {t(mode.label)}
               </button>
             ))}
           </Segmented>
 
-          <Label>Style</Label>
+          <Label>{t("settings.style")}</Label>
           <Segmented>
             {STYLES.map(style => (
               <button
@@ -48,13 +54,13 @@ const SettingsPage = () => {
                 aria-pressed={prefs.style === style.id}
                 onClick={() => setThemePrefs({ style: style.id })}
               >
-                {style.label}
+                {t(style.label)}
               </button>
             ))}
           </Segmented>
-          <Hint>{STYLES.find(style => style.id === prefs.style)?.hint}</Hint>
+          <Hint>{t(STYLES.find(style => style.id === prefs.style)?.hint ?? "")}</Hint>
 
-          <Label>Colour</Label>
+          <Label>{t("settings.colour")}</Label>
           <Palettes>
             {PALETTE_IDS.map((id: PaletteId) => {
               const palette = PALETTES[id]
@@ -72,6 +78,25 @@ const SettingsPage = () => {
               )
             })}
           </Palettes>
+        </Section>
+
+        <Section>
+          <h3>{t("settings.language")}</h3>
+          <Segmented>
+            {LANGUAGES.map(language => (
+              <button
+                key={language.id}
+                type="button"
+                aria-pressed={i18n.language === language.id}
+                onClick={() => {
+                  setLanguage(language.id)
+                  dispatch(getAllExercisesAction())
+                }}
+              >
+                {language.label}
+              </button>
+            ))}
+          </Segmented>
         </Section>
       </Root>
     </Page>

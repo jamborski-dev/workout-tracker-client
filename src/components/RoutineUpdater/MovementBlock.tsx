@@ -28,6 +28,7 @@ import { selectPreferredCategories } from "@root/store/slices/routines/routines.
 import styled from "styled-components"
 import { LuGripVertical } from "react-icons/lu"
 import { Reorder, useDragControls } from "motion/react"
+import { useTranslation } from "react-i18next"
 
 export const MovementBlock: FC<{
   movement: Movement
@@ -37,6 +38,7 @@ export const MovementBlock: FC<{
   onCloseClick: () => void
   onDelete: (id: IDType) => void
 }> = ({ movement, count, isExpanded = false, onOpenClick, onCloseClick, onDelete }) => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const dragControls = useDragControls()
   const exerciseList = useAppSelector(state => state.exercises.list)
@@ -267,7 +269,7 @@ export const MovementBlock: FC<{
                 type="button"
                 onClick={handleToggleFavourite}
                 aria-label={
-                  selectedExercise?.favourite ? "Remove from favourites" : "Add to favourites"
+                  selectedExercise?.favourite ? t("movement.removeFavourite") : t("movement.addFavourite")
                 }
                 $isActive={Boolean(selectedExercise?.favourite)}
               >
@@ -286,13 +288,13 @@ export const MovementBlock: FC<{
         )}
         <SetRepPanel $isExpanded={isExpanded}>
           {!isExpanded ? null : !sets?.length ? (
-            <Text $align="left">No sets yet...</Text>
+            <Text $align="left">{t("movement.noSets")}</Text>
           ) : (
             <SetGrid
               mode="routine"
               showLegend={isExpanded}
               weightPerSide={Boolean(selectedExercise?.weightPerSide)}
-              title={selectedExercise?.name ?? "Exercise"}
+              title={selectedExercise?.name ?? t("movement.exercise")}
               sets={orderedSets}
               onChange={handleSetChange}
               onDelete={handleRemoveSet}
@@ -304,11 +306,11 @@ export const MovementBlock: FC<{
             <ButtonGroup $gap={0.6} style={{ flexWrap: "wrap" }}>
               <GridButton type="button" onClick={handleAddSet}>
                 <MdAdd />
-                <span>Add set</span>
+                <span>{t("movement.addSet")}</span>
               </GridButton>
               <GridButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
                 <MdCheck />
-                <span>{allDone ? "Undo all" : "Complete all"}</span>
+                <span>{allDone ? t("movement.undoAll") : t("movement.completeAll")}</span>
               </GridButton>
             </ButtonGroup>
           )}

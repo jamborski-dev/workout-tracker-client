@@ -16,6 +16,8 @@ import {
 import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import { Text } from "../__shared/Typography"
+import { useTranslation } from "react-i18next"
+import i18n, { muscleLabel } from "@root/i18n"
 // import { IconButton } from "../__shared/Button"
 
 interface ExerciseListProps {
@@ -24,6 +26,7 @@ interface ExerciseListProps {
 }
 
 export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const handleRowClick = (id: string | number) => {
@@ -33,7 +36,7 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
 
   const sectionHeadingProps = {
     loading: isLoading,
-    title: "Exercise List"
+    title: t("exercises.list")
   }
 
   if (isLoading) {
@@ -41,7 +44,7 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
       <Root>
         <SectionHeading {...sectionHeadingProps} />
 
-        <Text>Loading...</Text>
+        <Text>{t("routines.loading")}</Text>
       </Root>
     )
   }
@@ -51,7 +54,7 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
       <Root>
         <SectionHeading {...sectionHeadingProps} />
 
-        <Text>No exercises. Create new first.</Text>
+        <Text>{t("exercises.empty")}</Text>
       </Root>
     )
   }
@@ -63,7 +66,7 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
         config={{
           columns: [
             {
-              name: "Name",
+              name: t("exercises.colName"),
               accessor: "name"
             },
             // {
@@ -71,11 +74,12 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
             //   accessor: "description"
             // },
             {
-              name: "Muscle Group",
-              accessor: "muscleGroup"
+              name: t("exercises.colMuscle"),
+              accessor: "muscleGroup",
+              render: (exercise: Exercise) => <>{muscleLabel(exercise.muscleGroup)}</>
             },
             {
-              name: "Library",
+              name: t("exercises.colLibrary"),
               accessor: ["id", "name", "isBase", "isMine", "visibility", "reviewStatus", "reviewNote"],
               render: (exercise: Exercise) => <ExerciseStatus exercise={exercise} />
             }
@@ -94,15 +98,16 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
 }
 
 const statusLabel = (exercise: Exercise) => {
-  if (exercise.isBase) return "Base"
-  if (exercise.visibility === "PUBLIC") return exercise.isMine ? "Public" : "Community"
-  if (exercise.reviewStatus === "PENDING") return "Pending review"
-  if (exercise.reviewStatus === "REJECTED") return "Private (declined)"
-  return "Private"
+  if (exercise.isBase) return i18n.t("exercises.base")
+  if (exercise.visibility === "PUBLIC") return i18n.t(exercise.isMine ? "exercises.public" : "exercises.community")
+  if (exercise.reviewStatus === "PENDING") return i18n.t("exercises.pending")
+  if (exercise.reviewStatus === "REJECTED") return i18n.t("exercises.declined")
+  return i18n.t("exercises.private")
 }
 
 // Status badge, plus actions for the user's own private exercises
 const ExerciseStatus: FC<{ exercise: Exercise }> = ({ exercise }) => {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const ownPrivate = exercise.isMine && exercise.visibility === "PRIVATE"
   const pending = exercise.reviewStatus === "PENDING"
@@ -124,17 +129,17 @@ const ExerciseStatus: FC<{ exercise: Exercise }> = ({ exercise }) => {
               dispatch(updateExerciseAction({ exerciseId, payload: { requestPublic: !pending } }))
             }
           >
-            {pending ? "Withdraw" : "Request public"}
+            {pending ? t("exercises.withdraw") : t("exercises.requestPublic")}
           </button>
           <button
             type="button"
             onClick={() => {
-              if (window.confirm(`Delete "${exercise.name}"?`)) {
+              if (window.confirm(t("exercises.confirmDelete", { name: exercise.name }))) {
                 dispatch(deleteExerciseAction({ exerciseId }))
               }
             }}
           >
-            Delete
+            {t("exercises.delete")}
           </button>
         </Actions>
       )}
