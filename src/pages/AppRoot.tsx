@@ -27,6 +27,7 @@ import { ProtectedRoute } from "@root/features/auth/Protected"
 import { loadSessionAction } from "@root/store/slices/auth/auth.thunks"
 import { useEffect, useRef } from "react"
 import { HttpErrorPage } from "./HttpError.page"
+import Home from "./Home.page"
 import { useTranslation } from "react-i18next"
 
 const AUTH_ROUTES = ["/auth"]
@@ -130,7 +131,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Navigate to="/routines" replace />
+                <Home />
               </ProtectedRoute>
             }
           />

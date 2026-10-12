@@ -35,7 +35,20 @@ const en = {
     "setPassword": "Set password",
     "saving": "Saving..."
   },
+  "home": {
+    "workouts": "Workouts",
+    "sets": "Sets",
+    "volume": "Volume",
+    "thisMonth": "This month",
+    "lastMonth": "Last month: {{value}}",
+    "nextUp": "Next up",
+    "start": "Start routine",
+    "lastWorkout": "Last workout",
+    "calendar": "Calendar",
+    "recent": "Recent workouts"
+  },
   "nav": {
+    "home": "Home",
     "routines": "Routines",
     "exercises": "Exercises",
     "settings": "Settings",

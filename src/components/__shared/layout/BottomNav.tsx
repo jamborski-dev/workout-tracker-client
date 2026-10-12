@@ -1,5 +1,5 @@
 import { IoIosFitness, IoIosLogOut } from "react-icons/io"
-import { IoColorPaletteOutline, IoShieldCheckmarkOutline } from "react-icons/io5"
+import { IoColorPaletteOutline, IoHomeOutline, IoShieldCheckmarkOutline } from "react-icons/io5"
 import { useAppSelector } from "@root/store/hooks/store"
 import { IoFitness } from "react-icons/io5"
 import { NavLink } from "react-router-dom"
@@ -7,6 +7,7 @@ import styled from "styled-components"
 import { useTranslation } from "react-i18next"
 
 const menuItems = [
+  { label: "nav.home", path: "/", icon: IoHomeOutline },
   { label: "nav.routines", path: "/routines", icon: IoFitness },
   { label: "nav.exercises", path: "/exercises ", icon: IoIosFitness },
   { label: "nav.settings", path: "/settings", icon: IoColorPaletteOutline },
@@ -30,7 +31,7 @@ export const BottomNav = () => {
       {items.map(item => {
         const Icon = item.icon
         return (
-          <NavLink key={item.label} to={item.path.trim()}>
+          <NavLink key={item.label} to={item.path.trim()} end={item.path === "/"}>
             <NavItem key={item.label}>
               <IconWrap className="icon">
                 <Icon />

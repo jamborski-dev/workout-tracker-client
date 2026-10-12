@@ -35,7 +35,20 @@ const pl = {
     "setPassword": "Ustaw hasło",
     "saving": "Zapisywanie..."
   },
+  "home": {
+    "workouts": "Treningi",
+    "sets": "Serie",
+    "volume": "Objętość",
+    "thisMonth": "W tym miesiącu",
+    "lastMonth": "Poprzedni miesiąc: {{value}}",
+    "nextUp": "Następny w kolejce",
+    "start": "Rozpocznij trening",
+    "lastWorkout": "Ostatni trening",
+    "calendar": "Kalendarz",
+    "recent": "Ostatnie treningi"
+  },
   "nav": {
+    "home": "Start",
     "routines": "Treningi",
     "exercises": "Ćwiczenia",
     "settings": "Ustawienia",
