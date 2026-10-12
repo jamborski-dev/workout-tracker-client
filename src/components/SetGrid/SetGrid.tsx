@@ -268,7 +268,7 @@ const Grid = styled.div`
     padding-inline: 0;
     list-style: none;
     display: grid;
-    gap: 0.4rem;
+    gap: calc(0.4rem * var(--density, 1));
   }
 
   /* One column template for header and rows, so labels always line up with their cells */
@@ -289,7 +289,7 @@ const Grid = styled.div`
   }
 
   .set-row {
-    padding-block: 0.15rem;
+    padding-block: calc(0.15rem * var(--density, 1));
   }
 
   .set-row[data-done="true"] {

@@ -39,8 +39,8 @@ export const CountIndicator = styled.div`
 `
 
 export const Section = styled.section<{ $isExpanded: boolean }>`
-  margin: 0.6rem 0.75rem;
-  padding-block: 1rem;
+  margin: calc(0.6rem * var(--density, 1)) 0.75rem;
+  padding-block: calc(1rem * var(--density, 1));
   padding-inline: 0.5rem 1rem;
   border: 1px solid ${({ $isExpanded }) => ($isExpanded ? "var(--accent)" : "var(--card-border)")};
   border-radius: var(--radius-card);

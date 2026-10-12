@@ -128,7 +128,7 @@ const Header = styled.div`
 const Root = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: calc(0.75rem * var(--density, 1));
   padding: 0.5rem 0.75rem 1.5rem;
 `
 

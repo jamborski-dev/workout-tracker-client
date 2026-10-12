@@ -457,7 +457,7 @@ const Row = styled.button`
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.55rem 0.75rem;
+  padding: calc(0.55rem * var(--density, 1)) 0.75rem;
   border: 0;
   border-bottom: 1px solid var(--border-subtle);
   background: transparent;

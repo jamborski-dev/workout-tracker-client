@@ -4,14 +4,32 @@ import { DEFAULT_PALETTE, PALETTES, type PaletteId } from "./palettes"
 
 export type ThemeModePref = "system" | ThemeMode
 
+export type TextSize = "small" | "default" | "large" | "xlarge"
+export type Density = "compact" | "comfortable" | "spacious"
+export type MotionPref = "system" | "reduced" | "full"
+
 export interface ThemePrefs {
   mode: ThemeModePref
   style: ThemeStyle
   palette: PaletteId
+  textSize: TextSize
+  density: Density
+  motion: MotionPref
 }
 
+// Root font size (everything is rem-based, so text and layout scale together) and spacing multiplier
+const TEXT_SCALE: Record<TextSize, string> = { small: "87.5%", default: "100%", large: "112.5%", xlarge: "125%" }
+const DENSITY_SCALE: Record<Density, string> = { compact: "0.75", comfortable: "1", spacious: "1.3" }
+
 const STORAGE_KEY = "axis:theme"
-const DEFAULT_PREFS: ThemePrefs = { mode: "system", style: "vivid", palette: DEFAULT_PALETTE }
+const DEFAULT_PREFS: ThemePrefs = {
+  mode: "system",
+  style: "vivid",
+  palette: DEFAULT_PALETTE,
+  textSize: "default",
+  density: "comfortable",
+  motion: "system"
+}
 
 const readPrefs = (): ThemePrefs => {
   try {
@@ -23,7 +41,12 @@ const readPrefs = (): ThemePrefs => {
         ? (parsed.mode as ThemeModePref)
         : DEFAULT_PREFS.mode,
       style: parsed.style === "flat" ? "flat" : "vivid",
-      palette: parsed.palette && parsed.palette in PALETTES ? parsed.palette : DEFAULT_PALETTE
+      palette: parsed.palette && parsed.palette in PALETTES ? parsed.palette : DEFAULT_PALETTE,
+      textSize: parsed.textSize && parsed.textSize in TEXT_SCALE ? parsed.textSize : DEFAULT_PREFS.textSize,
+      density: parsed.density && parsed.density in DENSITY_SCALE ? parsed.density : DEFAULT_PREFS.density,
+      motion: ["system", "reduced", "full"].includes(parsed.motion as string)
+        ? (parsed.motion as MotionPref)
+        : DEFAULT_PREFS.motion
     }
   } catch {
     return DEFAULT_PREFS
@@ -48,6 +71,9 @@ export const applyTheme = (next: ThemePrefs = prefs) => {
   root.dataset.theme = mode
   root.dataset.themeStyle = next.style
   root.style.colorScheme = mode
+  root.style.fontSize = TEXT_SCALE[next.textSize]
+  root.style.setProperty("--density", DENSITY_SCALE[next.density])
+  root.dataset.motion = next.motion
 }
 
 export const setThemePrefs = (patch: Partial<ThemePrefs>) => {

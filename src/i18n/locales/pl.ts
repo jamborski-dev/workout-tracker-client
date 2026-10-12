@@ -266,7 +266,20 @@ const pl = {
     "flat": "Płaski",
     "flatHint": "Jednolite powierzchnie, bez efektów",
     "colour": "Kolor",
-    "language": "Język"
+    "language": "Język",
+    "display": "Ekran",
+    "textSize": "Rozmiar tekstu",
+    "sizeSmall": "Mały",
+    "sizeDefault": "Domyślny",
+    "sizeLarge": "Duży",
+    "sizeXLarge": "Bardzo duży",
+    "spacing": "Odstępy",
+    "compact": "Ciasne",
+    "comfortable": "Standardowe",
+    "spacious": "Luźne",
+    "animations": "Animacje",
+    "reduced": "Ograniczone",
+    "full": "Pełne"
   },
   "grid": {
     "legend": "Lewa: plan · Prawa: wykonanie",

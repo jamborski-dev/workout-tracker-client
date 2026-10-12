@@ -1,7 +1,7 @@
 import { Page } from "@root/components/__shared/layout/Page"
 import { PageHeader } from "@root/components/__shared/PageHeader"
 import { PALETTES, PALETTE_IDS, swatch, type PaletteId } from "@root/theme/palettes"
-import { setThemePrefs, useThemePrefs, type ThemeModePref } from "@root/theme/themeStore"
+import { setThemePrefs, useThemePrefs, type Density, type MotionPref, type TextSize, type ThemeModePref } from "@root/theme/themeStore"
 import type { ThemeStyle } from "@root/theme/buildTheme"
 import styled from "styled-components"
 import { useTranslation } from "react-i18next"
@@ -18,6 +18,25 @@ const MODES: { id: ThemeModePref; label: string }[] = [
 const STYLES: { id: ThemeStyle; label: string; hint: string }[] = [
   { id: "vivid", label: "settings.vivid", hint: "settings.vividHint" },
   { id: "flat", label: "settings.flat", hint: "settings.flatHint" }
+]
+
+const TEXT_SIZES: { id: TextSize; label: string }[] = [
+  { id: "small", label: "settings.sizeSmall" },
+  { id: "default", label: "settings.sizeDefault" },
+  { id: "large", label: "settings.sizeLarge" },
+  { id: "xlarge", label: "settings.sizeXLarge" }
+]
+
+const DENSITIES: { id: Density; label: string }[] = [
+  { id: "compact", label: "settings.compact" },
+  { id: "comfortable", label: "settings.comfortable" },
+  { id: "spacious", label: "settings.spacious" }
+]
+
+const MOTIONS: { id: MotionPref; label: string }[] = [
+  { id: "system", label: "settings.system" },
+  { id: "reduced", label: "settings.reduced" },
+  { id: "full", label: "settings.full" }
 ]
 
 const SettingsPage = () => {
@@ -78,6 +97,52 @@ const SettingsPage = () => {
               )
             })}
           </Palettes>
+        </Section>
+
+        <Section>
+          <h3>{t("settings.display")}</h3>
+
+          <Label>{t("settings.textSize")}</Label>
+          <Segmented>
+            {TEXT_SIZES.map(size => (
+              <button
+                key={size.id}
+                type="button"
+                aria-pressed={prefs.textSize === size.id}
+                onClick={() => setThemePrefs({ textSize: size.id })}
+              >
+                {t(size.label)}
+              </button>
+            ))}
+          </Segmented>
+
+          <Label>{t("settings.spacing")}</Label>
+          <Segmented>
+            {DENSITIES.map(density => (
+              <button
+                key={density.id}
+                type="button"
+                aria-pressed={prefs.density === density.id}
+                onClick={() => setThemePrefs({ density: density.id })}
+              >
+                {t(density.label)}
+              </button>
+            ))}
+          </Segmented>
+
+          <Label>{t("settings.animations")}</Label>
+          <Segmented>
+            {MOTIONS.map(motion => (
+              <button
+                key={motion.id}
+                type="button"
+                aria-pressed={prefs.motion === motion.id}
+                onClick={() => setThemePrefs({ motion: motion.id })}
+              >
+                {t(motion.label)}
+              </button>
+            ))}
+          </Segmented>
         </Section>
 
         <Section>

@@ -192,3 +192,29 @@ button {
 #error-boundary button:hover {
   filter: brightness(1.1);
 }
+
+/* Spacing multiplier from Settings: use calc(0.5rem * var(--density, 1)) for density-aware spacing */
+:root {
+  --density: 1;
+}
+
+/* Reduced animations: explicit choice, or the OS preference unless the user chose "full" */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion="system"] *,
+  :root[data-motion="system"] *::before,
+  :root[data-motion="system"] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

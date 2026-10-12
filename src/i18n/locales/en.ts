@@ -266,7 +266,20 @@ const en = {
     "flat": "Flat",
     "flatHint": "Solid surfaces, no effects",
     "colour": "Colour",
-    "language": "Language"
+    "language": "Language",
+    "display": "Display",
+    "textSize": "Text size",
+    "sizeSmall": "Small",
+    "sizeDefault": "Default",
+    "sizeLarge": "Large",
+    "sizeXLarge": "Extra large",
+    "spacing": "Spacing",
+    "compact": "Compact",
+    "comfortable": "Comfortable",
+    "spacious": "Spacious",
+    "animations": "Animations",
+    "reduced": "Reduced",
+    "full": "Full"
   },
   "grid": {
     "legend": "Left: plan · Right: actual",
