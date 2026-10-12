@@ -13,7 +13,7 @@ import type { IDType, Movement } from "@root/types/data"
 import { type FC, type MouseEvent, type PointerEvent, useEffect } from "react"
 import { FaTrash } from "react-icons/fa6"
 import { MdAdd, MdCheck, MdClose } from "react-icons/md"
-import { actualsFromPlan } from "./utils"
+import { actualsFromPlan, buildSummary } from "./utils"
 import { IoStar, IoStarOutline } from "react-icons/io5"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
@@ -229,7 +229,7 @@ export const MovementBlock: FC<{
                 <ExerciseHeader>
                   <Title>
                     <span>{exerciseList.find(m => m.id === movement.exerciseId)?.name || "-"}</span>
-                    <SummaryText>{movement.summary ?? "-"}</SummaryText>
+                    <SummaryText>{buildSummary(orderedSets)}</SummaryText>
                   </Title>
                   <ButtonGroup $gap={0}>
                     <IconButton
