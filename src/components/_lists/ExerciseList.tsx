@@ -76,7 +76,7 @@ export const ExerciseList: FC<ExerciseListProps> = ({ items, isLoading }) => {
             {
               name: t("exercises.colMuscle"),
               accessor: "muscleGroup",
-              render: (exercise: Exercise) => <>{muscleLabel(exercise.muscleGroup)}</>
+              render: (muscleGroup?: string | null) => <>{muscleLabel(muscleGroup)}</>
             },
             {
               name: t("exercises.colLibrary"),
