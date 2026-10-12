@@ -14,6 +14,7 @@ import type { IDType, TemplatePlanMovement } from "@root/types/data"
 import { useEffect, useRef, useState } from "react"
 import { MdAdd, MdClose, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md"
 import { ExercisePicker } from "@root/components/ExercisePicker/ExercisePicker"
+import { SetupField } from "@root/components/ExercisePicker/SetupField"
 import { GridButton, SetGrid } from "@root/components/SetGrid/SetGrid"
 import type { GridSet } from "@root/components/SetGrid/types"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
@@ -21,7 +22,7 @@ import styled from "styled-components"
 
 // Draft rows keep a client key so reordering/removing doesn't mix up inputs
 type DraftSet = { key: number; reps: number | null; weight: number | null; isWarmup: boolean }
-type DraftMovement = { key: number; exerciseId: string; sets: DraftSet[] }
+type DraftMovement = { key: number; exerciseId: string; setup: string; sets: DraftSet[] }
 
 let nextKey = 1
 const newSet = (reps: number | null = null, weight: number | null = null, isWarmup = false): DraftSet => ({
@@ -30,7 +31,7 @@ const newSet = (reps: number | null = null, weight: number | null = null, isWarm
   weight,
   isWarmup
 })
-const newMovement = (): DraftMovement => ({ key: nextKey++, exerciseId: "", sets: [newSet()] })
+const newMovement = (): DraftMovement => ({ key: nextKey++, exerciseId: "", setup: "", sets: [newSet()] })
 
 const toGridSet = (set: DraftSet): GridSet => ({
   id: set.key,
@@ -82,6 +83,7 @@ const TemplateEditPage = () => {
       template.movements.map(movement => ({
         key: nextKey++,
         exerciseId: `${movement.exerciseId}`,
+        setup: movement.setup ?? "",
         sets: movement.sets.map(set => newSet(set.reps ?? null, set.weight ?? null, Boolean(set.isWarmup)))
       }))
     )
@@ -123,6 +125,7 @@ const TemplateEditPage = () => {
   const plan = (): TemplatePlanMovement[] =>
     movements.map(movement => ({
       exerciseId: Number(movement.exerciseId),
+      setup: movement.setup.trim() || null,
       sets: movement.sets.map(set => ({ reps: set.reps, weight: set.weight, isWarmup: set.isWarmup }))
     }))
 
@@ -232,9 +235,11 @@ const TemplateEditPage = () => {
                     </Icon>
                   </CardHeader>
 
+                  <SetupField value={movement.setup} onChange={setup => patchMovement(movement.key, { setup })} />
                   {movement.sets.length > 0 && (
                     <SetGrid
                       mode="template"
+                      weightPerSide={Boolean(exercises.find(item => `${item.id}` === movement.exerciseId)?.weightPerSide)}
                       title={exercises.find(item => `${item.id}` === movement.exerciseId)?.name ?? `Exercise ${index + 1}`}
                       sets={movement.sets.map(toGridSet)}
                       onChange={(setId, field, value) =>

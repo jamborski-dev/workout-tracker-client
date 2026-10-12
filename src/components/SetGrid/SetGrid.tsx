@@ -21,11 +21,13 @@ interface SetGridProps {
   onToggleDone?: (setId: IDType) => void
   // Hide the legend while the surrounding card is collapsed
   showLegend?: boolean
+  // Exercises with weight per side label the column accordingly
+  weightPerSide?: boolean
 }
 
 const fieldName = (side: CellSide, kind: CellKind) => `${side}${kind}`
 
-export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelete, onReorder, onToggleDone, showLegend = true }) => {
+export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelete, onReorder, onToggleDone, showLegend = true, weightPerSide = false }) => {
   const isRoutine = mode === "routine"
   const [active, setActive] = useState<ActiveCell | null>(null)
 
@@ -104,7 +106,7 @@ export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelet
           <span />
           <span>#</span>
           <span>Reps</span>
-          <span>Weight (kg)</span>
+          <span>{weightPerSide ? "kg per side" : "Weight (kg)"}</span>
           <span>WU</span>
           {isRoutine && <span>Done</span>}
           <span />

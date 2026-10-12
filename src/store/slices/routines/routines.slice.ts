@@ -120,6 +120,14 @@ const routinesSlice = createSlice({
     togglePlannedActual: state => {
       state.showActualReps = !state.showActualReps
     },
+    setMovementSetup: (state, action) => {
+      const { movementId, setup } = action.payload
+      const movement = state.selected?.movements.find(m => m.id === movementId)
+      if (movement) {
+        movement.setup = setup
+        markDirty(state, movementId)
+      }
+    },
     updateMovementSummary: (state, action) => {
       const movement = state.selected?.movements.find(m => m.id === action.payload)
       if (movement) {
@@ -431,6 +439,7 @@ export const {
   initRoutine,
   togglePlannedActual,
   updateMovementSummary,
+  setMovementSetup,
   updateSet,
   reorderMovements,
   setMovementsOrder,
@@ -448,6 +457,7 @@ export default routinesSlice.reducer
 startAppListening({
   matcher: isAnyOf(
     updateSet,
+    setMovementSetup,
     addSetAction.fulfilled,
     removeSetAction.fulfilled,
     reorderSets,

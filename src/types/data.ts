@@ -55,6 +55,7 @@ export type TemplateMovement = {
   exerciseId: number
   exercise?: { id: number; name: string }
   notes?: string | null
+  setup?: string | null
   sets: TemplateSet[]
 }
 
@@ -72,6 +73,7 @@ export type RoutineTemplate = {
 export type TemplatePlanMovement = {
   exerciseId: number
   notes?: string | null
+  setup?: string | null
   sets: { reps?: number | null; weight?: number | null; restTime?: number | null; isWarmup?: boolean }[]
 }
 
@@ -130,6 +132,8 @@ export interface Movement {
   exerciseId?: number | null
   summary?: MovementSummary
   notes?: string | null
+  // Machine setting / configuration, e.g. "H64", "30°", "rope"
+  setup?: string | null
   sets: MovementSet[]
 }
 

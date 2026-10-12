@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
 import { toggleFavouriteLocal } from "@root/store/slices/exercises/exercises.slice"
 import { updateExerciseAction } from "@root/store/slices/exercises/exercises.thunks"
-import { setSetsOrder, updateSet } from "@root/store/slices/routines/routines.slice"
+import { setMovementSetup, setSetsOrder, updateSet } from "@root/store/slices/routines/routines.slice"
 import {
   addSetAction,
   removeSetAction,
@@ -19,6 +19,7 @@ import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
 import { Text } from "../__shared/Typography"
 import { ExercisePicker } from "../ExercisePicker/ExercisePicker"
+import { SetupField } from "../ExercisePicker/SetupField"
 import { GridButton, SetGrid } from "../SetGrid/SetGrid"
 
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
@@ -58,7 +59,8 @@ export const MovementBlock: FC<{
       plannedWeight: set.plannedWeight,
       completed: Boolean(set.completed),
       isWarmup: Boolean(set.isWarmup)
-    }))
+    })),
+    setup: movement.setup ?? null
   })
 
   const handleAddSet = async () => {
@@ -80,6 +82,7 @@ export const MovementBlock: FC<{
       const last = await getLastSets(selected)
       if (!last?.sets.length) return
 
+      if (last.setup && !movement.setup) dispatch(setMovementSetup({ movementId, setup: last.setup }))
       const ids = (movement.sets ?? []).map(set => set.id)
       while (ids.length < last.sets.length) {
         const created = await dispatch(addSetAction({ movementId, order: ids.length })).unwrap()
@@ -242,11 +245,17 @@ export const MovementBlock: FC<{
                 </ExerciseHeader>
               )}
               {isExpanded && (
-                <ExercisePicker
-                  exerciseId={movement.exerciseId}
-                  preferredCategories={preferredCategories}
-                  onSelect={handleOnExerciseSelect}
-                />
+                <PickerStack>
+                  <ExercisePicker
+                    exerciseId={movement.exerciseId}
+                    preferredCategories={preferredCategories}
+                    onSelect={handleOnExerciseSelect}
+                  />
+                  <SetupField
+                    value={movement.setup}
+                    onChange={setup => dispatch(setMovementSetup({ movementId, setup }))}
+                  />
+                </PickerStack>
               )}
             </Stack>
           </HeaderContent>
@@ -276,12 +285,13 @@ export const MovementBlock: FC<{
           </HeaderAction>
         )}
         <SetRepPanel $isExpanded={isExpanded}>
-          {!sets?.length ? (
+          {!isExpanded ? null : !sets?.length ? (
             <Text $align="left">No sets yet...</Text>
           ) : (
             <SetGrid
               mode="routine"
               showLegend={isExpanded}
+              weightPerSide={Boolean(selectedExercise?.weightPerSide)}
               title={selectedExercise?.name ?? "Exercise"}
               sets={orderedSets}
               onChange={handleSetChange}
@@ -290,21 +300,30 @@ export const MovementBlock: FC<{
               onToggleDone={handleToggleDone}
             />
           )}
-          <ButtonGroup $gap={0.6} style={{ flexWrap: "wrap" }}>
-            <GridButton type="button" onClick={handleAddSet}>
-              <MdAdd />
-              <span>Add set</span>
-            </GridButton>
-            <GridButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
-              <MdCheck />
-              <span>{allDone ? "Undo all" : "Complete all"}</span>
-            </GridButton>
-          </ButtonGroup>
+          {isExpanded && (
+            <ButtonGroup $gap={0.6} style={{ flexWrap: "wrap" }}>
+              <GridButton type="button" onClick={handleAddSet}>
+                <MdAdd />
+                <span>Add set</span>
+              </GridButton>
+              <GridButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
+                <MdCheck />
+                <span>{allDone ? "Undo all" : "Complete all"}</span>
+              </GridButton>
+            </ButtonGroup>
+          )}
         </SetRepPanel>
       </Section>
     </Reorder.Item>
   )
 }
+
+const PickerStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+`
 
 const ExerciseHeader = styled.h2`
   /* // shared with select
