@@ -46,6 +46,7 @@ export type TemplateSet = {
   reps?: number | null
   weight?: number | null
   restTime?: number | null
+  isWarmup?: boolean
 }
 
 export type TemplateMovement = {
@@ -71,7 +72,7 @@ export type RoutineTemplate = {
 export type TemplatePlanMovement = {
   exerciseId: number
   notes?: string | null
-  sets: { reps?: number | null; weight?: number | null; restTime?: number | null }[]
+  sets: { reps?: number | null; weight?: number | null; restTime?: number | null; isWarmup?: boolean }[]
 }
 
 export type TemplatePayload = {
@@ -114,12 +115,12 @@ export interface MovementSet {
   order: number
   summary?: string
   movementId?: IDType
-  actualReps?: number
-  actualWeight?: number
-  plannedReps?: number
-  plannedWeight?: number
+  actualReps?: number | null
+  actualWeight?: number | null
+  plannedReps?: number | null
+  plannedWeight?: number | null
   completed?: boolean
-  isWU?: boolean
+  isWarmup?: boolean
 }
 
 export interface Movement {

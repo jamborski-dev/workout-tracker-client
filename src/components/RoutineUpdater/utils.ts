@@ -28,11 +28,11 @@ export const buildSummary = (sets: MovementSet[]): MovementSummary => {
   return summary || "-"
 }
 
-const isEmpty = (value?: number | null) => !value || Number.isNaN(value)
+const isEmpty = (value?: number | null) => value === null || value === undefined || Number.isNaN(value)
 
 // Actual values to log when a set is ticked off: the plan, but never over something already entered
 export const actualsFromPlan = (set: MovementSet) => {
-  const fields: { actualReps?: number; actualWeight?: number } = {}
+  const fields: { actualReps?: number | null; actualWeight?: number | null } = {}
   if (isEmpty(set.actualReps) && !isEmpty(set.plannedReps)) fields.actualReps = set.plannedReps
   if (isEmpty(set.actualWeight) && !isEmpty(set.plannedWeight)) fields.actualWeight = set.plannedWeight
   return fields

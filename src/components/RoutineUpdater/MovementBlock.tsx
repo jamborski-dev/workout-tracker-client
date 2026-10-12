@@ -4,11 +4,12 @@ import { updateExerciseAction } from "@root/store/slices/exercises/exercises.thu
 import { setSetsOrder, updateSet } from "@root/store/slices/routines/routines.slice"
 import {
   addSetAction,
+  removeSetAction,
   saveMovementAction,
   updateMovementAction
 } from "@root/store/slices/routines/routines.thunks"
 import type { IDType, Movement } from "@root/types/data"
-import { type FC, type MouseEvent, type PointerEvent, useEffect, useState } from "react"
+import { type FC, type MouseEvent, type PointerEvent, useEffect } from "react"
 import { FaTrash } from "react-icons/fa6"
 import { MdAdd, MdCheck, MdClose } from "react-icons/md"
 import { actualsFromPlan } from "./utils"
@@ -17,8 +18,7 @@ import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
 import { Text } from "../__shared/Typography"
 import { ExerciseSelect } from "./ExerciseSelect"
-import { SetRow } from "./SetRow"
-import { SwitchToggle } from "./SwitchToggle"
+import { GridButton, SetGrid } from "../SetGrid/SetGrid"
 
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
 import type { RootState } from "@root/store/store"
@@ -40,7 +40,6 @@ export const MovementBlock: FC<{
   const movementId = movement.id as IDType
   const selectedExercise = exerciseList.find(exercise => exercise.id === movement.exerciseId)
 
-  const [showActual, setShowActual] = useState(true)
   const sets = useAppSelector(
     (state: RootState) => state.routines.selected?.movements.find(m => m.id === movement.id)?.sets
   )
@@ -54,20 +53,14 @@ export const MovementBlock: FC<{
       actualWeight: set.actualWeight,
       plannedReps: set.plannedReps,
       plannedWeight: set.plannedWeight,
-      completed: Boolean(set.completed)
+      completed: Boolean(set.completed),
+      isWarmup: Boolean(set.isWarmup)
     }))
   })
-
-  // Local state to manage changes to sets
-  const handleShowActual = () => {
-    setShowActual(prev => !prev)
-  }
 
   const handleAddSet = async () => {
     await dispatch(addSetAction({ movementId, order: movement.sets.length }))
   }
-
-  const handleOnDeleteRow = () => {}
 
   const handleOnExerciseSelect = (selected: IDType) => {
     dispatch(
@@ -118,8 +111,22 @@ export const MovementBlock: FC<{
     onOpenClick(movement.id as IDType)
   }
 
-  const handleSetChange = (payload: { setId: IDType; field: string; value: number | boolean }) => {
-    dispatch(updateSet({ movementId: movement.id, ...payload }))
+  const handleSetChange = (setId: IDType, field: string, value: number | boolean | null) => {
+    dispatch(updateSet({ movementId: movement.id, setId, field, value }))
+  }
+
+  const handleRemoveSet = (setId: IDType) => {
+    dispatch(removeSetAction({ setId, movementId }))
+  }
+
+  // Tick a set off: empty actuals are filled from the plan; ticking again undoes the tick only
+  const handleToggleDone = (setId: IDType) => {
+    const set = orderedSets.find(item => item.id === setId)
+    if (!set) return
+    if (!set.completed) {
+      Object.entries(actualsFromPlan(set)).forEach(([field, value]) => handleSetChange(setId, field, value))
+    }
+    handleSetChange(setId, "completed", !set.completed)
   }
 
   const handleReorderSets = (setIds: IDType[]) => {
@@ -127,21 +134,20 @@ export const MovementBlock: FC<{
   }
 
   const orderedSets = [...(sets || [])].sort((left, right) => left.order - right.order)
-  const currentSetId = orderedSets.find(set => !set.completed)?.id
   const allDone = orderedSets.length > 0 && orderedSets.every(set => set.completed)
 
   // Tick off every remaining set at its planned values, or untick all when everything is done
   const handleCompleteAll = () => {
     orderedSets.forEach(set => {
       if (allDone) {
-        handleSetChange({ setId: set.id, field: "completed", value: false })
+        handleSetChange(set.id, "completed", false)
         return
       }
       if (set.completed) return
       Object.entries(actualsFromPlan(set)).forEach(([field, value]) =>
-        handleSetChange({ setId: set.id, field, value })
+        handleSetChange(set.id, field, value)
       )
-      handleSetChange({ setId: set.id, field: "completed", value: true })
+      handleSetChange(set.id, "completed", true)
     })
   }
 
@@ -156,7 +162,7 @@ export const MovementBlock: FC<{
     // Collect frequent edits and persist them with fewer network calls.
     const timeout = window.setTimeout(() => {
       dispatch(saveMovementAction(movement.id as number))
-    }, 12000)
+    }, 2000)
 
     return () => {
       window.clearTimeout(timeout)
@@ -249,49 +255,25 @@ export const MovementBlock: FC<{
           {!sets?.length ? (
             <Text $align="left">No sets yet...</Text>
           ) : (
-            <Reorder.Group
-              axis="y"
-              as="ul"
-              values={orderedSets.map(set => set.id)}
+            <SetGrid
+              mode="routine"
+              title={selectedExercise?.name ?? "Exercise"}
+              sets={orderedSets}
+              onChange={handleSetChange}
+              onDelete={handleRemoveSet}
               onReorder={handleReorderSets}
-              style={{ padding: 0, margin: 0, overscrollBehaviorY: "contain" }}
-            >
-              <li className="set-grid set-header-row">
-                <span>Sets</span>
-                <span>Reps</span>
-                <span>Weight</span>
-                <span>WU</span>
-                <span>Done</span>
-                <span></span>
-                <span></span>
-              </li>
-              {orderedSets.map(set => (
-                <SetRow
-                  key={set.id}
-                  set={set}
-                  movementId={movementId}
-                  onFieldChange={handleSetChange}
-                  showActual={showActual}
-                  isCurrent={set.id === currentSetId}
-                  onDelete={handleOnDeleteRow}
-                />
-              ))}
-            </Reorder.Group>
+              onToggleDone={handleToggleDone}
+            />
           )}
           <ButtonGroup $gap={0.6} style={{ flexWrap: "wrap" }}>
-            <AddRowButton type="button" onClick={handleAddSet}>
+            <GridButton type="button" onClick={handleAddSet}>
               <MdAdd />
-              <span>Add Row</span>
-            </AddRowButton>
-            <AddRowButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
+              <span>Add set</span>
+            </GridButton>
+            <GridButton type="button" onClick={handleCompleteAll} disabled={!orderedSets.length}>
               <MdCheck />
               <span>{allDone ? "Undo all" : "Complete all"}</span>
-            </AddRowButton>
-            <SwitchToggle
-              isOn={showActual}
-              onChange={handleShowActual}
-              labels={{ on: "Logging: Planned", off: "Logging: Actual" }}
-            />
+            </GridButton>
           </ButtonGroup>
         </SetRepPanel>
       </Section>
@@ -380,29 +362,4 @@ const Title = styled.span`
     font-weight: 400;
     color: var(--text-2);
   }    */
-`
-
-const AddRowButton = styled.button`
-  font-size: 0.9rem;
-  white-space: nowrap;
-  font-weight: 500;
-
-  background: var(--accent);
-  color: var(--accent-contrast);
-  padding: 0.3rem 0.8rem;
-
-  border: none;
-  border-radius: var(--radius-control);
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-
-  transition: filter 0.2s;
-
-  &:hover,
-  &:active {
-    filter: brightness(1.1);
-  }
 `

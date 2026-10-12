@@ -115,78 +115,10 @@ export const SetRepPanel = styled.div<{ $isExpanded: boolean }>`
     flex-direction: column;
   }
 
-  ul {
-    padding-inline: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.5rem;
-
-    .set-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 60px) min-content min-content 1fr min-content;
-      align-items: center;
-      gap: 0.5rem;
-
-      span {
-        font-size: 0.7rem;
-      }
-
-      .set-label {
-        text-align: right;
-        color: var(--text-3);
-      }
-
-      .set-grip {
-        justify-self: end;
-        margin-left: auto;
-      }
-
-      .set-actions {
-        justify-self: end;
-      }
-
-      &.set-row {
-        padding-block: 0.15rem;
-        border-left: 3px solid transparent;
-        padding-left: 0.3rem;
-      }
-
-      &.set-row[data-done="true"] {
-        background: var(--accent-soft);
-      }
-
-      &.set-row[data-current="true"] {
-        border-left-color: var(--accent);
-      }
-    }
-  }
-
   .checkbox-group {
     display: flex;
     gap: 1rem;
     align-items: center;
-  }
-
-  input {
-    padding: 0.35rem 0.5rem;
-    border-radius: 0.3rem;
-    border: 1px solid var(--border-default);
-
-    &:hover {
-      border-color: var(--accent);
-    }
-
-    /* Hide the spinner in Chrome, Safari, Edge, and Opera */
-    &[type="number"]::-webkit-outer-spin-button,
-    &[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    /* Hide the spinner in Firefox */
-    &[type="number"] {
-      appearance: textField;
-    }
   }
 
   .weight-input {
