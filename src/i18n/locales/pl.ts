@@ -265,6 +265,7 @@ const pl = {
     "vividHint": "Delikatne tło, półprzezroczyste powierzchnie",
     "flat": "Płaski",
     "flatHint": "Jednolite powierzchnie, bez efektów",
+    "hue": { "ember": "Pomarańczowy", "volt": "Limonkowy", "pulse": "Fioletowy", "glacier": "Niebieski" },
     "colour": "Kolor",
     "language": "Język",
     "display": "Ekran",

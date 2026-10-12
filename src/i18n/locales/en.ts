@@ -265,6 +265,7 @@ const en = {
     "vividHint": "Soft backdrop, translucent surfaces",
     "flat": "Flat",
     "flatHint": "Solid surfaces, no effects",
+    "hue": { "ember": "Orange", "volt": "Lime", "pulse": "Violet", "glacier": "Blue" },
     "colour": "Colour",
     "language": "Language",
     "display": "Display",

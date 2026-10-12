@@ -92,7 +92,7 @@ const SettingsPage = () => {
                 >
                   <Swatch style={{ background: swatch(palette) }} />
                   <strong>{palette.name}</strong>
-                  <small>{palette.tagline}</small>
+                  <small>{t(`settings.hue.${id}`)}</small>
                 </PaletteButton>
               )
             })}

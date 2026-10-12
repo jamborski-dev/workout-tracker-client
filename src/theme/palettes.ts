@@ -5,7 +5,6 @@ export type PaletteId = "ember" | "volt" | "pulse" | "glacier"
 export interface Palette {
   id: PaletteId
   name: string
-  tagline: string
   /** Brand colour: primary buttons, active states */
   primary: string
   /** Partner colour for gradients and progress */
@@ -19,7 +18,6 @@ export const PALETTES: Record<PaletteId, Palette> = {
   ember: {
     id: "ember",
     name: "Ember",
-    tagline: "Burn it down",
     primary: "#FF4D2E",
     secondary: "#FFB020",
     glow: ["#FF4D2E", "#FF9F1C", "#B5179E"]
@@ -27,7 +25,6 @@ export const PALETTES: Record<PaletteId, Palette> = {
   volt: {
     id: "volt",
     name: "Volt",
-    tagline: "Neon gym floor",
     primary: "#A3E635",
     secondary: "#19E6A0",
     glow: ["#84CC16", "#19E6A0", "#2563EB"]
@@ -35,7 +32,6 @@ export const PALETTES: Record<PaletteId, Palette> = {
   pulse: {
     id: "pulse",
     name: "Pulse",
-    tagline: "Heart rate up",
     primary: "#7C3AED",
     secondary: "#F43F5E",
     glow: ["#7C3AED", "#F43F5E", "#22D3EE"]
@@ -43,7 +39,6 @@ export const PALETTES: Record<PaletteId, Palette> = {
   glacier: {
     id: "glacier",
     name: "Glacier",
-    tagline: "Cold plunge",
     primary: "#0891B2",
     secondary: "#3B82F6",
     glow: ["#00B8FF", "#2DD4BF", "#6366F1"]
