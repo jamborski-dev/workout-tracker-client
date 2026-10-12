@@ -1,4 +1,3 @@
-import { Button } from "@root/components/__shared/Button"
 import { Page } from "@root/components/__shared/layout/Page"
 import { PageHeader } from "@root/components/__shared/PageHeader"
 import { useAppDispatch, useAppSelector } from "@root/store/hooks/store"
@@ -12,22 +11,40 @@ import {
   updateTemplateAction
 } from "@root/store/slices/templates/templates.thunks"
 import type { Exercise, IDType, TemplatePlanMovement } from "@root/types/data"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { MdAdd, MdClose, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md"
+import { GridButton, SetGrid } from "@root/components/SetGrid/SetGrid"
+import type { GridSet } from "@root/components/SetGrid/types"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import styled from "styled-components"
 
 // Draft rows keep a client key so reordering/removing doesn't mix up inputs
-type DraftSet = { key: number; reps: string; weight: string }
+type DraftSet = { key: number; reps: number | null; weight: number | null; isWarmup: boolean }
 type DraftMovement = { key: number; exerciseId: string; sets: DraftSet[] }
 
 let nextKey = 1
-const newSet = (reps = "", weight = ""): DraftSet => ({ key: nextKey++, reps, weight })
+const newSet = (reps: number | null = null, weight: number | null = null, isWarmup = false): DraftSet => ({
+  key: nextKey++,
+  reps,
+  weight,
+  isWarmup
+})
 const newMovement = (): DraftMovement => ({ key: nextKey++, exerciseId: "", sets: [newSet()] })
 
-const toNumber = (value: string) => (value.trim() === "" || Number.isNaN(Number(value)) ? null : Number(value))
+const toGridSet = (set: DraftSet): GridSet => ({
+  id: set.key,
+  plannedReps: set.reps,
+  plannedWeight: set.weight,
+  isWarmup: set.isWarmup
+})
 
 // /templates/new?type=<id> builds a template from scratch; /templates/:id edits one
+const statusLabel = (status: string, dirty: boolean, canSave: boolean) => {
+  if (status === "saving") return "Saving..."
+  if (dirty) return canSave ? "Unsaved changes" : "Add a name, type and exercise to save"
+  return status === "saved" ? "Saved" : undefined
+}
+
 const TemplateEditPage = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -43,7 +60,9 @@ const TemplateEditPage = () => {
   const [typeId, setTypeId] = useState<IDType | null>(isNew ? (search.get("type") ?? null) : null)
   const [movements, setMovements] = useState<DraftMovement[]>(isNew ? [newMovement()] : [])
   const [loaded, setLoaded] = useState(isNew)
-  const [saving, setSaving] = useState(false)
+  const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle")
+  const [dirty, setDirty] = useState(false)
+  const saveInFlight = useRef(false)
 
   useEffect(() => {
     dispatch(getAllRoutineTypesAction())
@@ -62,7 +81,7 @@ const TemplateEditPage = () => {
       template.movements.map(movement => ({
         key: nextKey++,
         exerciseId: `${movement.exerciseId}`,
-        sets: movement.sets.map(set => newSet(set.reps?.toString() ?? "", set.weight?.toString() ?? ""))
+        sets: movement.sets.map(set => newSet(set.reps ?? null, set.weight ?? null, Boolean(set.isWarmup)))
       }))
     )
     setLoaded(true)
@@ -88,10 +107,13 @@ const TemplateEditPage = () => {
     }))
   }, [exercises, selectedType])
 
-  const patchMovement = (key: number, patch: Partial<DraftMovement>) =>
+  const patchMovement = (key: number, patch: Partial<DraftMovement>) => {
+    setDirty(true)
     setMovements(list => list.map(item => (item.key === key ? { ...item, ...patch } : item)))
+  }
 
-  const patchSet = (movementKey: number, setKey: number, patch: Partial<DraftSet>) =>
+  const patchSet = (movementKey: number, setKey: number, patch: Partial<DraftSet>) => {
+    setDirty(true)
     setMovements(list =>
       list.map(item =>
         item.key === movementKey
@@ -99,8 +121,10 @@ const TemplateEditPage = () => {
           : item
       )
     )
+  }
 
-  const moveMovement = (index: number, direction: -1 | 1) =>
+  const moveMovement = (index: number, direction: -1 | 1) => {
+    setDirty(true)
     setMovements(list => {
       const target = index + direction
       if (target < 0 || target >= list.length) return list
@@ -108,40 +132,55 @@ const TemplateEditPage = () => {
       ;[next[index], next[target]] = [next[target], next[index]]
       return next
     })
-
-  const complete = movements.length > 0 && movements.every(movement => movement.exerciseId && movement.sets.length)
-  const canSave = name.trim() !== "" && typeId !== null && complete && !saving
-
-  const onSave = async () => {
-    if (!canSave || typeId === null) return
-    const plan: TemplatePlanMovement[] = movements.map(movement => ({
-      exerciseId: Number(movement.exerciseId),
-      sets: movement.sets.map(set => ({ reps: toNumber(set.reps), weight: toNumber(set.weight) }))
-    }))
-
-    setSaving(true)
-    try {
-      if (isNew) {
-        await dispatch(
-          createTemplateFromScratchAction({ name: name.trim(), routineTypeId: typeId, movements: plan })
-        ).unwrap()
-      } else {
-        await dispatch(
-          updateTemplateAction({
-            templateId: id as string,
-            payload: { name: name.trim(), routineTypeId: typeId, movements: plan }
-          })
-        ).unwrap()
-      }
-      navigate(-1)
-    } catch {
-      // the global toast already reports the failure
-      setSaving(false)
-    }
   }
 
+  const complete = movements.length > 0 && movements.every(movement => movement.exerciseId && movement.sets.length)
+  const canSave = name.trim() !== "" && typeId !== null && complete
+
+  const plan = (): TemplatePlanMovement[] =>
+    movements.map(movement => ({
+      exerciseId: Number(movement.exerciseId),
+      sets: movement.sets.map(set => ({ reps: set.reps, weight: set.weight, isWarmup: set.isWarmup }))
+    }))
+
+  // Autosave once the draft is valid and has stopped changing; a new template is created on the
+  // first save and the page then continues as an edit of it.
+  useEffect(() => {
+    if (!loaded || !dirty || !canSave || typeId === null || saveInFlight.current) return
+    const timeout = window.setTimeout(async () => {
+      saveInFlight.current = true
+      setStatus("saving")
+      try {
+        if (isNew) {
+          const created = await dispatch(
+            createTemplateFromScratchAction({ name: name.trim(), routineTypeId: typeId, movements: plan() })
+          ).unwrap()
+          setDirty(false)
+          setStatus("saved")
+          navigate(`/templates/${created.id}`, { replace: true })
+        } else {
+          await dispatch(
+            updateTemplateAction({
+              templateId: id as string,
+              payload: { name: name.trim(), routineTypeId: typeId, movements: plan() }
+            })
+          ).unwrap()
+          setDirty(false)
+          setStatus("saved")
+        }
+      } catch {
+        // the global toast already reports the failure
+        setStatus("idle")
+      } finally {
+        saveInFlight.current = false
+      }
+    }, 1500)
+    return () => window.clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, typeId, movements, dirty, loaded])
+
   return (
-    <Page headerComponent={<PageHeader title={isNew ? "New template" : "Edit template"} />}>
+    <Page headerComponent={<PageHeader title={isNew ? "New template" : "Edit template"} brew={statusLabel(status, dirty, canSave)} />}>
       <Form onSubmit={event => event.preventDefault()}>
         {!loaded ? (
           <Hint>Loading template...</Hint>
@@ -155,13 +194,19 @@ const TemplateEditPage = () => {
                 maxLength={100}
                 placeholder="e.g. Heavy pull"
                 value={name}
-                onChange={event => setName(event.target.value)}
+                onChange={event => {
+                  setDirty(true)
+                  setName(event.target.value)
+                }}
               />
             </Field>
 
             <Field>
               <Label htmlFor="template-type">Workout type</Label>
-              <Select id="template-type" value={typeId ?? ""} onChange={event => setTypeId(event.target.value || null)}>
+              <Select id="template-type" value={typeId ?? ""} onChange={event => {
+                  setDirty(true)
+                  setTypeId(event.target.value || null)
+                }}>
                 <option value="">Choose a type</option>
                 {types.map(type => (
                   <option key={type.id} value={type.id}>
@@ -206,47 +251,40 @@ const TemplateEditPage = () => {
                     <Icon
                       type="button"
                       aria-label="Remove exercise"
-                      onClick={() => setMovements(list => list.filter(item => item.key !== movement.key))}
+                      onClick={() => {
+                        setDirty(true)
+                        setMovements(list => list.filter(item => item.key !== movement.key))
+                      }}
                     >
                       <MdClose />
                     </Icon>
                   </CardHeader>
 
-                  {movement.sets.map((set, setIndex) => (
-                    <SetLine key={set.key}>
-                      <span>Set {setIndex + 1}</span>
-                      <input
-                        aria-label={`Set ${setIndex + 1} reps`}
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        placeholder="reps"
-                        value={set.reps}
-                        onChange={event => patchSet(movement.key, set.key, { reps: event.target.value })}
-                      />
-                      <span>×</span>
-                      <input
-                        aria-label={`Set ${setIndex + 1} weight`}
-                        type="number"
-                        inputMode="decimal"
-                        min={0}
-                        step="any"
-                        placeholder="kg"
-                        value={set.weight}
-                        onChange={event => patchSet(movement.key, set.key, { weight: event.target.value })}
-                      />
-                      <Icon
-                        type="button"
-                        aria-label={`Remove set ${setIndex + 1}`}
-                        onClick={() =>
-                          patchMovement(movement.key, { sets: movement.sets.filter(item => item.key !== set.key) })
-                        }
-                      >
-                        <MdClose />
-                      </Icon>
-                    </SetLine>
-                  ))}
-                  <TextButton
+                  {movement.sets.length > 0 && (
+                    <SetGrid
+                      mode="template"
+                      title={exercises.find(item => `${item.id}` === movement.exerciseId)?.name ?? `Exercise ${index + 1}`}
+                      sets={movement.sets.map(toGridSet)}
+                      onChange={(setId, field, value) =>
+                        patchSet(movement.key, Number(setId), {
+                          ...(field === "plannedReps" && { reps: value as number | null }),
+                          ...(field === "plannedWeight" && { weight: value as number | null }),
+                          ...(field === "isWarmup" && { isWarmup: Boolean(value) })
+                        })
+                      }
+                      onDelete={setId =>
+                        patchMovement(movement.key, { sets: movement.sets.filter(item => item.key !== Number(setId)) })
+                      }
+                      onReorder={ids =>
+                        patchMovement(movement.key, {
+                          sets: ids
+                            .map(setId => movement.sets.find(item => item.key === Number(setId)))
+                            .filter((item): item is DraftSet => Boolean(item))
+                        })
+                      }
+                    />
+                  )}
+                  <GridButton
                     type="button"
                     onClick={() => {
                       const last = movement.sets[movement.sets.length - 1]
@@ -254,7 +292,7 @@ const TemplateEditPage = () => {
                     }}
                   >
                     <MdAdd /> Add set
-                  </TextButton>
+                  </GridButton>
                 </Card>
               ))}
               <TextButton type="button" onClick={() => setMovements(list => [...list, newMovement()])}>
@@ -262,16 +300,8 @@ const TemplateEditPage = () => {
               </TextButton>
             </Field>
 
-            <Button
-              type="button"
-              label="Save template"
-              loadingText="Saving..."
-              isLoading={saving}
-              disabled={!canSave}
-              onClick={onSave}
-            />
-            <Cancel type="button" onClick={() => navigate(-1)}>
-              Cancel
+            <Cancel type="button" onClick={() => navigate("/routines/new")}>
+              Done
             </Cancel>
           </>
         )}
@@ -336,22 +366,6 @@ const CardHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
-`
-
-const SetLine = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-3);
-  font-size: 0.8rem;
-
-  span:first-child {
-    width: 3.2rem;
-  }
-
-  input {
-    width: 5rem;
-  }
 `
 
 const Icon = styled.button`
