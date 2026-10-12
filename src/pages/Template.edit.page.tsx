@@ -10,9 +10,10 @@ import {
   getAllTemplatesAction,
   updateTemplateAction
 } from "@root/store/slices/templates/templates.thunks"
-import type { Exercise, IDType, TemplatePlanMovement } from "@root/types/data"
-import { useEffect, useMemo, useRef, useState } from "react"
+import type { IDType, TemplatePlanMovement } from "@root/types/data"
+import { useEffect, useRef, useState } from "react"
 import { MdAdd, MdClose, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md"
+import { ExercisePicker } from "@root/components/ExercisePicker/ExercisePicker"
 import { GridButton, SetGrid } from "@root/components/SetGrid/SetGrid"
 import type { GridSet } from "@root/components/SetGrid/types"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
@@ -88,24 +89,6 @@ const TemplateEditPage = () => {
   }, [id, isNew, loaded, templates])
 
   const selectedType = types.find(type => `${type.id}` === `${typeId}`)
-
-  // Exercises for this workout's categories first, then the rest, each group alphabetical
-  const groups = useMemo(() => {
-    const order = [...(selectedType?.categories ?? [])]
-    const byCategory = new Map<string, Exercise[]>()
-    for (const exercise of exercises) {
-      const key = exercise.category ?? "other"
-      byCategory.set(key, [...(byCategory.get(key) ?? []), exercise])
-    }
-    const keys = [...byCategory.keys()].sort((a, b) => {
-      const rank = (key: string) => (order.includes(key) ? order.indexOf(key) : order.length + (key === "other" ? 1 : 0))
-      return rank(a) - rank(b) || a.localeCompare(b)
-    })
-    return keys.map(key => ({
-      key,
-      items: (byCategory.get(key) ?? []).sort((a, b) => a.name.localeCompare(b.name))
-    }))
-  }, [exercises, selectedType])
 
   const patchMovement = (key: number, patch: Partial<DraftMovement>) => {
     setDirty(true)
@@ -221,22 +204,11 @@ const TemplateEditPage = () => {
               {movements.map((movement, index) => (
                 <Card key={movement.key}>
                   <CardHeader>
-                    <Select
-                      aria-label={`Exercise ${index + 1}`}
-                      value={movement.exerciseId}
-                      onChange={event => patchMovement(movement.key, { exerciseId: event.target.value })}
-                    >
-                      <option value="">Choose an exercise</option>
-                      {groups.map(group => (
-                        <optgroup key={group.key} label={group.key}>
-                          {group.items.map(exercise => (
-                            <option key={exercise.id} value={exercise.id}>
-                              {exercise.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </Select>
+                    <ExercisePicker
+                      exerciseId={movement.exerciseId ? Number(movement.exerciseId) : null}
+                      preferredCategories={selectedType?.categories ?? []}
+                      onSelect={exerciseId => patchMovement(movement.key, { exerciseId: `${exerciseId}` })}
+                    />
                     <Icon type="button" aria-label="Move up" disabled={index === 0} onClick={() => moveMovement(index, -1)}>
                       <MdKeyboardArrowUp />
                     </Icon>

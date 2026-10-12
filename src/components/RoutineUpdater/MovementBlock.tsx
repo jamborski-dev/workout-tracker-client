@@ -17,11 +17,12 @@ import { IoStar, IoStarOutline } from "react-icons/io5"
 import { ButtonGroup, IconButton } from "../__shared/Button"
 import { Stack } from "../__shared/layout/styled"
 import { Text } from "../__shared/Typography"
-import { ExerciseSelect } from "./ExerciseSelect"
+import { ExercisePicker } from "../ExercisePicker/ExercisePicker"
 import { GridButton, SetGrid } from "../SetGrid/SetGrid"
 
 import { Aside, CountIndicator, HeaderAction, Section, SetRepPanel } from "./styled"
 import type { RootState } from "@root/store/store"
+import { selectPreferredCategories } from "@root/store/slices/routines/routines.selectors"
 import styled from "styled-components"
 import { LuGripVertical } from "react-icons/lu"
 import { Reorder, useDragControls } from "motion/react"
@@ -37,6 +38,7 @@ export const MovementBlock: FC<{
   const dispatch = useAppDispatch()
   const dragControls = useDragControls()
   const exerciseList = useAppSelector(state => state.exercises.list)
+  const preferredCategories = useAppSelector(selectPreferredCategories)
   const movementId = movement.id as IDType
   const selectedExercise = exerciseList.find(exercise => exercise.id === movement.exerciseId)
 
@@ -218,10 +220,10 @@ export const MovementBlock: FC<{
                 </ExerciseHeader>
               )}
               {isExpanded && (
-                <ExerciseSelect
-                  movementId={movementId}
+                <ExercisePicker
                   exerciseId={movement.exerciseId}
-                  onChange={handleOnExerciseSelect}
+                  preferredCategories={preferredCategories}
+                  onSelect={handleOnExerciseSelect}
                 />
               )}
             </Stack>

@@ -142,6 +142,11 @@ export type Exercise = {
   category?: string | null
   complexity?: string | null
   equipment?: string | null
+  overview?: string | null
+  instructions?: string | null
+  aliases?: string[]
+  weightPerSide?: boolean
+  kind?: "STRENGTH" | "TIMED"
   favourite?: boolean
   // Library state (set by the server)
   visibility?: "PRIVATE" | "PUBLIC"
