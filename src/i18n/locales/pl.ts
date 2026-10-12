@@ -260,7 +260,7 @@ const pl = {
     "reps": "Powt.",
     "weight": "Ciężar (kg)",
     "perSide": "kg na stronę",
-    "wu": "Roz.",
+    "wu": "WU",
     "done": "OK",
     "warmup": "Seria rozgrzewkowa",
     "markDone": "Oznacz serię jako zrobioną",
