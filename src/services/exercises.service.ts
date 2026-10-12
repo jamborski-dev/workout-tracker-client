@@ -44,3 +44,17 @@ export const deleteExercise = async ({ exerciseId }: { exerciseId: IDType }) => 
     errorMessage: "Error deleting exercise"
   })
 }
+
+export type LastSets = {
+  setup?: string | null
+  sets: { reps: number | null; weight: number | null; isWarmup: boolean }[]
+} | null
+
+// What the user did the last time with this exercise (null when never)
+export const getLastSets = async (exerciseId: IDType) => {
+  return await secureServiceCall<undefined, LastSets>({
+    method: "get",
+    path: `/fit/exercises/${exerciseId}/last`,
+    errorMessage: "Error fetching previous sets"
+  })
+}

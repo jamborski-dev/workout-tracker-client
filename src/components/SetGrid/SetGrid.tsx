@@ -19,11 +19,13 @@ interface SetGridProps {
   onReorder: (setIds: IDType[]) => void
   // Routine mode: tick a set off (fills empty actuals from the plan)
   onToggleDone?: (setId: IDType) => void
+  // Hide the legend while the surrounding card is collapsed
+  showLegend?: boolean
 }
 
 const fieldName = (side: CellSide, kind: CellKind) => `${side}${kind}`
 
-export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelete, onReorder, onToggleDone }) => {
+export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelete, onReorder, onToggleDone, showLegend = true }) => {
   const isRoutine = mode === "routine"
   const [active, setActive] = useState<ActiveCell | null>(null)
 
@@ -90,7 +92,7 @@ export const SetGrid: FC<SetGridProps> = ({ mode, title, sets, onChange, onDelet
 
   return (
     <Grid data-mode={mode}>
-      {isRoutine && <Legend>Left: plan · Right: actual</Legend>}
+      {isRoutine && showLegend && <Legend>Left: plan · Right: actual</Legend>}
       <Reorder.Group
         axis="y"
         as="ul"

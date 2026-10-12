@@ -8,6 +8,7 @@ import {
   saveMovementAction,
   updateMovementAction
 } from "@root/store/slices/routines/routines.thunks"
+import { getLastSets } from "@root/services/exercises.service"
 import type { IDType, Movement } from "@root/types/data"
 import { type FC, type MouseEvent, type PointerEvent, useEffect } from "react"
 import { FaTrash } from "react-icons/fa6"
@@ -64,13 +65,34 @@ export const MovementBlock: FC<{
     await dispatch(addSetAction({ movementId, order: movement.sets.length }))
   }
 
-  const handleOnExerciseSelect = (selected: IDType) => {
-    dispatch(
-      updateMovementAction({
-        movementId,
-        payload: { exerciseId: Number(selected) } // partial update
-      })
+  // Picking an exercise on an empty movement prefills the plan with what was done last time
+  const handleOnExerciseSelect = async (selected: IDType) => {
+    dispatch(updateMovementAction({ movementId, payload: { exerciseId: Number(selected) } }))
+
+    const isBlank = (movement.sets ?? []).every(
+      set =>
+        [set.plannedReps, set.plannedWeight, set.actualReps, set.actualWeight].every(value => value == null) &&
+        !set.completed
     )
+    if (!isBlank) return
+
+    try {
+      const last = await getLastSets(selected)
+      if (!last?.sets.length) return
+
+      const ids = (movement.sets ?? []).map(set => set.id)
+      while (ids.length < last.sets.length) {
+        const created = await dispatch(addSetAction({ movementId, order: ids.length })).unwrap()
+        ids.push(created.id)
+      }
+      last.sets.forEach((set, index) => {
+        handleSetChange(ids[index], "plannedReps", set.reps)
+        handleSetChange(ids[index], "plannedWeight", set.weight)
+        if (set.isWarmup) handleSetChange(ids[index], "isWarmup", true)
+      })
+    } catch {
+      // prefill is a convenience; the toast already reports real failures
+    }
   }
 
   const stopEvent = (event: MouseEvent) => {
@@ -259,6 +281,7 @@ export const MovementBlock: FC<{
           ) : (
             <SetGrid
               mode="routine"
+              showLegend={isExpanded}
               title={selectedExercise?.name ?? "Exercise"}
               sets={orderedSets}
               onChange={handleSetChange}
