@@ -170,8 +170,10 @@ const Grid = styled.div`
 `
 
 const Day = styled.button`
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
+  padding: 0; /* global button rule adds 2rem horizontal padding, which blew the cells past their columns */
   aspect-ratio: 1;
   display: flex;
   align-items: center;
